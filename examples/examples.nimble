@@ -12,4 +12,4 @@ bin           = @["rectangle"]
 # Dependencies
 
 requires "nim >= 1.0.4"
-requires "parabola >= 0.1.0"
+requires "paranim >= 0.1.0"

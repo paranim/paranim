@@ -1,6 +1,6 @@
 import unittest
 
-import parabola/math
+import paranim/math
 import glm
 
 test "identity matrix":
