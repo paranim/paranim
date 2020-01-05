@@ -5,7 +5,7 @@ author        = "oakes"
 description   = "A game library for nim"
 license       = "Public Domain"
 srcDir        = "src"
-
+bin           = @["example_rectangle"]
 
 
 # Dependencies
