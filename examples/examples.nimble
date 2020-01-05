@@ -2,14 +2,14 @@
 
 version       = "0.1.0"
 author        = "oakes"
-description   = "A game library for nim"
+description   = "Parabola examples"
 license       = "Public Domain"
 srcDir        = "src"
+bin           = @["rectangle"]
+
 
 
 # Dependencies
 
 requires "nim >= 1.0.4"
-requires "nimgl >= 1.0.0"
-requires "stb_image >= 2.5"
-requires "glm >= 1.1.1"
+requires "parabola >= 0.1.0"
