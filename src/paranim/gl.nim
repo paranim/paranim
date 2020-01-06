@@ -2,10 +2,10 @@ import nimgl/opengl
 import paranim/gl/utils
 
 type
-  Game* = ref object
+  Game* = object
     texCount*: Natural
 
-proc createTexture*(game: Game, uniLoc: GLint, data: seq[uint8], opts: Opts, params: seq[(GLenum, GLenum)]): GLint =
+proc createTexture*(game: var Game, uniLoc: GLint, data: seq[uint8], opts: Opts, params: seq[(GLenum, GLenum)]): GLint =
   game.texCount += 1
   let unit = game.texCount - 1
   var texture: GLuint
