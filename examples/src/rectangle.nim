@@ -1,6 +1,6 @@
 import nimgl/[glfw, opengl]
 import glm
-import paranim/gl, paranim/gl/utils, paranim/math
+import paranim/gl/utils, paranim/math
 
 proc keyProc(window: GLFWWindow, key: int32, scancode: int32,
              action: int32, mods: int32): void {.cdecl.} =
@@ -60,8 +60,6 @@ proc main() =
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
   glDisable(GL_CULL_FACE)
   glDisable(GL_DEPTH_TEST)
-
-  let game = Game(texCount: 0)
 
   let program = createProgram(twoDVertexShader, twoDFragmentShader)
   glUseProgram(program)
