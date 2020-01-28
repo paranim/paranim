@@ -1,6 +1,6 @@
 import nimgl/[glfw, opengl]
 import glm
-import paranim/gl/utils, paranim/math
+import paranim/gl/utils, paranim/gl/entities2d, paranim/primitives2d
 
 proc keyProc(window: GLFWWindow, key: int32, scancode: int32,
              action: int32, mods: int32): void {.cdecl.} =
@@ -14,7 +14,7 @@ const twoDVertexShader =
   in vec2 a_position;
   void main()
   {
-    gl_Position = (vec4(((u_matrix * (vec3(a_position, 1))).xy), 0, 1));
+    gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
   }
   """
 
@@ -29,14 +29,6 @@ const twoDFragmentShader =
     o_color = u_color;
   }
   """
-
-const rect =
-  @[0f, 0f,
-    1f, 0f,
-    0f, 1f,
-    0f, 1f,
-    1f, 0f,
-    1f, 1f]
 
 proc main() =
   assert glfwInit()

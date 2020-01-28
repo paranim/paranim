@@ -3,17 +3,8 @@ import nimgl/opengl
 type
   Attribute* = object
     data*: seq[cfloat]
+    kind*: GLenum
     size*: GLint
-
-type
-  Opts* = object
-    mipLevel*: GLint
-    internalFmt*: GLenum
-    width*: GLsizei
-    height*: GLsizei
-    border*: GLint
-    srcFmt*: GLenum
-    srcType*: GLenum
 
 proc toString(str: seq[char]): string =
   result = newStringOfCap(len(str))
