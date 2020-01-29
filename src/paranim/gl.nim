@@ -17,16 +17,16 @@ type
     data*: seq[uint8]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
-  Entity* = object of RootObj
-    isCompiled*: bool
+  UncompiledEntity*[T] = object of RootObj
     vertexSource*: string
     fragmentSource*: string
     textureUniforms*: Table[string, Texture]
     uniforms*: Table[string, seq[cfloat]]
     attributes*: Table[string, Attribute]
-    attributeBuffers*: Table[string, GLuint]
+  Entity* = object of RootObj
     drawCount*: GLsizei
     program*: GLuint
+    attributeBuffers*: Table[string, GLuint]
 
 proc createTexture*(game: var Game, uniLoc: GLint, texture: Texture): GLint =
   game.texCount += 1
@@ -61,30 +61,26 @@ proc setBuffer(game: Game, entity: Entity, program: GLuint, divisorToDrawCount: 
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   divisorToDrawCount[divisor] = drawCount
 
-proc setBuffers(game: Game, entity: var Entity, program: GLuint) =
+proc setBuffers(game: Game, uncompiledEntity: UncompiledEntity, entity: var Entity, program: GLuint) =
   var divisorToDrawCount: Table[int, GLsizei]
-  for (attrName, attr) in entity.attributes.pairs:
+  for (attrName, attr) in uncompiledEntity.attributes.pairs:
     setBuffer(game, entity, program, divisorToDrawCount, attrName, attr)
   if divisorToDrawCount.hasKey(0):
     entity.drawCount = divisorToDrawCount[0]
 
-proc compile*(game: Game, entity: var Entity) =
-  if entity.isCompiled:
-    raise newException(Exception, "Entity was already compiled")
-  else:
-    entity.isCompiled = true
+proc compile*[T](game: Game, uncompiledEntity: UncompiledEntity[T]): T =
   var
     previousProgram: GLint
     previousVao: GLint
   glGetIntegerv(GL_CURRENT_PROGRAM, previousProgram.addr)
   glGetIntegerv(GL_VERTEX_ARRAY_BINDING, previousVao.addr)
-  entity.program = createProgram(entity.vertexSource, entity.fragmentSource)
-  glUseProgram(entity.program)
+  result.program = createProgram(uncompiledEntity.vertexSource, uncompiledEntity.fragmentSource)
+  glUseProgram(result.program)
   var vao: GLuint
   glGenVertexArrays(1, vao.addr)
   glBindVertexArray(vao)
-  for attrName in entity.attributes.keys:
+  for attrName in uncompiledEntity.attributes.keys:
     var buf: GLuint
     glGenBuffers(1, buf.addr)
-    entity.attributeBuffers[attrName] = buf
-  setBuffers(game, entity, entity.program)
+    result.attributeBuffers[attrName] = buf
+  setBuffers(game, uncompiledEntity, result, result.program)

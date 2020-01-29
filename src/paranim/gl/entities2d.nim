@@ -5,6 +5,7 @@ import tables
 
 type
   ImageEntity* = object of Entity
+  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity]
 
 proc identityMatrix*(): Mat3x3[cfloat] =
   mat3x3(
@@ -61,7 +62,7 @@ const imageFragmentShader =
   }
   """
 
-proc initImageEntity*(game: Game, data: seq[uint8], width: int, height: int): ImageEntity =
+proc initImageEntity*(game: Game, data: seq[uint8], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   result.attributes["a_position"] = Attribute(data: rect, kind: EGL_FLOAT, size: 2, iter: 1)
