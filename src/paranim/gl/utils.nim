@@ -5,6 +5,11 @@ type
     data*: seq[cfloat]
     kind*: GLenum
     size*: GLint
+    iter*: int
+    normalize*: bool
+    stride*: int
+    offset*: int
+    divisor*: int
 
 proc toString(str: seq[char]): string =
   result = newStringOfCap(len(str))
@@ -56,5 +61,5 @@ proc setArrayBuffer*(program: GLuint, buffer: GLuint, attribName: string, attr: 
   glBufferData(GL_ARRAY_BUFFER, cint(cfloat.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
   glEnableVertexAttribArray(attribLocation)
   glVertexAttribPointer(attribLocation, attr.size, EGL_FLOAT, false, GLsizei(cfloat.sizeof * attr.size), nil)
-  #glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
+  glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 

@@ -24,6 +24,9 @@ type
     textureUniforms*: Table[string, Texture]
     uniforms*: Table[string, seq[cfloat]]
     attributes*: Table[string, Attribute]
+    attributeBuffers*: Table[string, GLuint]
+    drawCount*: GLsizei
+    program*: GLuint
 
 proc createTexture*(game: var Game, uniLoc: GLint, texture: Texture): GLint =
   game.texCount += 1
@@ -49,3 +52,39 @@ proc createTexture*(game: var Game, uniLoc: GLint, texture: Texture): GLint =
   # TODO: mipmap
   GLint(unit)
 
+proc setBuffer(game: Game, entity: Entity, program: GLuint, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
+  let
+    buffer = entity.attributeBuffers[attrName]
+    divisor = attr.divisor
+    drawCount = setArrayBuffer(program, buffer, attrName, attr)
+  if divisorToDrawCount.hasKey(divisor) and divisorToDrawCount[divisor] != drawCount:
+    raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
+  divisorToDrawCount[divisor] = drawCount
+
+proc setBuffers(game: Game, entity: var Entity, program: GLuint) =
+  var divisorToDrawCount: Table[int, GLsizei]
+  for (attrName, attr) in entity.attributes.pairs:
+    setBuffer(game, entity, program, divisorToDrawCount, attrName, attr)
+  if divisorToDrawCount.hasKey(0):
+    entity.drawCount = divisorToDrawCount[0]
+
+proc compile*(game: Game, entity: var Entity) =
+  if entity.isCompiled:
+    raise newException(Exception, "Entity was already compiled")
+  else:
+    entity.isCompiled = true
+  var
+    previousProgram: GLint
+    previousVao: GLint
+  glGetIntegerv(GL_CURRENT_PROGRAM, previousProgram.addr)
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, previousVao.addr)
+  entity.program = createProgram(entity.vertexSource, entity.fragmentSource)
+  glUseProgram(entity.program)
+  var vao: GLuint
+  glGenVertexArrays(1, vao.addr)
+  glBindVertexArray(vao)
+  for attrName in entity.attributes.keys:
+    var buf: GLuint
+    glGenBuffers(1, buf.addr)
+    entity.attributeBuffers[attrName] = buf
+  setBuffers(game, entity, entity.program)
