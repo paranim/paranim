@@ -12,23 +12,29 @@ type
     height*: GLsizei
     border*: GLint
     srcFmt*: GLenum
-    srcType*: GLenum
-  Texture* = object
-    data*: seq[uint8]
+  Texture*[T] = object
+    data*: seq[T]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
-  UncompiledEntity*[T] = object of RootObj
+  UncompiledEntity*[CompiledT, TexT, UniT, AttrT] = object of RootObj
     vertexSource*: string
     fragmentSource*: string
-    textureUniforms*: Table[string, Texture]
-    uniforms*: Table[string, seq[cfloat]]
-    attributes*: Table[string, Attribute]
-  Entity* = object of RootObj
+    textureUniforms*: Table[string, Texture[TexT]]
+    uniforms*: Table[string, UniT]
+    attributes*: Table[string, Attribute[AttrT]]
+  Uniform = object
+    kind: string
+    location: GLint
+  Entity*[TexT, UniT, AttrT] = object of RootObj
     drawCount*: GLsizei
     program*: GLuint
     attributeBuffers*: Table[string, GLuint]
+    uniformInfo*: Table[string, UniForm]
+    textureUniforms*: Table[string, Texture[TexT]]
+    uniforms*: Table[string, UniT]
+    attributes*: Table[string, Attribute[AttrT]]
 
-proc createTexture*(game: var RootGame, uniLoc: GLint, texture: Texture): GLint =
+proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
   game.texCount += 1
   let unit = game.texCount - 1
   var textureNum: GLuint
@@ -38,6 +44,11 @@ proc createTexture*(game: var RootGame, uniLoc: GLint, texture: Texture): GLint 
   for (paramName, paramVal) in texture.params:
     glTexParameteri(GL_TEXTURE_2D, paramName, GLint(paramVal))
   # TODO: alignment
+  let srcType =
+    when T is uint8:
+      GL_UNSIGNED_BYTE
+    else:
+      raise newException(Exception, "Invalid texture type")
   glTexImage2D(
     GL_TEXTURE_2D,
     texture.opts.mipLevel,
@@ -46,29 +57,37 @@ proc createTexture*(game: var RootGame, uniLoc: GLint, texture: Texture): GLint 
     texture.opts.height,
     texture.opts.border,
     texture.opts.srcFmt,
-    texture.opts.srcType,
+    srcType,
     texture.data[0].unsafeAddr
   )
   # TODO: mipmap
   GLint(unit)
 
-proc setBuffer(game: RootGame, entity: Entity, program: GLuint, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
+proc callUniform[TexT, UniT, AttrT](game: RootGame, entity: Entity[TexT, UniT, AttrT], uniName: string, uniData: UniT) =
+  let info = entity.uniformInfo[uniName]
+  echo info.kind
+
+proc callUniform[TexT, UniT, AttrT](game: RootGame, entity: Entity[TexT, UniT, AttrT], uniName: string, uniData: Texture[TexT]) =
+  let info = entity.uniformInfo[uniName]
+  echo info.kind
+
+proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
   let
     buffer = entity.attributeBuffers[attrName]
     divisor = attr.divisor
-    drawCount = setArrayBuffer(program, buffer, attrName, attr)
+    drawCount = setArrayBuffer(entity.program, buffer, attrName, attr)
   if divisorToDrawCount.hasKey(divisor) and divisorToDrawCount[divisor] != drawCount:
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   divisorToDrawCount[divisor] = drawCount
 
-proc setBuffers(game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity, program: GLuint) =
+proc setBuffers[TexT, UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity[TexT, UniT, AttrT]) =
   var divisorToDrawCount: Table[int, GLsizei]
   for (attrName, attr) in uncompiledEntity.attributes.pairs:
-    setBuffer(game, entity, program, divisorToDrawCount, attrName, attr)
+    setBuffer(game, entity, divisorToDrawCount, attrName, attr)
   if divisorToDrawCount.hasKey(0):
     entity.drawCount = divisorToDrawCount[0]
 
-proc compile*[T](game: RootGame, uncompiledEntity: UncompiledEntity[T]): T =
+proc compile*[CompiledT, TexT, UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity[CompiledT, TexT, UniT, AttrT]): CompiledT =
   var
     previousProgram: GLint
     previousVao: GLint
@@ -83,4 +102,15 @@ proc compile*[T](game: RootGame, uncompiledEntity: UncompiledEntity[T]): T =
     var buf: GLuint
     glGenBuffers(1, buf.addr)
     result.attributeBuffers[attrName] = buf
-  setBuffers(game, uncompiledEntity, result, result.program)
+  setBuffers(game, uncompiledEntity, result)
+  for (uniName, uniType) in getGlslTypes(uncompiledEntity.vertexSource, "uniform").pairs:
+    result.uniformInfo[uniName] = Uniform(kind: uniType, location: glGetUniformLocation(result.program, uniName))
+  for (uniName, uniType) in getGlslTypes(uncompiledEntity.fragmentSource, "uniform").pairs:
+    if result.uniformInfo.hasKey(uniName):
+      assert result.uniformInfo[uniName].kind == uniType
+    else:
+      result.uniformInfo[uniName] = Uniform(kind: uniType, location: glGetUniformLocation(result.program, uniName))
+  for (uniName, uniData) in uncompiledEntity.uniforms.pairs:
+    callUniform(game, result, uniName, uniData)
+  for (uniName, uniData) in uncompiledEntity.textureUniforms.pairs:
+    callUniform(game, result, uniName, uniData)

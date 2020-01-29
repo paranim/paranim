@@ -2,9 +2,8 @@ import nimgl/opengl
 import strutils, tables
 
 type
-  Attribute* = object
-    data*: seq[cfloat]
-    kind*: GLenum
+  Attribute*[T] = object
+    data*: seq[T]
     size*: GLint
     iter*: int
     normalize*: bool
@@ -53,21 +52,26 @@ proc createProgram*(vSource: string, fSource: string) : GLuint =
   glLinkProgram(result)
   checkProgramStatus(result)
 
-proc setArrayBuffer*(program: GLuint, buffer: GLuint, attribName: string, attr: Attribute): GLsizei =
+proc setArrayBuffer*[T](program: GLuint, buffer: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
+  let kind =
+    when T is cfloat:
+      EGL_FLOAT
+    else:
+      raise newException(Exception, "Invalid attribute type")
   result = GLsizei(attr.data.len / attr.size)
   var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   var previousBuffer: GLint
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
   glBindBuffer(GL_ARRAY_BUFFER, buffer)
-  glBufferData(GL_ARRAY_BUFFER, cint(cfloat.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBufferData(GL_ARRAY_BUFFER, cint(T.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
   glEnableVertexAttribArray(attribLocation)
-  glVertexAttribPointer(attribLocation, attr.size, EGL_FLOAT, false, GLsizei(cfloat.sizeof * attr.size), nil)
+  glVertexAttribPointer(attribLocation, attr.size, kind, false, GLsizei(T.sizeof * attr.size), nil)
   glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 
-proc getGlslTypes*(vertexSource: string): Table[string, string] =
-  for line in vertexSource.splitLines:
+proc getGlslTypes*(source: string, keyword: string): Table[string, string] =
+  for line in source.splitLines:
     let tokens = line.splitWhitespace
     if tokens.len < 3:
       continue
-    elif tokens[0] in ["in", "uniform"]:
+    elif tokens[0] == keyword:
       result[tokens[2].strip(chars = {';'})] = tokens[1]

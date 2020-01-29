@@ -4,8 +4,8 @@ import glm
 import tables
 
 type
-  ImageEntity* = object of Entity
-  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity]
+  ImageEntity* = object of Entity[uint8, Mat3x3[cfloat], cfloat]
+  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, uint8, Mat3x3[cfloat], cfloat]
 
 proc identityMatrix*(): Mat3x3[cfloat] =
   mat3x3(
@@ -65,8 +65,9 @@ const imageFragmentShader =
 proc initImageEntity*(game: RootGame, data: seq[uint8], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  result.attributes["a_position"] = Attribute(data: rect, kind: EGL_FLOAT, size: 2, iter: 1)
-  result.textureUniforms["u_image"] = Texture(
+  result.attributes["a_position"] = Attribute[cfloat](data: rect, size: 2, iter: 1)
+  result.uniforms["u_texture_matrix"] = identityMatrix()
+  result.textureUniforms["u_image"] = Texture[uint8](
     data: data,
     opts: TextureOpts(
       mipLevel: 0,
@@ -74,8 +75,7 @@ proc initImageEntity*(game: RootGame, data: seq[uint8], width: int, height: int)
       width: GLsizei(width),
       height: GLsizei(height),
       border: 0,
-      srcFmt: GL_RGBA,
-      srcType: GL_UNSIGNED_BYTE
+      srcFmt: GL_RGBA
     ),
     params: @[
       (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
