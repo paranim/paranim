@@ -1,4 +1,5 @@
 import nimgl/opengl
+import strutils, tables
 
 type
   Attribute* = object
@@ -63,3 +64,10 @@ proc setArrayBuffer*(program: GLuint, buffer: GLuint, attribName: string, attr: 
   glVertexAttribPointer(attribLocation, attr.size, EGL_FLOAT, false, GLsizei(cfloat.sizeof * attr.size), nil)
   glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 
+proc getGlslTypes*(vertexSource: string): Table[string, string] =
+  for line in vertexSource.splitLines:
+    let tokens = line.splitWhitespace
+    if tokens.len < 3:
+      continue
+    elif tokens[0] in ["in", "uniform"]:
+      result[tokens[2].strip(chars = {';'})] = tokens[1]
