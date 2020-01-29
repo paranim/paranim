@@ -3,7 +3,7 @@ import paranim/gl/utils
 import tables
 
 type
-  Game* = object
+  RootGame* = object of RootObj
     texCount*: Natural
   TextureOpts* = object
     mipLevel*: GLint
@@ -28,7 +28,7 @@ type
     program*: GLuint
     attributeBuffers*: Table[string, GLuint]
 
-proc createTexture*(game: var Game, uniLoc: GLint, texture: Texture): GLint =
+proc createTexture*(game: var RootGame, uniLoc: GLint, texture: Texture): GLint =
   game.texCount += 1
   let unit = game.texCount - 1
   var textureNum: GLuint
@@ -52,7 +52,7 @@ proc createTexture*(game: var Game, uniLoc: GLint, texture: Texture): GLint =
   # TODO: mipmap
   GLint(unit)
 
-proc setBuffer(game: Game, entity: Entity, program: GLuint, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
+proc setBuffer(game: RootGame, entity: Entity, program: GLuint, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
   let
     buffer = entity.attributeBuffers[attrName]
     divisor = attr.divisor
@@ -61,14 +61,14 @@ proc setBuffer(game: Game, entity: Entity, program: GLuint, divisorToDrawCount: 
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   divisorToDrawCount[divisor] = drawCount
 
-proc setBuffers(game: Game, uncompiledEntity: UncompiledEntity, entity: var Entity, program: GLuint) =
+proc setBuffers(game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity, program: GLuint) =
   var divisorToDrawCount: Table[int, GLsizei]
   for (attrName, attr) in uncompiledEntity.attributes.pairs:
     setBuffer(game, entity, program, divisorToDrawCount, attrName, attr)
   if divisorToDrawCount.hasKey(0):
     entity.drawCount = divisorToDrawCount[0]
 
-proc compile*[T](game: Game, uncompiledEntity: UncompiledEntity[T]): T =
+proc compile*[T](game: RootGame, uncompiledEntity: UncompiledEntity[T]): T =
   var
     previousProgram: GLint
     previousVao: GLint
