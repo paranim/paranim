@@ -16,23 +16,21 @@ type
     data*: seq[T]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
-  UncompiledEntity*[CompiledT, TexT, UniT, AttrT] = object of RootObj
+  UncompiledEntity*[CompiledT, UniT, AttrT] = object of RootObj
     vertexSource*: string
     fragmentSource*: string
-    textureUniforms*: Table[string, Texture[TexT]]
-    uniforms*: Table[string, UniT]
-    attributes*: Table[string, Attribute[AttrT]]
+    uniforms*: UniT
+    attributes*: AttrT
   Uniform = object
     kind: string
     location: GLint
-  Entity*[TexT, UniT, AttrT] = object of RootObj
+  Entity*[UniT, AttrT] = object of RootObj
     drawCount*: GLsizei
     program*: GLuint
     attributeBuffers*: Table[string, GLuint]
+    uniforms*: UniT
     uniformInfo*: Table[string, UniForm]
-    textureUniforms*: Table[string, Texture[TexT]]
-    uniforms*: Table[string, UniT]
-    attributes*: Table[string, Attribute[AttrT]]
+    attributes*: AttrT
 
 proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
   game.texCount += 1
@@ -63,11 +61,7 @@ proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): 
   # TODO: mipmap
   GLint(unit)
 
-proc callUniform[TexT, UniT, AttrT](game: RootGame, entity: Entity[TexT, UniT, AttrT], uniName: string, uniData: UniT) =
-  let info = entity.uniformInfo[uniName]
-  echo info.kind
-
-proc callUniform[TexT, UniT, AttrT](game: RootGame, entity: Entity[TexT, UniT, AttrT], uniName: string, uniData: Texture[TexT]) =
+proc callUniform[UniT, AttrT, UniDataT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: UniDataT) =
   let info = entity.uniformInfo[uniName]
   echo info.kind
 
@@ -80,14 +74,14 @@ proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   divisorToDrawCount[divisor] = drawCount
 
-proc setBuffers[TexT, UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity[TexT, UniT, AttrT]) =
+proc setBuffers[UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity[UniT, AttrT]) =
   var divisorToDrawCount: Table[int, GLsizei]
-  for (attrName, attr) in uncompiledEntity.attributes.pairs:
+  for attrName, attr in uncompiledEntity.attributes.fieldPairs:
     setBuffer(game, entity, divisorToDrawCount, attrName, attr)
   if divisorToDrawCount.hasKey(0):
     entity.drawCount = divisorToDrawCount[0]
 
-proc compile*[CompiledT, TexT, UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity[CompiledT, TexT, UniT, AttrT]): CompiledT =
+proc compile*[CompiledT, UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
     previousProgram: GLint
     previousVao: GLint
@@ -98,7 +92,7 @@ proc compile*[CompiledT, TexT, UniT, AttrT](game: RootGame, uncompiledEntity: Un
   var vao: GLuint
   glGenVertexArrays(1, vao.addr)
   glBindVertexArray(vao)
-  for attrName in uncompiledEntity.attributes.keys:
+  for attrName, _ in uncompiledEntity.attributes.fieldPairs:
     var buf: GLuint
     glGenBuffers(1, buf.addr)
     result.attributeBuffers[attrName] = buf
@@ -110,7 +104,5 @@ proc compile*[CompiledT, TexT, UniT, AttrT](game: RootGame, uncompiledEntity: Un
       assert result.uniformInfo[uniName].kind == uniType
     else:
       result.uniformInfo[uniName] = Uniform(kind: uniType, location: glGetUniformLocation(result.program, uniName))
-  for (uniName, uniData) in uncompiledEntity.uniforms.pairs:
-    callUniform(game, result, uniName, uniData)
-  for (uniName, uniData) in uncompiledEntity.textureUniforms.pairs:
-    callUniform(game, result, uniName, uniData)
+  for name, data in uncompiledEntity.uniforms.fieldPairs:
+    callUniform(game, result, name, data)

@@ -4,8 +4,10 @@ import glm
 import tables
 
 type
-  ImageEntity* = object of Entity[uint8, Mat3x3[cfloat], cfloat]
-  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, uint8, Mat3x3[cfloat], cfloat]
+  ImageEntityUniForms = tuple[u_texture_matrix: Mat3x3[cfloat], u_image: Texture[uint8]]
+  ImageEntityAttributes = tuple[a_position: Attribute[cfloat]]
+  ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
+  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
 
 proc identityMatrix*(): Mat3x3[cfloat] =
   mat3x3(
@@ -65,9 +67,9 @@ const imageFragmentShader =
 proc initImageEntity*(game: RootGame, data: seq[uint8], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  result.attributes["a_position"] = Attribute[cfloat](data: rect, size: 2, iter: 1)
-  result.uniforms["u_texture_matrix"] = identityMatrix()
-  result.textureUniforms["u_image"] = Texture[uint8](
+  result.attributes = (a_position: Attribute[cfloat](data: rect, size: 2, iter: 1))
+  let texMatrix = identityMatrix()
+  let image = Texture[uint8](
     data: data,
     opts: TextureOpts(
       mipLevel: 0,
@@ -84,3 +86,4 @@ proc initImageEntity*(game: RootGame, data: seq[uint8], width: int, height: int)
       (GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     ]
   )
+  result.uniforms = (u_texture_matrix: texMatrix, u_image: image)
