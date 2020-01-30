@@ -1,6 +1,7 @@
 import nimgl/opengl
 import paranim/gl/utils
 import tables
+import glm
 
 type
   RootGame* = object of RootObj
@@ -60,8 +61,15 @@ proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): 
   # TODO: mipmap
   GLint(unit)
 
-proc callUniform[UniT, AttrT, UniDataT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: UniDataT) =
-  echo UniDataT
+proc callUniform[UniT, AttrT, TexT](game: var RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Texture[TexT]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  let unit = createTexture(game, loc, uniData)
+  glUniform1i(loc, unit)
+
+proc callUniform[UniT, AttrT, MatT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat3x3[MatT]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var matrix = uniData.transpose()
+  glUniformMatrix3fv(loc, 1, false, matrix.caddr)
 
 proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
   let
@@ -79,7 +87,7 @@ proc setBuffers[UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity,
   if divisorToDrawCount.hasKey(0):
     entity.drawCount = divisorToDrawCount[0]
 
-proc compile*[CompiledT, UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
+proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
     previousProgram: GLint
     previousVao: GLint

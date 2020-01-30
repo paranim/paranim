@@ -31,7 +31,7 @@ proc scalingMatrix*(x: cfloat, y: cfloat): Mat3x3[cfloat] =
   )
 
 type
-  ImageEntityUniForms = tuple[u_texture_matrix: Mat3x3[cfloat], u_image: Texture[uint8]]
+  ImageEntityUniForms = tuple[u_matrix: Mat3x3[cfloat], u_texture_matrix: Mat3x3[cfloat], u_image: Texture[uint8]]
   ImageEntityAttributes = tuple[a_position: Attribute[cfloat]]
   ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
@@ -67,22 +67,24 @@ proc initImageEntity*(game: RootGame, data: seq[uint8], width: int, height: int)
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   result.attributes = (a_position: Attribute[cfloat](data: rect, size: 2, iter: 1))
-  let texMatrix = identityMatrix()
-  let image = Texture[uint8](
-    data: data,
-    opts: TextureOpts(
-      mipLevel: 0,
-      internalFmt: GL_RGBA,
-      width: GLsizei(width),
-      height: GLsizei(height),
-      border: 0,
-      srcFmt: GL_RGBA
-    ),
-    params: @[
-      (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
-      (GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE),
-      (GL_TEXTURE_MIN_FILTER, GL_NEAREST),
-      (GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-    ]
+  result.uniforms = (
+    u_matrix: identityMatrix(),
+    u_texture_matrix: identityMatrix(),
+    u_image: Texture[uint8](
+      data: data,
+      opts: TextureOpts(
+        mipLevel: 0,
+        internalFmt: GL_RGBA,
+        width: GLsizei(width),
+        height: GLsizei(height),
+        border: 0,
+        srcFmt: GL_RGBA
+      ),
+      params: @[
+        (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
+        (GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE),
+        (GL_TEXTURE_MIN_FILTER, GL_NEAREST),
+        (GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+      ]
+    )
   )
-  result.uniforms = (u_texture_matrix: texMatrix, u_image: image)
