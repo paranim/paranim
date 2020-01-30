@@ -1,13 +1,6 @@
 import paranim/gl, paranim/gl/utils, paranim/primitives2d
 import nimgl/opengl
 import glm
-import tables
-
-type
-  ImageEntityUniForms = tuple[u_texture_matrix: Mat3x3[cfloat], u_image: Texture[uint8]]
-  ImageEntityAttributes = tuple[a_position: Attribute[cfloat]]
-  ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
-  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
 
 proc identityMatrix*(): Mat3x3[cfloat] =
   mat3x3(
@@ -36,6 +29,12 @@ proc scalingMatrix*(x: cfloat, y: cfloat): Mat3x3[cfloat] =
     vec3(0f, y, 0f),
     vec3(0f, 0f, 1f)
   )
+
+type
+  ImageEntityUniForms = tuple[u_texture_matrix: Mat3x3[cfloat], u_image: Texture[uint8]]
+  ImageEntityAttributes = tuple[a_position: Attribute[cfloat]]
+  ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
+  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
 
 const imageVertexShader =
   """

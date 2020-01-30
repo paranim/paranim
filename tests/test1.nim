@@ -1,6 +1,6 @@
 import unittest
 
-import paranim/math
+import paranim/gl/entities2d
 import glm
 
 test "identity matrix":
