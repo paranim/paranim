@@ -54,7 +54,7 @@ proc createProgram*(vSource: string, fSource: string) : GLuint =
 
 proc setArrayBuffer*[T](program: GLuint, buffer: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
   let kind =
-    when T is cfloat:
+    when T is GLfloat:
       EGL_FLOAT
     else:
       raise newException(Exception, "Invalid attribute type")

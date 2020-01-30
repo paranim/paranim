@@ -2,28 +2,28 @@ import paranim/gl, paranim/gl/utils, paranim/primitives2d
 import nimgl/opengl
 import glm
 
-proc identityMatrix*(): Mat3x3[cfloat] =
+proc identityMatrix*(): Mat3x3[GLfloat] =
   mat3x3(
     vec3(1f, 0f, 0f),
     vec3(0f, 1f, 0f),
     vec3(0f, 0f, 1f)
   )
 
-proc projectionMatrix*(width: cfloat, height: cfloat): Mat3x3[cfloat] =
+proc projectionMatrix*(width: GLfloat, height: GLfloat): Mat3x3[GLfloat] =
   mat3x3(
     vec3(2f / width, 0f, -1f),
     vec3(0f, -2f / height, 1f),
     vec3(0f, 0f, 1f)
   )
 
-proc translationMatrix*(x: cfloat, y: cfloat): Mat3x3[cfloat] =
+proc translationMatrix*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
   mat3x3(
     vec3(1f, 0f, x),
     vec3(0f, 1f, y),
     vec3(0f, 0f, 1f)
   )
 
-proc scalingMatrix*(x: cfloat, y: cfloat): Mat3x3[cfloat] =
+proc scalingMatrix*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
   mat3x3(
     vec3(x, 0f, 0f),
     vec3(0f, y, 0f),
@@ -31,8 +31,8 @@ proc scalingMatrix*(x: cfloat, y: cfloat): Mat3x3[cfloat] =
   )
 
 type
-  ImageEntityUniForms = tuple[u_matrix: Mat3x3[cfloat], u_texture_matrix: Mat3x3[cfloat], u_image: Texture[uint8]]
-  ImageEntityAttributes = tuple[a_position: Attribute[cfloat]]
+  ImageEntityUniForms = tuple[u_matrix: Mat3x3[GLfloat], u_texture_matrix: Mat3x3[GLfloat], u_image: Texture[GLubyte]]
+  ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
 
@@ -63,14 +63,14 @@ const imageFragmentShader =
   }
   """
 
-proc initImageEntity*(game: RootGame, data: seq[uint8], width: int, height: int): UncompiledImageEntity =
+proc initImageEntity*(game: RootGame, data: seq[GLubyte], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  result.attributes = (a_position: Attribute[cfloat](data: rect, size: 2, iter: 1))
+  result.attributes = (a_position: Attribute[GLfloat](data: rect, size: 2, iter: 1))
   result.uniforms = (
     u_matrix: identityMatrix(),
     u_texture_matrix: identityMatrix(),
-    u_image: Texture[uint8](
+    u_image: Texture[GLubyte](
       data: data,
       opts: TextureOpts(
         mipLevel: 0,

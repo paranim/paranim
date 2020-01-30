@@ -32,7 +32,7 @@ type
     uniforms*: UniT
     attributes*: AttrT
 
-proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
+proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
   game.texCount += 1
   let unit = game.texCount - 1
   var textureNum: GLuint
@@ -61,15 +61,55 @@ proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): 
   # TODO: mipmap
   GLint(unit)
 
-proc callUniform[UniT, AttrT, TexT](game: var RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Texture[TexT]) =
+proc callUniform[UniT, AttrT](game: var RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Texture) =
   let loc = glGetUniformLocation(entity.program, uniName)
   let unit = createTexture(game, loc, uniData)
   glUniform1i(loc, unit)
 
-proc callUniform[UniT, AttrT, MatT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat3x3[MatT]) =
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: GLfloat) =
   let loc = glGetUniformLocation(entity.program, uniName)
-  var matrix = uniData.transpose()
-  glUniformMatrix3fv(loc, 1, false, matrix.caddr)
+  var data = uniData
+  glUniform1f(loc, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: GLint) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData
+  glUniform1i(loc, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: GLuint) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData
+  glUniform1ui(loc, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Vec2[GLfloat]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData
+  glUniform2fv(loc, 1, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Vec3[GLfloat]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData
+  glUniform3fv(loc, 1, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Vec4[GLfloat]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData
+  glUniform4fv(loc, 1, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat2x2[GLfloat]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData.transpose()
+  glUniformMatrix2fv(loc, 1, false, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat3x3[GLfloat]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData.transpose()
+  glUniformMatrix3fv(loc, 1, false, data.caddr)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat4x4[GLfloat]) =
+  let loc = glGetUniformLocation(entity.program, uniName)
+  var data = uniData.transpose()
+  glUniformMatrix4fv(loc, 1, false, data.caddr)
 
 proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
   let
