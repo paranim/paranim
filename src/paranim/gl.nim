@@ -29,7 +29,6 @@ type
     program*: GLuint
     attributeBuffers*: Table[string, GLuint]
     uniforms*: UniT
-    uniformInfo*: Table[string, UniForm]
     attributes*: AttrT
 
 proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
@@ -62,8 +61,7 @@ proc createTexture*[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): 
   GLint(unit)
 
 proc callUniform[UniT, AttrT, UniDataT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: UniDataT) =
-  let info = entity.uniformInfo[uniName]
-  echo info.kind
+  echo UniDataT
 
 proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
   let
@@ -97,12 +95,5 @@ proc compile*[CompiledT, UniT, AttrT](game: RootGame, uncompiledEntity: Uncompil
     glGenBuffers(1, buf.addr)
     result.attributeBuffers[attrName] = buf
   setBuffers(game, uncompiledEntity, result)
-  for (uniName, uniType) in getGlslTypes(uncompiledEntity.vertexSource, "uniform").pairs:
-    result.uniformInfo[uniName] = Uniform(kind: uniType, location: glGetUniformLocation(result.program, uniName))
-  for (uniName, uniType) in getGlslTypes(uncompiledEntity.fragmentSource, "uniform").pairs:
-    if result.uniformInfo.hasKey(uniName):
-      assert result.uniformInfo[uniName].kind == uniType
-    else:
-      result.uniformInfo[uniName] = Uniform(kind: uniType, location: glGetUniformLocation(result.program, uniName))
   for name, data in uncompiledEntity.uniforms.fieldPairs:
     callUniform(game, result, name, data)

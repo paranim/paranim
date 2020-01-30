@@ -68,10 +68,3 @@ proc setArrayBuffer*[T](program: GLuint, buffer: GLuint, attribName: string, att
   glVertexAttribPointer(attribLocation, attr.size, kind, false, GLsizei(T.sizeof * attr.size), nil)
   glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 
-proc getGlslTypes*(source: string, keyword: string): Table[string, string] =
-  for line in source.splitLines:
-    let tokens = line.splitWhitespace
-    if tokens.len < 3:
-      continue
-    elif tokens[0] == keyword:
-      result[tokens[2].strip(chars = {';'})] = tokens[1]
