@@ -1,6 +1,8 @@
 import nimgl/opengl
 import strutils, tables
 
+const maxDivisor* = 1
+
 type
   Uniform*[T] = object
     enable*: bool
@@ -13,7 +15,7 @@ type
     normalize*: bool
     stride*: int
     offset*: int
-    divisor*: int
+    divisor*: range[0..maxDivisor]
 
 proc toString(str: seq[char]): string =
   result = newStringOfCap(len(str))

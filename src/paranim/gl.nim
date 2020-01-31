@@ -1,6 +1,7 @@
 import nimgl/opengl
 import paranim/gl/utils
 import tables
+import algorithm
 import glm
 
 type
@@ -109,22 +110,23 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniNa
   var data = uniData.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
 
-proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int, GLsizei], attrName: string, attr: Attribute) =
+proc setBuffer(game: RootGame, entity: Entity, drawCounts: var array[maxDivisor, int], attrName: string, attr: Attribute) =
   let
     buffer = entity.attributeBuffers[attrName]
     divisor = attr.divisor
     drawCount = setArrayBuffer(entity.program, buffer, attrName, attr)
-  if divisorToDrawCount.hasKey(divisor) and divisorToDrawCount[divisor] != drawCount:
+  if drawCounts[divisor] >= 0 and drawCounts[divisor] != drawCount:
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
-  divisorToDrawCount[divisor] = drawCount
+  drawCounts[divisor] = drawCount
 
 proc setBuffers[UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity[UniT, AttrT]) =
-  var divisorToDrawCount: Table[int, GLsizei]
+  var drawCounts: array[maxDivisor, int]
+  drawCounts.fill(-1)
   for attrName, attr in uncompiledEntity.attributes.fieldPairs:
     if attr.enable:
-      setBuffer(game, entity, divisorToDrawCount, attrName, attr)
-  if divisorToDrawCount.hasKey(0):
-    entity.drawCount = divisorToDrawCount[0]
+      setBuffer(game, entity, drawCounts, attrName, attr)
+  if drawCounts[0] >= 0:
+    entity.drawCount = GLsizei(drawCounts[0])
 
 proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
