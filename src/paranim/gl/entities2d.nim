@@ -2,40 +2,61 @@ import paranim/gl, paranim/gl/utils, paranim/primitives2d
 import nimgl/opengl
 import glm
 
-proc identityMatrix*(): Mat3x3[GLfloat] =
-  mat3x3(
-    vec3(1f, 0f, 0f),
-    vec3(0f, 1f, 0f),
-    vec3(0f, 0f, 1f)
-  )
-
-proc projectionMatrix*(width: GLfloat, height: GLfloat): Mat3x3[GLfloat] =
-  mat3x3(
-    vec3(2f / width, 0f, -1f),
-    vec3(0f, -2f / height, 1f),
-    vec3(0f, 0f, 1f)
-  )
-
-proc translationMatrix*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
-  mat3x3(
-    vec3(1f, 0f, x),
-    vec3(0f, 1f, y),
-    vec3(0f, 0f, 1f)
-  )
-
-proc scalingMatrix*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
-  mat3x3(
-    vec3(x, 0f, 0f),
-    vec3(0f, y, 0f),
-    vec3(0f, 0f, 1f)
-  )
-
 type
   ImageEntityUniForms = tuple[u_matrix: tuple[update: bool, data: Mat3x3[GLfloat]], u_texture_matrix: tuple[update: bool, data: Mat3x3[GLfloat]]]
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntityUniForms = tuple[u_matrix: Mat3x3[GLfloat], u_texture_matrix: Mat3x3[GLfloat], u_image: Texture[GLubyte]]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, UncompiledImageEntityUniForms, ImageEntityAttributes]
+
+proc identityMatrix(): Mat3x3[GLfloat] =
+  mat3x3(
+    vec3(1f, 0f, 0f),
+    vec3(0f, 1f, 0f),
+    vec3(0f, 0f, 1f)
+  )
+
+proc projectionMatrix(width: GLfloat, height: GLfloat): Mat3x3[GLfloat] =
+  mat3x3(
+    vec3(2f / width, 0f, -1f),
+    vec3(0f, -2f / height, 1f),
+    vec3(0f, 0f, 1f)
+  )
+
+proc translationMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
+  mat3x3(
+    vec3(1f, 0f, x),
+    vec3(0f, 1f, y),
+    vec3(0f, 0f, 1f)
+  )
+
+proc scalingMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
+  mat3x3(
+    vec3(x, 0f, 0f),
+    vec3(0f, y, 0f),
+    vec3(0f, 0f, 1f)
+  )
+
+proc project*(entity: var UncompiledImageEntity, width: GLfloat, height: GLfloat) =
+  entity.uniforms.u_matrix = projectionMatrix(width, height) * entity.uniforms.u_matrix
+
+proc project*(entity: var ImageEntity, width: GLfloat, height: GLfloat) =
+  entity.uniforms.u_matrix.update = true
+  entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
+
+proc translate*(entity: var UncompiledImageEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix = translationMatrix(x, y) * entity.uniforms.u_matrix
+
+proc translate*(entity: var ImageEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix.update = true
+  entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
+
+proc scale*(entity: var UncompiledImageEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix = scalingMatrix(x, y) * entity.uniforms.u_matrix
+
+proc scale*(entity: var ImageEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix.update = true
+  entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
 
 const imageVertexShader =
   """
