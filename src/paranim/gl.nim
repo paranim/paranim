@@ -6,17 +6,6 @@ import glm
 type
   RootGame* = object of RootObj
     texCount*: Natural
-  TextureOpts* = object
-    mipLevel*: GLint
-    internalFmt*: GLenum
-    width*: GLsizei
-    height*: GLsizei
-    border*: GLint
-    srcFmt*: GLenum
-  Texture*[T] = object
-    data*: seq[T]
-    opts*: TextureOpts
-    params*: seq[(GLenum, GLenum)]
   UncompiledEntity*[CompiledT, UniT, AttrT] = object of RootObj
     vertexSource*: string
     fragmentSource*: string

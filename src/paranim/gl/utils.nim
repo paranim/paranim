@@ -4,6 +4,17 @@ import strutils, tables
 const maxDivisor* = 1
 
 type
+  TextureOpts* = object
+    mipLevel*: GLint
+    internalFmt*: GLenum
+    width*: GLsizei
+    height*: GLsizei
+    border*: GLint
+    srcFmt*: GLenum
+  Texture*[T] = object
+    data*: seq[T]
+    opts*: TextureOpts
+    params*: seq[(GLenum, GLenum)]
   Uniform*[T] = object
     enable*: bool
     data*: T
