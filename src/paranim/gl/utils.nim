@@ -9,6 +9,7 @@ type
     data*: T
   Attribute*[T] = object
     enable*: bool
+    buffer*: GLuint
     data*: seq[T]
     size*: GLint
     iter*: int
@@ -58,7 +59,7 @@ proc createProgram*(vSource: string, fSource: string) : GLuint =
   glLinkProgram(result)
   checkProgramStatus(result)
 
-proc setArrayBuffer*[T](program: GLuint, buffer: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
+proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
   let kind =
     when T is GLfloat:
       EGL_FLOAT
@@ -68,7 +69,7 @@ proc setArrayBuffer*[T](program: GLuint, buffer: GLuint, attribName: string, att
   var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   var previousBuffer: GLint
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
-  glBindBuffer(GL_ARRAY_BUFFER, buffer)
+  glBindBuffer(GL_ARRAY_BUFFER, attr.buffer)
   glBufferData(GL_ARRAY_BUFFER, cint(T.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
   glEnableVertexAttribArray(attribLocation)
   glVertexAttribPointer(attribLocation, attr.size, kind, false, GLsizei(T.sizeof * attr.size), nil)

@@ -1,6 +1,5 @@
 import nimgl/opengl
 import paranim/gl/utils
-import tables
 import algorithm
 import glm
 
@@ -27,7 +26,6 @@ type
     drawCount*: GLsizei
     program*: GLuint
     vao*: GLuint
-    attributeBuffers*: Table[string, GLuint]
     uniforms*: UniT
     attributes*: AttrT
 
@@ -112,19 +110,19 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniNa
 
 proc setBuffer(game: RootGame, entity: Entity, drawCounts: var array[maxDivisor, int], attrName: string, attr: Attribute) =
   let
-    buffer = entity.attributeBuffers[attrName]
     divisor = attr.divisor
-    drawCount = setArrayBuffer(entity.program, buffer, attrName, attr)
+    drawCount = setArrayBuffer(entity.program, attrName, attr)
   if drawCounts[divisor] >= 0 and drawCounts[divisor] != drawCount:
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   drawCounts[divisor] = drawCount
 
-proc setBuffers[UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity[UniT, AttrT]) =
+proc setBuffers[UniT, AttrT](game: RootGame, entity: var Entity[UniT, AttrT]) =
   var drawCounts: array[maxDivisor, int]
   drawCounts.fill(-1)
-  for attrName, attr in uncompiledEntity.attributes.fieldPairs:
+  for attrName, attr in entity.attributes.fieldPairs:
     if attr.enable:
       setBuffer(game, entity, drawCounts, attrName, attr)
+      attr.enable = false
   if drawCounts[0] >= 0:
     entity.drawCount = GLsizei(drawCounts[0])
 
@@ -138,18 +136,19 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   glUseProgram(result.program)
   glGenVertexArrays(1, result.vao.addr)
   glBindVertexArray(result.vao)
-  for attrName, _ in uncompiledEntity.attributes.fieldPairs:
+  result.attributes = uncompiledEntity.attributes
+  for name, attr in result.attributes.fieldPairs:
     var buf: GLuint
     glGenBuffers(1, buf.addr)
-    result.attributeBuffers[attrName] = buf
-  setBuffers(game, uncompiledEntity, result)
+    attr.buffer = buf
+  setBuffers(game, result)
   for name, uni in uncompiledEntity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, result, name, uni.data)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc render*[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT]) =
+proc render*[UniT, AttrT](game: RootGame, entity: var Entity[UniT, AttrT]) =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -160,6 +159,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT]) =
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, name, uni.data)
+      uni.enable = false
   if entity.drawCount > 0:
     glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
