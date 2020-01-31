@@ -31,10 +31,11 @@ proc scalingMatrix*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
   )
 
 type
-  ImageEntityUniForms = tuple[u_matrix: Mat3x3[GLfloat], u_texture_matrix: Mat3x3[GLfloat], u_image: Texture[GLubyte]]
+  ImageEntityUniForms = tuple[u_matrix: tuple[update: bool, data: Mat3x3[GLfloat]], u_texture_matrix: tuple[update: bool, data: Mat3x3[GLfloat]]]
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
-  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
+  UncompiledImageEntityUniForms = tuple[u_matrix: Mat3x3[GLfloat], u_texture_matrix: Mat3x3[GLfloat], u_image: Texture[GLubyte]]
+  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, UncompiledImageEntityUniForms, ImageEntityAttributes]
 
 const imageVertexShader =
   """

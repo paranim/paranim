@@ -28,6 +28,7 @@ type
   Entity*[UniT, AttrT] = object of RootObj
     drawCount*: GLsizei
     program*: GLuint
+    vao*: GLuint
     attributeBuffers*: Table[string, GLuint]
     uniforms*: UniT
     attributes*: AttrT
@@ -129,15 +130,14 @@ proc setBuffers[UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity,
 
 proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
-    previousProgram: GLint
-    previousVao: GLint
-  glGetIntegerv(GL_CURRENT_PROGRAM, previousProgram.addr)
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, previousVao.addr)
+    previousProgram: GLuint
+    previousVao: GLuint
+  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
   result.program = createProgram(uncompiledEntity.vertexSource, uncompiledEntity.fragmentSource)
   glUseProgram(result.program)
-  var vao: GLuint
-  glGenVertexArrays(1, vao.addr)
-  glBindVertexArray(vao)
+  glGenVertexArrays(1, result.vao.addr)
+  glBindVertexArray(result.vao)
   for attrName, _ in uncompiledEntity.attributes.fieldPairs:
     var buf: GLuint
     glGenBuffers(1, buf.addr)
@@ -145,3 +145,21 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   setBuffers(game, uncompiledEntity, result)
   for name, data in uncompiledEntity.uniforms.fieldPairs:
     callUniform(game, result, name, data)
+  glUseProgram(previousProgram)
+  glBindVertexArray(previousVao)
+
+proc render*[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT]) =
+  var
+    previousProgram: GLuint
+    previousVao: GLuint
+  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
+  glUseProgram(entity.program)
+  glBindVertexArray(entity.vao)
+  for name, uni in entity.uniforms.fieldPairs:
+    if uni.update:
+      callUniform(game, entity, name, uni.data)
+  if entity.drawCount > 0:
+    glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
+  glUseProgram(previousProgram)
+  glBindVertexArray(previousVao)
