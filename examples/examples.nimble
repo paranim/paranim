@@ -5,7 +5,7 @@ author        = "oakes"
 description   = "Parabola examples"
 license       = "Public Domain"
 srcDir        = "src"
-bin           = @["rectangle"]
+bin           = @["examples"]
 
 
 

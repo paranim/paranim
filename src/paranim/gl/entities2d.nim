@@ -3,6 +3,11 @@ import nimgl/opengl
 import glm
 
 type
+  TwoDEntityUniForms = tuple[u_matrix: tuple[update: bool, data: Mat3x3[GLfloat]], u_color: tuple[update: bool, data: Vec4[GLfloat]]]
+  TwoDEntityAttributes = tuple[a_position: Attribute[GLfloat]]
+  TwoDEntity* = object of Entity[TwoDEntityUniForms, TwoDEntityAttributes]
+  UncompiledTwoDEntityUniForms = tuple[u_matrix: Mat3x3[GLfloat], u_color: Vec4[GLfloat]]
+  UncompiledTwoDEntity* = object of UncompiledEntity[TwoDEntity, UncompiledTwoDEntityUniForms, TwoDEntityAttributes]
   ImageEntityUniForms = tuple[u_matrix: tuple[update: bool, data: Mat3x3[GLfloat]], u_texture_matrix: tuple[update: bool, data: Mat3x3[GLfloat]]]
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of Entity[ImageEntityUniForms, ImageEntityAttributes]
@@ -37,26 +42,86 @@ proc scalingMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
     vec3(0f, 0f, 1f)
   )
 
+proc project*(entity: var UncompiledTwoDEntity, width: GLfloat, height: GLfloat) =
+  entity.uniforms.u_matrix = projectionMatrix(width, height) * entity.uniforms.u_matrix
+
 proc project*(entity: var UncompiledImageEntity, width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix = projectionMatrix(width, height) * entity.uniforms.u_matrix
+
+proc project*(entity: var TwoDEntity, width: GLfloat, height: GLfloat) =
+  entity.uniforms.u_matrix.update = true
+  entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
 
 proc project*(entity: var ImageEntity, width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.update = true
   entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
 
+proc translate*(entity: var UncompiledTwoDEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix = translationMatrix(x, y) * entity.uniforms.u_matrix
+
 proc translate*(entity: var UncompiledImageEntity, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix = translationMatrix(x, y) * entity.uniforms.u_matrix
+
+proc translate*(entity: var TwoDEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix.update = true
+  entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
 
 proc translate*(entity: var ImageEntity, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.update = true
   entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
 
+proc scale*(entity: var UncompiledTwoDEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix = scalingMatrix(x, y) * entity.uniforms.u_matrix
+
 proc scale*(entity: var UncompiledImageEntity, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix = scalingMatrix(x, y) * entity.uniforms.u_matrix
+
+proc scale*(entity: var TwoDEntity, x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix.update = true
+  entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
 
 proc scale*(entity: var ImageEntity, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.update = true
   entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
+
+proc color*(entity: var UncompiledTwoDEntity, rgba: array[4, GLfloat]) =
+  entity.uniforms.u_color = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
+
+proc color*(entity: var TwoDEntity, rgba: array[4, GLfloat]) =
+  entity.uniforms.u_color.update = true
+  entity.uniforms.u_color.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
+
+const twoDVertexShader =
+  """
+  #version 410
+  uniform mat3 u_matrix;
+  in vec2 a_position;
+  void main()
+  {
+    gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
+  }
+  """
+
+const twoDFragmentShader =
+  """
+  #version 410
+  precision mediump float;
+  uniform vec4 u_color;
+  out vec4 o_color;
+  void main()
+  {
+    o_color = u_color;
+  }
+  """
+
+proc init2DEntity*(game: RootGame, data: seq[GLfloat]): UncompiledTwoDEntity =
+  result.vertexSource = twoDVertexShader
+  result.fragmentSource = twoDFragmentShader
+  result.attributes = (a_position: Attribute[GLfloat](data: data, size: 2, iter: 1))
+  result.uniforms = (
+    u_matrix: identityMatrix(),
+    u_color: vec4(0f, 0f, 0f, 0f)
+  )
 
 const imageVertexShader =
   """
