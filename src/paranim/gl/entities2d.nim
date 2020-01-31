@@ -159,7 +159,7 @@ const imageFragmentShader =
 proc initImageEntity*(game: RootGame, data: seq[GLubyte], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  result.attributes = (a_position: Attribute[GLfloat](data: rect, size: 2, iter: 1))
+  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: rect, size: 2, iter: 1))
   result.uniforms = (
     u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
