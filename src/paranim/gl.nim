@@ -108,6 +108,11 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniNa
   var data = uniData.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
 
+proc initBuffer(attr: var Attribute) =
+  var buf: GLuint
+  glGenBuffers(1, buf.addr)
+  attr.buffer = buf
+
 proc setBuffer(game: RootGame, entity: Entity, drawCounts: var array[maxDivisor, int], attrName: string, attr: Attribute) =
   let
     divisor = attr.divisor
@@ -137,10 +142,8 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   glGenVertexArrays(1, result.vao.addr)
   glBindVertexArray(result.vao)
   result.attributes = uncompiledEntity.attributes
-  for name, attr in result.attributes.fieldPairs:
-    var buf: GLuint
-    glGenBuffers(1, buf.addr)
-    attr.buffer = buf
+  for attr in result.attributes.fields:
+    initBuffer(attr)
   setBuffers(game, result)
   for name, uni in uncompiledEntity.uniforms.fieldPairs:
     if uni.enable:
