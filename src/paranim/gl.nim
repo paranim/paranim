@@ -22,9 +22,6 @@ type
     fragmentSource*: string
     uniforms*: UniT
     attributes*: AttrT
-  Uniform = object
-    kind: string
-    location: GLint
   Entity*[UniT, AttrT] = object of RootObj
     drawCount*: GLsizei
     program*: GLuint
@@ -124,7 +121,8 @@ proc setBuffer(game: RootGame, entity: Entity, divisorToDrawCount: var Table[int
 proc setBuffers[UniT, AttrT](game: RootGame, uncompiledEntity: UncompiledEntity, entity: var Entity[UniT, AttrT]) =
   var divisorToDrawCount: Table[int, GLsizei]
   for attrName, attr in uncompiledEntity.attributes.fieldPairs:
-    setBuffer(game, entity, divisorToDrawCount, attrName, attr)
+    if attr.enable:
+      setBuffer(game, entity, divisorToDrawCount, attrName, attr)
   if divisorToDrawCount.hasKey(0):
     entity.drawCount = divisorToDrawCount[0]
 
@@ -143,8 +141,9 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
     glGenBuffers(1, buf.addr)
     result.attributeBuffers[attrName] = buf
   setBuffers(game, uncompiledEntity, result)
-  for name, data in uncompiledEntity.uniforms.fieldPairs:
-    callUniform(game, result, name, data)
+  for name, uni in uncompiledEntity.uniforms.fieldPairs:
+    if uni.enable:
+      callUniform(game, result, name, uni.data)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
@@ -157,7 +156,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT]) =
   glUseProgram(entity.program)
   glBindVertexArray(entity.vao)
   for name, uni in entity.uniforms.fieldPairs:
-    if uni.update:
+    if uni.enable:
       callUniform(game, entity, name, uni.data)
   if entity.drawCount > 0:
     glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)

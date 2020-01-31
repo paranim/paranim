@@ -2,7 +2,11 @@ import nimgl/opengl
 import strutils, tables
 
 type
+  Uniform*[T] = object
+    enable*: bool
+    data*: T
   Attribute*[T] = object
+    enable*: bool
     data*: seq[T]
     size*: GLint
     iter*: int
