@@ -17,8 +17,8 @@ proc init*(game: var Game) =
   glDisable(GL_CULL_FACE)
   glDisable(GL_DEPTH_TEST)
 
-  let baseEntity = initTwoDEntity(game, rect)
-  var uncompiledEntity = initInstancedTwoDEntity(baseEntity)
+  let baseEntity = initTwoDEntity(rect)
+  var uncompiledEntity = initInstancedEntity(baseEntity)
 
   for _ in 0 ..< 50:
     var e = baseEntity

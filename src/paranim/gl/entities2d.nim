@@ -124,7 +124,7 @@ const twoDFragmentShader =
   }
   """
 
-proc initTwoDEntity*(game: RootGame, data: seq[GLfloat]): UncompiledTwoDEntity =
+proc initTwoDEntity*(data: seq[GLfloat]): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
   result.attributes = (a_position: Attribute[GLfloat](enable: true, data: data, size: 2, iter: 1))
@@ -160,7 +160,7 @@ const instancedTwoDFragmentShader =
   }
   """
 
-proc initInstancedTwoDEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoDEntity =
+proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoDEntity =
   result.vertexSource = instancedTwoDVertexShader
   result.fragmentSource = instancedTwoDFragmentShader
   result.uniforms.u_matrix = entity.uniforms.u_matrix
@@ -210,7 +210,7 @@ const imageFragmentShader =
   }
   """
 
-proc initImageEntity*(game: RootGame, data: seq[GLubyte], width: int, height: int): UncompiledImageEntity =
+proc initImageEntity*(data: seq[GLubyte], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   result.attributes = (a_position: Attribute[GLfloat](enable: true, data: rect, size: 2, iter: 1))
