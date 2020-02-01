@@ -6,17 +6,16 @@ import glm
 type
   RootGame* = object of RootObj
     texCount*: Natural
-  UncompiledEntity*[CompiledT, UniT, AttrT] = object of RootObj
+  Entity*[UniT, AttrT] = object of RootObj
+    uniforms*: UniT
+    attributes*: AttrT
+  UncompiledEntity*[CompiledT, UniT, AttrT] = object of Entity[UniT, AttrT]
     vertexSource*: string
     fragmentSource*: string
-    uniforms*: UniT
-    attributes*: AttrT
-  Entity*[UniT, AttrT] = object of RootObj
+  CompiledEntity*[UniT, AttrT] = object of Entity[UniT, AttrT]
     program*: GLuint
     vao*: GLuint
-    uniforms*: UniT
-    attributes*: AttrT
-  ArrayEntity*[UniT, AttrT] = object of Entity[UniT, AttrT]
+  ArrayEntity*[UniT, AttrT] = object of CompiledEntity[UniT, AttrT]
     drawCount*: GLsizei
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
@@ -32,7 +31,7 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): G
     glTexParameteri(GL_TEXTURE_2D, paramName, GLint(paramVal))
   # TODO: alignment
   let srcType =
-    when T is uint8:
+    when T is GLubyte:
       GL_UNSIGNED_BYTE
     else:
       raise newException(Exception, "Invalid texture type")
@@ -50,55 +49,67 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): G
   # TODO: mipmap
   GLint(unit)
 
-proc callUniform[UniT, AttrT](game: var RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Texture) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  let unit = createTexture(game, loc, uniData)
-  glUniform1i(loc, unit)
+proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  uni.data.unit = createTexture(game, loc, uni.data)
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: GLfloat) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData
+proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  glUniform1i(loc, uni.data.unit)
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data
   glUniform1f(loc, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: GLint) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLint]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data
   glUniform1i(loc, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: GLuint) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLuint]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data
   glUniform1ui(loc, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Vec2[GLfloat]) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data
   glUniform2fv(loc, 1, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Vec3[GLfloat]) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec3[GLfloat]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data
   glUniform3fv(loc, 1, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Vec4[GLfloat]) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLfloat]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data
   glUniform4fv(loc, 1, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat2x2[GLfloat]) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData.transpose()
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat2x2[GLfloat]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data.transpose()
   glUniformMatrix2fv(loc, 1, false, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat3x3[GLfloat]) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData.transpose()
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat3x3[GLfloat]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data.transpose()
   glUniformMatrix3fv(loc, 1, false, data.caddr)
+  uni.enable = false
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], uniName: string, uniData: Mat4x4[GLfloat]) =
-  let loc = glGetUniformLocation(entity.program, uniName)
-  var data = uniData.transpose()
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat4x4[GLfloat]]) =
+  let loc = glGetUniformLocation(program, uniName)
+  var data = uni.data.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
+  uni.enable = false
 
 proc initBuffer(attr: var Attribute) =
   var buf: GLuint
@@ -146,12 +157,13 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   glGenVertexArrays(1, result.vao.addr)
   glBindVertexArray(result.vao)
   result.attributes = uncompiledEntity.attributes
+  result.uniforms = uncompiledEntity.uniforms
   for attr in result.attributes.fields:
     initBuffer(attr)
   setBuffers(game, result)
-  for name, uni in uncompiledEntity.uniforms.fieldPairs:
+  for name, uni in result.uniforms.fieldPairs:
     if uni.enable:
-      callUniform(game, result, name, uni.data)
+      callUniform(game, uncompiledEntity, result.program, name, uni)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
@@ -165,8 +177,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) 
   glBindVertexArray(entity.vao)
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
-      callUniform(game, entity, name, uni.data)
-      uni.enable = false
+      callUniform(game, entity, entity.program, name, uni)
   glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
@@ -181,8 +192,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, Attr
   glBindVertexArray(entity.vao)
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
-      callUniform(game, entity, name, uni.data)
-      uni.enable = false
+      callUniform(game, entity, entity.program, name, uni)
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)

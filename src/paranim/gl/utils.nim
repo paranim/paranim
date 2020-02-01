@@ -15,6 +15,7 @@ type
     data*: seq[T]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
+    unit*: GLint
   Uniform*[T] = object
     enable*: bool
     data*: T
