@@ -12,11 +12,14 @@ type
     uniforms*: UniT
     attributes*: AttrT
   Entity*[UniT, AttrT] = object of RootObj
-    drawCount*: GLsizei
     program*: GLuint
     vao*: GLuint
     uniforms*: UniT
     attributes*: AttrT
+  ArrayEntity*[UniT, AttrT] = object of Entity[UniT, AttrT]
+    drawCount*: GLsizei
+  InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
+    instanceCount*: GLsizei
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
   game.texCount += 1
@@ -102,7 +105,7 @@ proc initBuffer(attr: var Attribute) =
   glGenBuffers(1, buf.addr)
   attr.buffer = buf
 
-proc setBuffer(game: RootGame, entity: Entity, drawCounts: var array[maxDivisor, int], attrName: string, attr: Attribute) =
+proc setBuffer[UniT, AttrT](game: RootGame, entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: Attribute) =
   let
     divisor = attr.divisor
     drawCount = setArrayBuffer(entity.program, attrName, attr)
@@ -110,8 +113,8 @@ proc setBuffer(game: RootGame, entity: Entity, drawCounts: var array[maxDivisor,
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   drawCounts[divisor] = drawCount
 
-proc setBuffers[UniT, AttrT](game: RootGame, entity: var Entity[UniT, AttrT]) =
-  var drawCounts: array[maxDivisor, int]
+proc setBuffers[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) =
+  var drawCounts: array[maxDivisor+1, int]
   drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
     if attr.enable:
@@ -119,6 +122,18 @@ proc setBuffers[UniT, AttrT](game: RootGame, entity: var Entity[UniT, AttrT]) =
       attr.enable = false
   if drawCounts[0] >= 0:
     entity.drawCount = GLsizei(drawCounts[0])
+
+proc setBuffers[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, AttrT]) =
+  var drawCounts: array[maxDivisor+1, int]
+  drawCounts.fill(-1)
+  for attrName, attr in entity.attributes.fieldPairs:
+    if attr.enable:
+      setBuffer(game, entity, drawCounts, attrName, attr)
+      attr.enable = false
+  if drawCounts[0] >= 0:
+    entity.drawCount = GLsizei(drawCounts[0])
+  if drawCounts[1] >= 0:
+    entity.instanceCount = GLsizei(drawCounts[1])
 
 proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
@@ -140,7 +155,7 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc render*[UniT, AttrT](game: RootGame, entity: var Entity[UniT, AttrT]) =
+proc render*[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -152,7 +167,22 @@ proc render*[UniT, AttrT](game: RootGame, entity: var Entity[UniT, AttrT]) =
     if uni.enable:
       callUniform(game, entity, name, uni.data)
       uni.enable = false
-  if entity.drawCount > 0:
-    glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
+  glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
+  glUseProgram(previousProgram)
+  glBindVertexArray(previousVao)
+
+proc render*[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, AttrT]) =
+  var
+    previousProgram: GLuint
+    previousVao: GLuint
+  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
+  glUseProgram(entity.program)
+  glBindVertexArray(entity.vao)
+  for name, uni in entity.uniforms.fieldPairs:
+    if uni.enable:
+      callUniform(game, entity, name, uni.data)
+      uni.enable = false
+  glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)

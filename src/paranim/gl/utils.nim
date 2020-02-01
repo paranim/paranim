@@ -76,13 +76,17 @@ proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: Attribute[T])
       EGL_FLOAT
     else:
       raise newException(Exception, "Invalid attribute type")
-  result = GLsizei(attr.data.len / attr.size)
+  let totalSize = attr.size * attr.iter
+  result = GLsizei(attr.data.len / totalSize)
   var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   var previousBuffer: GLint
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
   glBindBuffer(GL_ARRAY_BUFFER, attr.buffer)
-  glBufferData(GL_ARRAY_BUFFER, cint(T.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
-  glEnableVertexAttribArray(attribLocation)
-  glVertexAttribPointer(attribLocation, attr.size, kind, false, GLsizei(T.sizeof * attr.size), nil)
+  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
+  for i in 0 ..< attr.iter:
+    let loc = attribLocation + GLuint(i)
+    glEnableVertexAttribArray(loc)
+    glVertexAttribPointer(loc, attr.size, kind, attr.normalize, GLsizei(T.sizeof * totalSize), cast[pointer](T.sizeof * i * attr.size))
+    glVertexAttribDivisor(loc, GLuint(attr.divisor))
   glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 

@@ -1,5 +1,5 @@
 import nimgl/glfw
-import rectangle
+import ex01_rand_rects
 
 proc keyProc(window: GLFWWindow, key: int32, scancode: int32,
              action: int32, mods: int32): void {.cdecl.} =
