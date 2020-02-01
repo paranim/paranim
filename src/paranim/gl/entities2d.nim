@@ -45,60 +45,20 @@ proc scalingMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
     vec3(0f, 0f, 1f)
   )
 
-proc project*(entity: var UncompiledTwoDEntity, width: GLfloat, height: GLfloat) =
+proc project*[T](entity: var T, width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.enable = true
   entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
 
-proc project*(entity: var UncompiledImageEntity, width: GLfloat, height: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
-
-proc project*(entity: var TwoDEntity, width: GLfloat, height: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
-
-proc project*(entity: var ImageEntity, width: GLfloat, height: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
-
-proc translate*(entity: var UncompiledTwoDEntity, x: GLfloat, y: GLfloat) =
+proc translate*[T](entity: var T, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.enable = true
   entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
 
-proc translate*(entity: var UncompiledImageEntity, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
-
-proc translate*(entity: var TwoDEntity, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
-
-proc translate*(entity: var ImageEntity, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
-
-proc scale*(entity: var UncompiledTwoDEntity, x: GLfloat, y: GLfloat) =
+proc scale*[T](entity: var T, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.enable = true
   entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
 
-proc scale*(entity: var UncompiledImageEntity, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
-
-proc scale*(entity: var TwoDEntity, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
-
-proc scale*(entity: var ImageEntity, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
-
-proc color*(entity: var UncompiledTwoDEntity, rgba: array[4, GLfloat]) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_color.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
-
-proc color*(entity: var TwoDEntity, rgba: array[4, GLfloat]) =
-  entity.uniforms.u_matrix.enable = true
+proc color*[T](entity: var T, rgba: array[4, GLfloat]) =
+  entity.uniforms.u_color.enable = true
   entity.uniforms.u_color.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
 
 const twoDVertexShader =
