@@ -59,20 +59,17 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
   let loc = glGetUniformLocation(program, uniName)
-  var data = uni.data
-  glUniform1f(loc, data.caddr)
+  glUniform1f(loc, uni.data)
   uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLint]) =
   let loc = glGetUniformLocation(program, uniName)
-  var data = uni.data
-  glUniform1i(loc, data.caddr)
+  glUniform1i(loc, uni.data)
   uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLuint]) =
   let loc = glGetUniformLocation(program, uniName)
-  var data = uni.data
-  glUniform1ui(loc, data.caddr)
+  glUniform1ui(loc, uni.data)
   uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
