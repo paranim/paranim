@@ -60,53 +60,41 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
   let loc = glGetUniformLocation(program, uniName)
   glUniform1f(loc, uni.data)
-  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLint]) =
   let loc = glGetUniformLocation(program, uniName)
   glUniform1i(loc, uni.data)
-  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLuint]) =
   let loc = glGetUniformLocation(program, uniName)
   glUniform1ui(loc, uni.data)
-  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
   let loc = glGetUniformLocation(program, uniName)
-  var data = uni.data
-  glUniform2fv(loc, 1, data.caddr)
-  uni.enable = false
+  glUniform2fv(loc, 1, uni.data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec3[GLfloat]]) =
   let loc = glGetUniformLocation(program, uniName)
-  var data = uni.data
-  glUniform3fv(loc, 1, data.caddr)
-  uni.enable = false
+  glUniform3fv(loc, 1, uni.data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLfloat]]) =
   let loc = glGetUniformLocation(program, uniName)
-  var data = uni.data
-  glUniform4fv(loc, 1, data.caddr)
-  uni.enable = false
+  glUniform4fv(loc, 1, uni.data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat2x2[GLfloat]]) =
   let loc = glGetUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix2fv(loc, 1, false, data.caddr)
-  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat3x3[GLfloat]]) =
   let loc = glGetUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix3fv(loc, 1, false, data.caddr)
-  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat4x4[GLfloat]]) =
   let loc = glGetUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
-  uni.enable = false
 
 proc initBuffer(attr: var Attribute) =
   var buf: GLuint
@@ -161,6 +149,7 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   for name, uni in result.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, uncompiledEntity, result.program, name, uni)
+      uni.enable = false
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
@@ -175,6 +164,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) 
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, entity.program, name, uni)
+      uni.enable = false
   glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
@@ -190,6 +180,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, Attr
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, entity.program, name, uni)
+      uni.enable = false
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
