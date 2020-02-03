@@ -15,6 +15,8 @@ type
     data*: seq[T]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
+    pixelStoreParams*: seq[(GLenum, GLint)]
+    mipmapParams*: seq[GLenum]
     unit*: GLint
   Uniform*[T] = object
     enable*: bool

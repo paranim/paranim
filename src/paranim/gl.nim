@@ -29,7 +29,8 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): G
   glBindTexture(GL_TEXTURE_2D, textureNum)
   for (paramName, paramVal) in texture.params:
     glTexParameteri(GL_TEXTURE_2D, paramName, GLint(paramVal))
-  # TODO: alignment
+  for (paramName, paramVal) in texture.pixelStoreParams:
+    glPixelStorei(paramName, paramVal)
   let srcType =
     when T is GLubyte:
       GL_UNSIGNED_BYTE
@@ -46,7 +47,8 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): G
     srcType,
     texture.data[0].unsafeAddr
   )
-  # TODO: mipmap
+  for paramVal in texture.mipmapParams:
+    glGenerateMipmap(paramVal)
   GLint(unit)
 
 proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
