@@ -1,4 +1,5 @@
-import paranim/gl, paranim/gl/utils, paranim/primitives2d
+import paranim/gl, paranim/gl/utils
+from paranim/primitives2d import nil
 import nimgl/opengl
 import glm
 
@@ -6,11 +7,11 @@ type
   TwoDEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_color: Uniform[Vec4[GLfloat]]]
   TwoDEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   TwoDEntity* = object of ArrayEntity[TwoDEntityUniForms, TwoDEntityAttributes]
+  UncompiledTwoDEntity* = object of UncompiledEntity[TwoDEntity, TwoDEntityUniForms, TwoDEntityAttributes]
   InstancedTwoDEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]]]
   InstancedTwoDEntityAttributes = tuple[a_position: Attribute[GLfloat], a_color: Attribute[GLfloat], a_matrix: Attribute[GLfloat]]
   InstancedTwoDEntity* = object of InstancedEntity[InstancedTwoDEntityUniForms, InstancedTwoDEntityAttributes]
   UncompiledInstancedTwoDEntity* = object of UncompiledEntity[InstancedTwoDEntity, InstancedTwoDEntityUniForms, InstancedTwoDEntityAttributes]
-  UncompiledTwoDEntity* = object of UncompiledEntity[TwoDEntity, TwoDEntityUniForms, TwoDEntityAttributes]
   ImageEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_texture_matrix: Uniform[Mat3x3[GLfloat]], u_image: Uniform[Texture[GLubyte]]]
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of ArrayEntity[ImageEntityUniForms, ImageEntityAttributes]
@@ -175,7 +176,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   var rectArr: seq[GLfloat] = @[]
-  rectArr.add(rect)
+  rectArr.add(primitives2d.rect)
   result.attributes = (a_position: Attribute[GLfloat](enable: true, data: rectArr, size: 2, iter: 1))
   var dataArr: seq[GLubyte] = @[]
   dataArr.add(data)
