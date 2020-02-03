@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "oakes"
-description   = "Parabola examples"
+description   = "Paranim examples"
 license       = "Public Domain"
 srcDir        = "src"
 bin           = @["examples"]
