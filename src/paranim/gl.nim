@@ -51,50 +51,55 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): G
     glGenerateMipmap(paramVal)
   GLint(unit)
 
+proc getUniformLocation(program: GLuint, uniName: string): GLint =
+  result = glGetUniformLocation(program, uniName)
+  if result == -1:
+    raise newException(Exception, "Uniform not found: " & uniName)
+
 proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   uni.data.unit = createTexture(game, loc, uni.data)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data.unit)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform1f(loc, uni.data)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLint]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLuint]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform1ui(loc, uni.data)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform2fv(loc, 1, uni.data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec3[GLfloat]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform3fv(loc, 1, uni.data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLfloat]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   glUniform4fv(loc, 1, uni.data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat2x2[GLfloat]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix2fv(loc, 1, false, data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat3x3[GLfloat]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix3fv(loc, 1, false, data.caddr)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat4x4[GLfloat]]) =
-  let loc = glGetUniformLocation(program, uniName)
+  let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
 
