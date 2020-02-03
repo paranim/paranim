@@ -83,10 +83,12 @@ const twoDFragmentShader =
   }
   """
 
-proc initTwoDEntity*(data: seq[GLfloat]): UncompiledTwoDEntity =
+proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
-  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: data, size: 2, iter: 1))
+  var dataArr: seq[GLfloat] = @[]
+  dataArr.add(data)
+  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: dataArr, size: 2, iter: 1))
   result.uniforms = (
     u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_color: Uniform[Vec4[GLfloat]](enable: true, data: vec4(0f, 0f, 0f, 1f))
@@ -169,17 +171,21 @@ const imageFragmentShader =
   }
   """
 
-proc initImageEntity*(data: seq[GLubyte], width: int, height: int): UncompiledImageEntity =
+proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: rect, size: 2, iter: 1))
+  var rectArr: seq[GLfloat] = @[]
+  rectArr.add(rect)
+  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: rectArr, size: 2, iter: 1))
+  var dataArr: seq[GLubyte] = @[]
+  dataArr.add(data)
   result.uniforms = (
     u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_image: Uniform[Texture[GLubyte]](
       enable: true,
       data: Texture[GLubyte](
-        data: data,
+        data: dataArr,
         opts: TextureOpts(
           mipLevel: 0,
           internalFmt: GL_RGBA,
