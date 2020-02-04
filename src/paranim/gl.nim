@@ -59,6 +59,7 @@ proc getUniformLocation(program: GLuint, uniName: string): GLint =
 proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
   let loc = getUniformLocation(program, uniName)
   uni.data.unit = createTexture(game, loc, uni.data)
+  glUniform1i(loc, uni.data.unit)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
   let loc = getUniformLocation(program, uniName)
