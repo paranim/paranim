@@ -19,8 +19,10 @@ when isMainModule:
   if w == nil:
     quit(-1)
 
-  discard w.setKeyCallback(keyProc)
   w.makeContextCurrent()
+  glfwSwapInterval(1)
+
+  discard w.setKeyCallback(keyProc)
 
   var game = Game()
   game.init()
