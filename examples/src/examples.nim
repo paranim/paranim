@@ -1,10 +1,34 @@
 import nimgl/glfw
-import ex01_rand_rects
+from paranim/gl import RootGame
+from ex01_image import nil
+from ex02_rand_rects import nil
+
+let examples = [
+  (init: ex01_image.init, tick: ex01_image.tick),
+  (init: ex02_rand_rects.init, tick: ex02_rand_rects.tick),
+]
+
+var game = RootGame()
+var currentExample = 0
+
+proc updateExample(direction: int) =
+  var newExample = currentExample + direction
+  if newExample < 0:
+    newExample = examples.len - 1
+  elif newExample == examples.len:
+    newExample = 0
+  examples[newExample].init(game)
+  currentExample = newExample
 
 proc keyProc(window: GLFWWindow, key: int32, scancode: int32,
              action: int32, mods: int32): void {.cdecl.} =
-  if key == GLFWKey.ESCAPE and action == GLFWPress:
-    window.setWindowShouldClose(true)
+  if action == GLFWPress:
+    if key == GLFWKey.ESCAPE:
+      window.setWindowShouldClose(true)
+    elif key == GLFWKey.Left:
+      updateExample(-1)
+    elif key == GLFWKey.Right:
+      updateExample(1)
 
 when isMainModule:
   assert glfwInit()
@@ -15,7 +39,7 @@ when isMainModule:
   glfwWindowHint(GLFWOpenglProfile, GLFW_OPENGL_CORE_PROFILE)
   glfwWindowHint(GLFWResizable, GLFW_TRUE)
 
-  let w: GLFWWindow = glfwCreateWindow(800, 600, "Paranim Examples")
+  let w: GLFWWindow = glfwCreateWindow(800, 600, "Paranim Examples - Press the left and right arrow keys!")
   if w == nil:
     quit(-1)
 
@@ -24,11 +48,10 @@ when isMainModule:
 
   discard w.setKeyCallback(keyProc)
 
-  var game = Game()
-  game.init()
+  examples[currentExample].init(game)
 
   while not w.windowShouldClose:
-    game.tick()
+    examples[currentExample].tick(game)
     w.swapBuffers()
     glfwPollEvents()
 

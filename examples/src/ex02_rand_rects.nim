@@ -4,12 +4,9 @@ import random
 
 randomize()
 
-type
-  Game* = object of RootGame
-
 var entity: InstancedTwoDEntity
 
-proc init*(game: var Game) =
+proc init*(game: var RootGame) =
   assert glInit()
 
   glEnable(GL_BLEND)
@@ -23,14 +20,14 @@ proc init*(game: var Game) =
   for _ in 0 ..< 50:
     var e = baseEntity
     e.project(800f, 600f)
-    e.color([cfloat(rand(1.0)), cfloat(rand(1.0)), cfloat(rand(1.0)), 1f])
     e.translate(cfloat(rand(800)), cfloat(rand(600)))
     e.scale(cfloat(rand(300)), cfloat(rand(300)))
+    e.color([cfloat(rand(1.0)), cfloat(rand(1.0)), cfloat(rand(1.0)), 1f])
     uncompiledEntity.add(e)
 
   entity = compile(game, uncompiledEntity)
 
-proc tick*(game: Game) =
+proc tick*(game: RootGame) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GL_COLOR_BUFFER_BIT)
   glViewport(0, 0, 800, 600)
