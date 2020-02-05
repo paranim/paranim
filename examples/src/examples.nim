@@ -5,6 +5,7 @@ from ex02_rand_rects import nil
 from ex03_translation import nil
 from ex04_rotation import nil
 from ex05_scaling import nil
+from ex06_rotation_multiple import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick),
@@ -12,6 +13,7 @@ const examples = [
   (init: ex03_translation.init, tick: ex03_translation.tick),
   (init: ex04_rotation.init, tick: ex04_rotation.tick),
   (init: ex05_scaling.init, tick: ex05_scaling.tick),
+  (init: ex06_rotation_multiple.init, tick: ex06_rotation_multiple.tick),
 ]
 
 var game = Game()
