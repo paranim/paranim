@@ -18,7 +18,7 @@ type
   ImageEntity* = object of ArrayEntity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
 
-proc identityMatrix(): Mat3x3[GLfloat] =
+proc identityMatrix*(): Mat3x3[GLfloat] =
   mat3x3(
     vec3(1f, 0f, 0f),
     vec3(0f, 1f, 0f),
