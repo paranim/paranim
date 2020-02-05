@@ -17,11 +17,11 @@ proc init*(game: var Game) =
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GL_COLOR_BUFFER_BIT)
-  glViewport(0, 0, 800, 600)
+  glViewport(0, 0, GLsizei(game.windowWidth), GLsizei(game.windowHeight))
 
   var e = entity
-  e.project(800f, 600f)
-  e.translate(game.x, game.y)
+  e.project(float(game.windowWidth), float(game.windowHeight))
+  e.translate(game.mouseX, game.mouseY)
   e.color([1f, 0f, 0.5f, 1f])
 
   render(game, e)

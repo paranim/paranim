@@ -2,8 +2,10 @@ import paranim/gl
 
 type
   Game* = object of RootGame
-    x*: float
-    y*: float
+    windowWidth*: int
+    windowHeight*: int
+    mouseX*: float
+    mouseY*: float
 
 const f2d* = [
   # left column
