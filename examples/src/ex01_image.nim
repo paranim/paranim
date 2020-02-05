@@ -1,13 +1,14 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/entities2d
 import stb_image/read as stbi
+import examples_common
 
 const image = staticRead("assets/aintgottaexplainshit.jpg")
 
 var entity: ImageEntity
 var width, height: int
 
-proc init*(game: var RootGame) =
+proc init*(game: var Game) =
   assert glInit()
 
   glEnable(GL_BLEND)
@@ -25,7 +26,7 @@ proc init*(game: var RootGame) =
   uncompiledImage.scale(float(width), float(height))
   entity = compile(game, uncompiledImage)
 
-proc tick*(game: RootGame) =
+proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GL_COLOR_BUFFER_BIT)
   glViewport(0, 0, 800, 600)

@@ -1,12 +1,13 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/entities2d, paranim/primitives2d
 import random
+import examples_common
 
 randomize()
 
 var entity: InstancedTwoDEntity
 
-proc init*(game: var RootGame) =
+proc init*(game: var Game) =
   assert glInit()
 
   glEnable(GL_BLEND)
@@ -27,7 +28,7 @@ proc init*(game: var RootGame) =
 
   entity = compile(game, uncompiledEntity)
 
-proc tick*(game: RootGame) =
+proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GL_COLOR_BUFFER_BIT)
   glViewport(0, 0, 800, 600)

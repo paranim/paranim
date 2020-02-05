@@ -1,14 +1,16 @@
 import nimgl/glfw
-from paranim/gl import RootGame
+import examples_common
 from ex01_image import nil
 from ex02_rand_rects import nil
+from ex03_translation import nil
 
 let examples = [
   (init: ex01_image.init, tick: ex01_image.tick),
   (init: ex02_rand_rects.init, tick: ex02_rand_rects.tick),
+  (init: ex03_translation.init, tick: ex03_translation.tick),
 ]
 
-var game = RootGame()
+var game = Game()
 var currentExample = 0
 
 proc updateExample(direction: int) =
@@ -30,6 +32,10 @@ proc keyProc(window: GLFWWindow, key: int32, scancode: int32,
     elif key == GLFWKey.Right:
       updateExample(1)
 
+proc mousePositionProc(window: GLFWWindow, xpos: float64, ypos: float64): void {.cdecl.} =
+  game.x = xpos
+  game.y = ypos
+
 when isMainModule:
   assert glfwInit()
 
@@ -47,6 +53,7 @@ when isMainModule:
   glfwSwapInterval(1)
 
   discard w.setKeyCallback(keyProc)
+  discard w.setCursorPosCallback(mousePositionProc)
 
   examples[currentExample].init(game)
 
