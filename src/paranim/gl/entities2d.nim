@@ -101,9 +101,10 @@ const twoDFragmentShader =
 proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
-  var dataArr: seq[GLfloat] = @[]
-  dataArr.add(data)
-  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: dataArr, size: 2, iter: 1))
+  var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
+  new(position.data)
+  position.data[].add(data)
+  result.attributes = (a_position: position)
   result.uniforms = (
     u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_color: Uniform[Vec4[GLfloat]](enable: true, data: vec4(0f, 0f, 0f, 1f))
@@ -141,18 +142,20 @@ proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoD
   result.fragmentSource = instancedTwoDFragmentShader
   result.uniforms.u_matrix = entity.uniforms.u_matrix
   result.attributes.a_matrix = Attribute[GLfloat](divisor: 1, size: 3, iter: 3)
+  new(result.attributes.a_matrix.data)
   result.attributes.a_color = Attribute[GLfloat](divisor: 1, size: 4, iter: 1)
-  result.attributes.a_position = entity.attributes.a_position
+  new(result.attributes.a_color.data)
+  deepCopy(result.attributes.a_position, entity.attributes.a_position)
 
 proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Mat3x3[T]]) =
   for r in 0 .. 2:
     for c in 0 .. 2:
-      attr.data.add(uni.data.row(r)[c])
+      attr.data[].add(uni.data.row(r)[c])
   attr.enable = true
 
 proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Vec4[T]]) =
   for x in 0 .. 3:
-    attr.data.add(uni.data[x])
+    attr.data[].add(uni.data[x])
   attr.enable = true
 
 proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: UncompiledTwoDEntity) =
@@ -189,32 +192,36 @@ const imageFragmentShader =
 proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  var rectArr: seq[GLfloat] = @[]
-  rectArr.add(primitives2d.rect)
-  result.attributes = (a_position: Attribute[GLfloat](enable: true, data: rectArr, size: 2, iter: 1))
-  var dataArr: seq[GLubyte] = @[]
-  dataArr.add(data)
+  # create attribute
+  var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
+  new(position.data)
+  position.data[].add(primitives2d.rect)
+  # create texture
+  var image = Texture[GLubyte](
+    opts: TextureOpts(
+      mipLevel: 0,
+      internalFmt: GL_RGBA,
+      width: GLsizei(width),
+      height: GLsizei(height),
+      border: 0,
+      srcFmt: GL_RGBA
+    ),
+    params: @[
+      (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
+      (GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE),
+      (GL_TEXTURE_MIN_FILTER, GL_NEAREST),
+      (GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    ]
+  )
+  new(image.data)
+  image.data[].add(data)
+  # set attributes and uniforms
+  result.attributes = (a_position: position)
   result.uniforms = (
     u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
     u_image: Uniform[Texture[GLubyte]](
       enable: true,
-      data: Texture[GLubyte](
-        data: dataArr,
-        opts: TextureOpts(
-          mipLevel: 0,
-          internalFmt: GL_RGBA,
-          width: GLsizei(width),
-          height: GLsizei(height),
-          border: 0,
-          srcFmt: GL_RGBA
-        ),
-        params: @[
-          (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
-          (GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE),
-          (GL_TEXTURE_MIN_FILTER, GL_NEAREST),
-          (GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        ]
-      )
+      data: image
     )
   )

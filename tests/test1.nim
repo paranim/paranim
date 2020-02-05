@@ -86,10 +86,13 @@ type
 test "all uniform types":
   var dataArr: seq[GLfloat] = @[]
   dataArr.add(primitives2d.rect)
+  var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
+  new(position.data)
+  position.data[] = dataArr
   let uncompiledEntity = UncompiledTestEntity(
     vertexSource: vertexShader,
     fragmentSource: fragmentShader,
-    attributes: (a_position: Attribute[GLfloat](enable: true, data: dataArr, size: 2, iter: 1)),
+    attributes: (a_position: position),
     uniforms: (
       u_float: Uniform[GLfloat](enable: true),
       u_int: Uniform[GLint](enable: true),

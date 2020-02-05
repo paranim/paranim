@@ -12,7 +12,7 @@ type
     border*: GLint
     srcFmt*: GLenum
   Texture*[T] = object
-    data*: seq[T]
+    data*: ref seq[T]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
     pixelStoreParams*: seq[(GLenum, GLint)]
@@ -24,7 +24,7 @@ type
   Attribute*[T] = object
     enable*: bool
     buffer*: GLuint
-    data*: seq[T]
+    data*: ref seq[T]
     size*: GLint
     iter*: int
     normalize*: bool
@@ -80,12 +80,12 @@ proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: Attribute[T])
     else:
       raise newException(Exception, "Invalid attribute type")
   let totalSize = attr.size * attr.iter
-  result = GLsizei(attr.data.len / totalSize)
+  result = GLsizei(attr.data[].len / totalSize)
   var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   var previousBuffer: GLint
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
   glBindBuffer(GL_ARRAY_BUFFER, attr.buffer)
-  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data.len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data[].len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
   for i in 0 ..< attr.iter:
     let loc = attribLocation + GLuint(i)
     glEnableVertexAttribArray(loc)
