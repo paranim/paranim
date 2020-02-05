@@ -2,6 +2,7 @@ import paranim/gl, paranim/gl/utils
 from paranim/primitives2d import nil
 import nimgl/opengl
 import glm
+from math import nil
 
 type
   TwoDEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_color: Uniform[Vec4[GLfloat]]]
@@ -45,6 +46,15 @@ proc scalingMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
     vec3(0f, 0f, 1f)
   )
 
+proc rotationMatrix(angle: GLfloat): Mat3x3[GLfloat] =
+  let c = math.cos(angle)
+  let s = math.sin(angle)
+  mat3x3(
+    vec3(c, s, 0f),
+    vec3(-s, c, 0f),
+    vec3(0f, 0f, 1f)
+  )
+
 proc project*[T](entity: var T, width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.enable = true
   entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
@@ -56,6 +66,10 @@ proc translate*[T](entity: var T, x: GLfloat, y: GLfloat) =
 proc scale*[T](entity: var T, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.enable = true
   entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
+
+proc rotate*[T](entity: var T, angle: GLFloat) =
+  entity.uniforms.u_matrix.enable = true
+  entity.uniforms.u_matrix.data = rotationMatrix(angle) * entity.uniforms.u_matrix.data
 
 proc color*[T](entity: var T, rgba: array[4, GLfloat]) =
   entity.uniforms.u_color.enable = true

@@ -21,7 +21,7 @@ proc init*(game: var Game) =
     data: seq[uint8]
   data = stbi.loadFromMemory(cast[seq[uint8]](image), width, height, channels, stbi.RGBA)
   var uncompiledImage = initImageEntity(data, width, height)
-  uncompiledImage.project(float(game.windowWidth), float(game.windowHeight))
+  uncompiledImage.project(float(game.frameWidth), float(game.frameHeight))
   uncompiledImage.translate(0f, 0f)
   uncompiledImage.scale(float(width), float(height))
   entity = compile(game, uncompiledImage)
@@ -29,7 +29,7 @@ proc init*(game: var Game) =
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GL_COLOR_BUFFER_BIT)
-  glViewport(0, 0, GLsizei(game.windowWidth), GLsizei(game.windowHeight))
+  glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
 
   render(game, entity)
 

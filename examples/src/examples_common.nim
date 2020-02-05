@@ -2,6 +2,8 @@ import paranim/gl
 
 type
   Game* = object of RootGame
+    frameWidth*: int
+    frameHeight*: int
     windowWidth*: int
     windowHeight*: int
     mouseX*: float

@@ -3,11 +3,13 @@ import examples_common
 from ex01_image import nil
 from ex02_rand_rects import nil
 from ex03_translation import nil
+from ex04_rotation import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick),
   (init: ex02_rand_rects.init, tick: ex02_rand_rects.tick),
   (init: ex03_translation.init, tick: ex03_translation.tick),
+  (init: ex04_rotation.init, tick: ex04_rotation.tick),
 ]
 
 var game = Game()
@@ -36,7 +38,11 @@ proc mousePositionProc(window: GLFWWindow, xpos: float64, ypos: float64): void {
   game.mouseX = xpos
   game.mouseY = ypos
 
-proc resizeProc(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
+proc resizeFrameProc(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
+  game.frameWidth = width
+  game.frameHeight = height
+
+proc resizeWindowProc(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
   game.windowWidth = width
   game.windowHeight = height
 
@@ -58,11 +64,15 @@ when isMainModule:
 
   discard w.setKeyCallback(keyProc)
   discard w.setCursorPosCallback(mousePositionProc)
-  discard w.setFramebufferSizeCallback(resizeProc)
+  discard w.setFramebufferSizeCallback(resizeFrameProc)
+  discard w.setWindowSizeCallback(resizeWindowProc)
 
   var width, height: int32
   w.getFramebufferSize(width.addr, height.addr)
-  w.resizeProc(width, height)
+  w.resizeFrameProc(width, height)
+
+  w.getWindowSize(width.addr, height.addr)
+  w.resizeWindowProc(width, height)
 
   examples[currentExample].init(game)
 

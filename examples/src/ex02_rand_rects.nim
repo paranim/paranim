@@ -20,8 +20,8 @@ proc init*(game: var Game) =
 
   for _ in 0 ..< 50:
     var e = baseEntity
-    e.project(float(game.windowWidth), float(game.windowHeight))
-    e.translate(cfloat(rand(game.windowWidth)), cfloat(rand(game.windowHeight)))
+    e.project(float(game.frameWidth), float(game.frameHeight))
+    e.translate(cfloat(rand(game.frameWidth)), cfloat(rand(game.frameHeight)))
     e.scale(cfloat(rand(300)), cfloat(rand(300)))
     e.color([cfloat(rand(1.0)), cfloat(rand(1.0)), cfloat(rand(1.0)), 1f])
     uncompiledEntity.add(e)
@@ -31,6 +31,6 @@ proc init*(game: var Game) =
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GL_COLOR_BUFFER_BIT)
-  glViewport(0, 0, GLsizei(game.windowWidth), GLsizei(game.windowHeight))
+  glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
   render(game, entity)
 
