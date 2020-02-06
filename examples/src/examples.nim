@@ -30,25 +30,25 @@ proc updateExample(direction: int) =
   examples[newExample].init(game)
   currentExample = newExample
 
-proc keyProc(window: GLFWWindow, key: int32, scancode: int32,
-             action: int32, mods: int32): void {.cdecl.} =
-  if action == GLFWPress:
-    if key == GLFWKey.ESCAPE:
+proc keyCallback(window: GLFWWindow, key: int32, scancode: int32,
+                 action: int32, mods: int32): void {.cdecl.} =
+  if action == GLFW_PRESS:
+    if key == GLFWKey.Escape:
       window.setWindowShouldClose(true)
     elif key == GLFWKey.Left:
       updateExample(-1)
     elif key == GLFWKey.Right:
       updateExample(1)
 
-proc mousePositionProc(window: GLFWWindow, xpos: float64, ypos: float64): void {.cdecl.} =
+proc mousePositionCallback(window: GLFWWindow, xpos: float64, ypos: float64): void {.cdecl.} =
   game.mouseX = xpos
   game.mouseY = ypos
 
-proc resizeFrameProc(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
+proc resizeFrameCallback(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
   game.frameWidth = width
   game.frameHeight = height
 
-proc resizeWindowProc(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
+proc resizeWindowCallback(window: GLFWWindow, width: int32, height: int32): void {.cdecl.} =
   game.windowWidth = width
   game.windowHeight = height
 
@@ -68,17 +68,17 @@ when isMainModule:
   w.makeContextCurrent()
   glfwSwapInterval(1)
 
-  discard w.setKeyCallback(keyProc)
-  discard w.setCursorPosCallback(mousePositionProc)
-  discard w.setFramebufferSizeCallback(resizeFrameProc)
-  discard w.setWindowSizeCallback(resizeWindowProc)
+  discard w.setKeyCallback(keyCallback)
+  discard w.setCursorPosCallback(mousePositionCallback)
+  discard w.setFramebufferSizeCallback(resizeFrameCallback)
+  discard w.setWindowSizeCallback(resizeWindowCallback)
 
   var width, height: int32
   w.getFramebufferSize(width.addr, height.addr)
-  w.resizeFrameProc(width, height)
+  w.resizeFrameCallback(width, height)
 
   w.getWindowSize(width.addr, height.addr)
-  w.resizeWindowProc(width, height)
+  w.resizeWindowCallback(width, height)
 
   examples[currentExample].init(game)
 
