@@ -1,7 +1,6 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/entities2d
 import examples_common
-from math import nil
 
 var entity: TwoDEntity
 let tx, ty = 100f

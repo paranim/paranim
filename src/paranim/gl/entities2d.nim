@@ -1,4 +1,4 @@
-import paranim/gl, paranim/gl/utils
+import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 from paranim/math as pmath import nil
 from paranim/primitives2d import nil
 import nimgl/opengl
@@ -17,26 +17,6 @@ type
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of ArrayEntity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
-
-proc project*(uni: var UniForm, width: GLfloat, height: GLfloat) =
-  uni.enable = true
-  uni.data = pmath.projection(width, height) * uni.data
-
-proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat) =
-  uni.enable = true
-  uni.data = pmath.translation(x, y) * uni.data
-
-proc scale*(uni: var UniForm, x: GLfloat, y: GLfloat) =
-  uni.enable = true
-  uni.data = pmath.scaling(x, y) * uni.data
-
-proc rotate*(uni: var UniForm, angle: GLFloat) =
-  uni.enable = true
-  uni.data = pmath.rotation(angle) * uni.data
-
-proc color*(uni: var UniForm, rgba: array[4, GLfloat]) =
-  uni.enable = true
-  uni.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
 
 proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.project(width, height)

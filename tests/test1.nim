@@ -2,7 +2,7 @@ import unittest
 
 import nimgl/glfw
 import nimgl/opengl
-import paranim/gl, paranim/gl/utils
+import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 from paranim/primitives2d import nil
 import glm
 

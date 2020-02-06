@@ -1,4 +1,4 @@
-import paranim/gl, paranim/gl/utils, paranim/gl/entities3d
+import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 import nimgl/opengl
 import glm
 from sequtils import map

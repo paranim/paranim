@@ -1,5 +1,5 @@
 import nimgl/opengl
-import paranim/gl, paranim/gl/entities3d
+import paranim/gl
 import examples_common
 from bitops import bitor
 from math import nil

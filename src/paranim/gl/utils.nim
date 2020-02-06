@@ -1,36 +1,4 @@
 import nimgl/opengl
-import strutils, tables
-
-const maxDivisor* = 1
-
-type
-  TextureOpts* = object
-    mipLevel*: GLint
-    internalFmt*: GLenum
-    width*: GLsizei
-    height*: GLsizei
-    border*: GLint
-    srcFmt*: GLenum
-  Texture*[T] = object
-    data*: ref seq[T]
-    opts*: TextureOpts
-    params*: seq[(GLenum, GLenum)]
-    pixelStoreParams*: seq[(GLenum, GLint)]
-    mipmapParams*: seq[GLenum]
-    unit*: GLint
-  Uniform*[T] = object
-    enable*: bool
-    data*: T
-  Attribute*[T] = object
-    enable*: bool
-    buffer*: GLuint
-    data*: ref seq[T]
-    size*: GLint
-    iter*: int
-    normalize*: bool
-    stride*: int
-    offset*: int
-    divisor*: range[0..maxDivisor]
 
 proc toString(str: seq[char]): string =
   result = newStringOfCap(len(str))
@@ -72,24 +40,3 @@ proc createProgram*(vSource: string, fSource: string) : GLuint =
   glAttachShader(result, fShader)
   glLinkProgram(result)
   checkProgramStatus(result)
-
-proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
-  let kind =
-    when T is GLfloat:
-      EGL_FLOAT
-    else:
-      raise newException(Exception, "Invalid attribute type")
-  let totalSize = attr.size * attr.iter
-  result = GLsizei(attr.data[].len / totalSize)
-  var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
-  var previousBuffer: GLint
-  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
-  glBindBuffer(GL_ARRAY_BUFFER, attr.buffer)
-  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data[].len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
-  for i in 0 ..< attr.iter:
-    let loc = attribLocation + GLuint(i)
-    glEnableVertexAttribArray(loc)
-    glVertexAttribPointer(loc, attr.size, kind, attr.normalize, GLsizei(T.sizeof * totalSize), cast[pointer](T.sizeof * i * attr.size))
-    glVertexAttribDivisor(loc, GLuint(attr.divisor))
-  glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
-

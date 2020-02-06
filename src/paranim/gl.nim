@@ -1,5 +1,5 @@
 import nimgl/opengl
-import paranim/gl/utils
+import paranim/gl/attributes, paranim/gl/uniforms, paranim/gl/utils
 import algorithm
 import glm
 
