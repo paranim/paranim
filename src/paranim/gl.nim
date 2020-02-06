@@ -169,6 +169,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) 
   glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
   glUseProgram(entity.program)
   glBindVertexArray(entity.vao)
+  setBuffers(entity)
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, entity.program, name, uni)
@@ -185,6 +186,7 @@ proc render*[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, Attr
   glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
   glUseProgram(entity.program)
   glBindVertexArray(entity.vao)
+  setBuffers(entity)
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, entity.program, name, uni)
