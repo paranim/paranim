@@ -8,6 +8,7 @@ from ex05_scaling import nil
 from ex06_rotation_multiple import nil
 from ex07_translation_3d import nil
 from ex08_rotation_3d import nil
+from ex09_scaling_3d import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick),
@@ -18,6 +19,7 @@ const examples = [
   (init: ex06_rotation_multiple.init, tick: ex06_rotation_multiple.tick),
   (init: ex07_translation_3d.init, tick: ex07_translation_3d.tick),
   (init: ex08_rotation_3d.init, tick: ex08_rotation_3d.tick),
+  (init: ex09_scaling_3d.init, tick: ex09_scaling_3d.tick),
 ]
 
 var game = Game()
