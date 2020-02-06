@@ -7,7 +7,7 @@ type
   Axis* = enum
     XAxis, YAxis, ZAxis
 
-proc identityMatrix*(): Mat4x4[GLfloat] =
+proc identity*(): Mat4x4[GLfloat] =
   mat4x4(
     vec4(1f, 0f, 0f, 0f),
     vec4(0f, 1f, 0f, 0f),
@@ -15,7 +15,7 @@ proc identityMatrix*(): Mat4x4[GLfloat] =
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc orthoMatrix(left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat): Mat4x4[GLfloat] =
+proc ortho*(left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat): Mat4x4[GLfloat] =
   let
     width = right - left
     height = top - bottom
@@ -27,7 +27,7 @@ proc orthoMatrix(left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, n
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc translationMatrix(x: GLfloat, y: GLfloat, z: GLfloat): Mat4x4[GLfloat] =
+proc translation*(x: GLfloat, y: GLfloat, z: GLfloat): Mat4x4[GLfloat] =
   mat4x4(
     vec4(1f, 0f, 0f, x),
     vec4(0f, 1f, 0f, y),
@@ -35,7 +35,7 @@ proc translationMatrix(x: GLfloat, y: GLfloat, z: GLfloat): Mat4x4[GLfloat] =
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc scalingMatrix(x: GLfloat, y: GLfloat, z: GLfloat): Mat4x4[GLfloat] =
+proc scaling*(x: GLfloat, y: GLfloat, z: GLfloat): Mat4x4[GLfloat] =
   mat4x4(
     vec4(x, 0f, 0f, 0f),
     vec4(0f, y, 0f, 0f),
@@ -43,7 +43,7 @@ proc scalingMatrix(x: GLfloat, y: GLfloat, z: GLfloat): Mat4x4[GLfloat] =
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc rotationMatrixX(angle: GLfloat): Mat4x4[GLfloat] =
+proc rotationX*(angle: GLfloat): Mat4x4[GLfloat] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
@@ -53,7 +53,7 @@ proc rotationMatrixX(angle: GLfloat): Mat4x4[GLfloat] =
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc rotationMatrixY(angle: GLfloat): Mat4x4[GLfloat] =
+proc rotationY*(angle: GLfloat): Mat4x4[GLfloat] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
@@ -63,7 +63,7 @@ proc rotationMatrixY(angle: GLfloat): Mat4x4[GLfloat] =
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc rotationMatrixZ(angle: GLfloat): Mat4x4[GLfloat] =
+proc rotationZ*(angle: GLfloat): Mat4x4[GLfloat] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
@@ -75,21 +75,21 @@ proc rotationMatrixZ(angle: GLfloat): Mat4x4[GLfloat] =
 
 proc project*[T](entity: var T, left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = orthoMatrix(left, right, bottom, top, near, far) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = ortho(left, right, bottom, top, near, far) * entity.uniforms.u_matrix.data
 
 proc translate*[T](entity: var T, x: GLfloat, y: GLfloat, z: GLfloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translationMatrix(x, y, z) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = translation(x, y, z) * entity.uniforms.u_matrix.data
 
 proc scale*[T](entity: var T, x: GLfloat, y: GLfloat, z: GLfloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scalingMatrix(x, y, z) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = scaling(x, y, z) * entity.uniforms.u_matrix.data
 
 proc rotate*[T](entity: var T, angle: GLFloat, axis: Axis) =
   entity.uniforms.u_matrix.enable = true
   let matrix = case axis:
-    of XAxis: rotationMatrixX(angle)
-    of YAxis: rotationMatrixY(angle)
-    of ZAxis: rotationMatrixZ(angle)
+    of XAxis: rotationX(angle)
+    of YAxis: rotationY(angle)
+    of ZAxis: rotationZ(angle)
   entity.uniforms.u_matrix.data = matrix * entity.uniforms.u_matrix.data
 

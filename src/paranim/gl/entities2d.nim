@@ -18,35 +18,35 @@ type
   ImageEntity* = object of ArrayEntity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
 
-proc identityMatrix*(): Mat3x3[GLfloat] =
+proc identity*(): Mat3x3[GLfloat] =
   mat3x3(
     vec3(1f, 0f, 0f),
     vec3(0f, 1f, 0f),
     vec3(0f, 0f, 1f)
   )
 
-proc projectionMatrix(width: GLfloat, height: GLfloat): Mat3x3[GLfloat] =
+proc projection*(width: GLfloat, height: GLfloat): Mat3x3[GLfloat] =
   mat3x3(
     vec3(2f / width, 0f, -1f),
     vec3(0f, -2f / height, 1f),
     vec3(0f, 0f, 1f)
   )
 
-proc translationMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
+proc translation*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
   mat3x3(
     vec3(1f, 0f, x),
     vec3(0f, 1f, y),
     vec3(0f, 0f, 1f)
   )
 
-proc scalingMatrix(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
+proc scaling*(x: GLfloat, y: GLfloat): Mat3x3[GLfloat] =
   mat3x3(
     vec3(x, 0f, 0f),
     vec3(0f, y, 0f),
     vec3(0f, 0f, 1f)
   )
 
-proc rotationMatrix(angle: GLfloat): Mat3x3[GLfloat] =
+proc rotation*(angle: GLfloat): Mat3x3[GLfloat] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat3x3(
@@ -57,19 +57,19 @@ proc rotationMatrix(angle: GLfloat): Mat3x3[GLfloat] =
 
 proc project*[T](entity: var T, width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = projectionMatrix(width, height) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = projection(width, height) * entity.uniforms.u_matrix.data
 
 proc translate*[T](entity: var T, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translationMatrix(x, y) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = translation(x, y) * entity.uniforms.u_matrix.data
 
 proc scale*[T](entity: var T, x: GLfloat, y: GLfloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scalingMatrix(x, y) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = scaling(x, y) * entity.uniforms.u_matrix.data
 
 proc rotate*[T](entity: var T, angle: GLFloat) =
   entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = rotationMatrix(angle) * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = rotation(angle) * entity.uniforms.u_matrix.data
 
 proc color*[T](entity: var T, rgba: array[4, GLfloat]) =
   entity.uniforms.u_color.enable = true
@@ -106,7 +106,7 @@ proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   position.data[].add(data)
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
+    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identity()),
     u_color: Uniform[Vec4[GLfloat]](enable: true, data: vec4(0f, 0f, 0f, 1f))
   )
 
@@ -218,8 +218,8 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # set attributes and uniforms
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
-    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identityMatrix()),
+    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identity()),
+    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: identity()),
     u_image: Uniform[Texture[GLubyte]](
       enable: true,
       data: image
