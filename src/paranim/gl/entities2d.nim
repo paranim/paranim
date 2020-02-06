@@ -84,7 +84,7 @@ proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   position.data[].add(data)
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity[Mat3x3[GLfloat]]()),
+    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity3x3[GLfloat]()),
     u_color: Uniform[Vec4[GLfloat]](enable: true, data: vec4(0f, 0f, 0f, 1f))
   )
 
@@ -196,8 +196,8 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # set attributes and uniforms
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity[Mat3x3[GLfloat]]()),
-    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity[Mat3x3[GLfloat]]()),
+    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity3x3[GLfloat]()),
+    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity3x3[GLfloat]()),
     u_image: Uniform[Texture[GLubyte]](
       enable: true,
       data: image

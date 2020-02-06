@@ -104,7 +104,7 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
   color.data[].add(colorDataNormalized)
   result.attributes = (a_position: position, a_color: color)
   result.uniforms = (
-    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: pmath.identity[Mat4x4[GLfloat]]())
+    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: pmath.identity4x4[GLfloat]())
   )
 
 proc degToRad*(degrees: GLfloat): GLfloat =
