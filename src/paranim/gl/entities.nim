@@ -1,6 +1,6 @@
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 from paranim/math as pmath import nil
-from paranim/primitives2d import nil
+from paranim/primitives import nil
 import nimgl/opengl
 import glm
 
@@ -153,7 +153,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # create attribute
   var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
   new(position.data)
-  position.data[].add(primitives2d.rect)
+  position.data[].add(primitives.rect)
   # create texture
   var image = Texture[GLubyte](
     opts: TextureOpts(

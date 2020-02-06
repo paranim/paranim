@@ -3,7 +3,7 @@ import unittest
 import nimgl/glfw
 import nimgl/opengl
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
-from paranim/primitives2d import nil
+from paranim/primitives import nil
 import glm
 
 proc init() =
@@ -85,7 +85,7 @@ type
 
 test "all uniform types":
   var dataArr: seq[GLfloat] = @[]
-  dataArr.add(primitives2d.rect)
+  dataArr.add(primitives.rect)
   var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
   new(position.data)
   position.data[] = dataArr

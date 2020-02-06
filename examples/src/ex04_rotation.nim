@@ -1,5 +1,5 @@
 import nimgl/opengl
-import paranim/gl, paranim/gl/entities2d
+import paranim/gl, paranim/gl/entities
 import examples_common
 from math import nil
 

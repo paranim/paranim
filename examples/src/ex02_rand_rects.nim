@@ -1,5 +1,6 @@
 import nimgl/opengl
-import paranim/gl, paranim/gl/entities2d, paranim/primitives2d
+import paranim/gl, paranim/gl/entities
+from paranim/primitives import nil
 import random
 import examples_common
 
@@ -15,7 +16,7 @@ proc init*(game: var Game) =
   glDisable(GL_CULL_FACE)
   glDisable(GL_DEPTH_TEST)
 
-  let baseEntity = initTwoDEntity(rect)
+  let baseEntity = initTwoDEntity(primitives.rect)
   var uncompiledEntity = initInstancedEntity(baseEntity)
 
   for _ in 0 ..< 50:
