@@ -3,10 +3,6 @@ import nimgl/opengl
 import glm
 from math import nil
 
-type
-  Axis* = enum
-    XAxis, YAxis, ZAxis
-
 proc identity*(): Mat4x4[GLfloat] =
   mat4x4(
     vec4(1f, 0f, 0f, 0f),
@@ -85,11 +81,15 @@ proc scale*[T](entity: var T, x: GLfloat, y: GLfloat, z: GLfloat) =
   entity.uniforms.u_matrix.enable = true
   entity.uniforms.u_matrix.data = scaling(x, y, z) * entity.uniforms.u_matrix.data
 
-proc rotate*[T](entity: var T, angle: GLFloat, axis: Axis) =
+proc rotateX*[T](entity: var T, angle: GLFloat) =
   entity.uniforms.u_matrix.enable = true
-  let matrix = case axis:
-    of XAxis: rotationX(angle)
-    of YAxis: rotationY(angle)
-    of ZAxis: rotationZ(angle)
-  entity.uniforms.u_matrix.data = matrix * entity.uniforms.u_matrix.data
+  entity.uniforms.u_matrix.data = rotationX(angle) * entity.uniforms.u_matrix.data
+
+proc rotateY*[T](entity: var T, angle: GLFloat) =
+  entity.uniforms.u_matrix.enable = true
+  entity.uniforms.u_matrix.data = rotationY(angle) * entity.uniforms.u_matrix.data
+
+proc rotateZ*[T](entity: var T, angle: GLFloat) =
+  entity.uniforms.u_matrix.enable = true
+  entity.uniforms.u_matrix.data = rotationZ(angle) * entity.uniforms.u_matrix.data
 

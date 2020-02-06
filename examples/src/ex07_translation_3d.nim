@@ -23,9 +23,9 @@ proc tick*(game: Game) =
   var e = entity
   e.project(0f, float(game.frameWidth), float(game.frameHeight), 0f, 400f, -400f)
   e.translate(game.mouseX, game.mouseY, 0f)
-  e.rotate(degToRad(40f), XAxis)
-  e.rotate(degToRad(25f), YAxis)
-  e.rotate(degToRad(325f), ZAxis)
+  e.rotateX(degToRad(40f))
+  e.rotateY(degToRad(25f))
+  e.rotateZ(degToRad(325f))
 
   render(game, e)
 
