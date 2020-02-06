@@ -2,7 +2,8 @@ import paranim/gl, paranim/gl/utils, paranim/gl/entities3d
 import nimgl/opengl
 import glm
 from sequtils import map
-from math import nil
+from std/math import nil
+from paranim/math as pmath import nil
 
 type
   Game* = object of RootGame
@@ -103,7 +104,7 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
   color.data[].add(colorDataNormalized)
   result.attributes = (a_position: position, a_color: color)
   result.uniforms = (
-    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: entities3d.identity())
+    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: pmath.identity[Mat4x4[GLfloat]]())
   )
 
 proc degToRad*(degrees: GLfloat): GLfloat =
