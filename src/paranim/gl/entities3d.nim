@@ -1,4 +1,4 @@
-import paranim/gl/utils
+import paranim/gl, paranim/gl/utils
 import nimgl/opengl
 import glm
 from math import nil
@@ -69,27 +69,45 @@ proc rotationZ*(angle: GLfloat): Mat4x4[GLfloat] =
     vec4(0f, 0f, 0f, 1f)
   )
 
-proc project*[T](entity: var T, left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = ortho(left, right, bottom, top, near, far) * entity.uniforms.u_matrix.data
+proc project*(uni: var Uniform, left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
+  uni.enable = true
+  uni.data = ortho(left, right, bottom, top, near, far) * uni.data
 
-proc translate*[T](entity: var T, x: GLfloat, y: GLfloat, z: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translation(x, y, z) * entity.uniforms.u_matrix.data
+proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat, z: GLfloat) =
+  uni.enable = true
+  uni.data = translation(x, y, z) * uni.data
 
-proc scale*[T](entity: var T, x: GLfloat, y: GLfloat, z: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scaling(x, y, z) * entity.uniforms.u_matrix.data
+proc scale*(uni: var Uniform, x: GLfloat, y: GLfloat, z: GLfloat) =
+  uni.enable = true
+  uni.data = scaling(x, y, z) * uni.data
 
-proc rotateX*[T](entity: var T, angle: GLFloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = rotationX(angle) * entity.uniforms.u_matrix.data
+proc rotateX*(uni: var Uniform, angle: GLFloat) =
+  uni.enable = true
+  uni.data = rotationX(angle) * uni.data
 
-proc rotateY*[T](entity: var T, angle: GLFloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = rotationY(angle) * entity.uniforms.u_matrix.data
+proc rotateY*(uni: var UniForm, angle: GLFloat) =
+  uni.enable = true
+  uni.data = rotationY(angle) * uni.data
 
-proc rotateZ*[T](entity: var T, angle: GLFloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = rotationZ(angle) * entity.uniforms.u_matrix.data
+proc rotateZ*(uni: var Uniform, angle: GLFloat) =
+  uni.enable = true
+  uni.data = rotationZ(angle) * uni.data
+
+proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
+  entity.uniforms.u_matrix.project(left, right, bottom, top, near, far)
+
+proc translate*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
+  entity.uniforms.u_matrix.translate(x, y, z)
+
+proc scale*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
+  entity.uniforms.u_matrix.scale(x, y, z)
+
+proc rotateX*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotateX(angle)
+
+proc rotateY*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotateY(angle)
+
+proc rotateZ*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotateZ(angle)
 

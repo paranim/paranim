@@ -55,25 +55,40 @@ proc rotation*(angle: GLfloat): Mat3x3[GLfloat] =
     vec3(0f, 0f, 1f)
   )
 
-proc project*[T](entity: var T, width: GLfloat, height: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = projection(width, height) * entity.uniforms.u_matrix.data
+proc project*(uni: var UniForm, width: GLfloat, height: GLfloat) =
+  uni.enable = true
+  uni.data = projection(width, height) * uni.data
 
-proc translate*[T](entity: var T, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = translation(x, y) * entity.uniforms.u_matrix.data
+proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat) =
+  uni.enable = true
+  uni.data = translation(x, y) * uni.data
 
-proc scale*[T](entity: var T, x: GLfloat, y: GLfloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = scaling(x, y) * entity.uniforms.u_matrix.data
+proc scale*(uni: var UniForm, x: GLfloat, y: GLfloat) =
+  uni.enable = true
+  uni.data = scaling(x, y) * uni.data
 
-proc rotate*[T](entity: var T, angle: GLFloat) =
-  entity.uniforms.u_matrix.enable = true
-  entity.uniforms.u_matrix.data = rotation(angle) * entity.uniforms.u_matrix.data
+proc rotate*(uni: var UniForm, angle: GLFloat) =
+  uni.enable = true
+  uni.data = rotation(angle) * uni.data
 
-proc color*[T](entity: var T, rgba: array[4, GLfloat]) =
-  entity.uniforms.u_color.enable = true
-  entity.uniforms.u_color.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
+proc color*(uni: var UniForm, rgba: array[4, GLfloat]) =
+  uni.enable = true
+  uni.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
+
+proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], width: GLfloat, height: GLfloat) =
+  entity.uniforms.u_matrix.project(width, height)
+
+proc translate*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix.translate(x, y)
+
+proc scale*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat) =
+  entity.uniforms.u_matrix.scale(x, y)
+
+proc rotate*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotate(angle)
+
+proc color*[UniT, AttrT](entity: var Entity[UniT, AttrT], rgba: array[4, GLfloat]) =
+  entity.uniforms.u_color.color(rgba)
 
 const twoDVertexShader =
   """
