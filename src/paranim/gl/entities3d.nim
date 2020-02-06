@@ -1,4 +1,4 @@
-import paranim/gl, paranim/gl/utils
+import paranim/gl/utils
 import nimgl/opengl
 import glm
 from math import nil
@@ -92,22 +92,4 @@ proc rotateY*(uni: var UniForm, angle: GLFloat) =
 proc rotateZ*(uni: var Uniform, angle: GLFloat) =
   uni.enable = true
   uni.data = rotationZ(angle) * uni.data
-
-proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
-  entity.uniforms.u_matrix.project(left, right, bottom, top, near, far)
-
-proc translate*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
-  entity.uniforms.u_matrix.translate(x, y, z)
-
-proc scale*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
-  entity.uniforms.u_matrix.scale(x, y, z)
-
-proc rotateX*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
-  entity.uniforms.u_matrix.rotateX(angle)
-
-proc rotateY*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
-  entity.uniforms.u_matrix.rotateY(angle)
-
-proc rotateZ*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
-  entity.uniforms.u_matrix.rotateZ(angle)
 

@@ -1,5 +1,4 @@
-import paranim/gl, paranim/gl/utils
-from paranim/gl/entities3d import nil
+import paranim/gl, paranim/gl/utils, paranim/gl/entities3d
 import nimgl/opengl
 import glm
 from sequtils import map
@@ -47,6 +46,24 @@ type
   ThreeDEntityAttributes = tuple[a_position: Attribute[GLfloat], a_color: Attribute[GLfloat]]
   ThreeDEntity* = object of ArrayEntity[ThreeDEntityUniForms, ThreeDEntityAttributes]
   UncompiledThreeDEntity = object of UncompiledEntity[ThreeDEntity, ThreeDEntityUniForms, ThreeDEntityAttributes]
+
+proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
+  entity.uniforms.u_matrix.project(left, right, bottom, top, near, far)
+
+proc translate*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
+  entity.uniforms.u_matrix.translate(x, y, z)
+
+proc scale*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
+  entity.uniforms.u_matrix.scale(x, y, z)
+
+proc rotateX*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotateX(angle)
+
+proc rotateY*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotateY(angle)
+
+proc rotateZ*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
+  entity.uniforms.u_matrix.rotateZ(angle)
 
 const threeDVertexShader =
   """
