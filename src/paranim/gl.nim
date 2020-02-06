@@ -109,7 +109,7 @@ proc initBuffer(attr: var Attribute) =
   glGenBuffers(1, buf.addr)
   attr.buffer = buf
 
-proc setBuffer[UniT, AttrT](game: RootGame, entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: Attribute) =
+proc setBuffer[UniT, AttrT](entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: Attribute) =
   let
     divisor = attr.divisor
     drawCount = setArrayBuffer(entity.program, attrName, attr)
@@ -117,22 +117,22 @@ proc setBuffer[UniT, AttrT](game: RootGame, entity: ArrayEntity[UniT, AttrT], dr
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   drawCounts[divisor] = drawCount
 
-proc setBuffers[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) =
+proc setBuffers[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT]) =
   var drawCounts: array[maxDivisor+1, int]
   drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
     if attr.enable:
-      setBuffer(game, entity, drawCounts, attrName, attr)
+      setBuffer(entity, drawCounts, attrName, attr)
       attr.enable = false
   if drawCounts[0] >= 0:
     entity.drawCount = GLsizei(drawCounts[0])
 
-proc setBuffers[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, AttrT]) =
+proc setBuffers[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT]) =
   var drawCounts: array[maxDivisor+1, int]
   drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
     if attr.enable:
-      setBuffer(game, entity, drawCounts, attrName, attr)
+      setBuffer(entity, drawCounts, attrName, attr)
       attr.enable = false
   if drawCounts[0] >= 0:
     entity.drawCount = GLsizei(drawCounts[0])
@@ -153,7 +153,7 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   result.uniforms = uncompiledEntity.uniforms
   for attr in result.attributes.fields:
     initBuffer(attr)
-  setBuffers(game, result)
+  setBuffers(result)
   for name, uni in result.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, uncompiledEntity, result.program, name, uni)
