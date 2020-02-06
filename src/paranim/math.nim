@@ -62,6 +62,17 @@ proc ortho*[T](left: T, right: T, bottom: T, top: T, near: T, far: T): Mat4x4[T]
     vec4[T](0f, 0f, 0f, 1f)
   )
 
+proc perspective*[T](fieldOfView: T, aspect: T, near: T, far: T): Mat4x4[T] =
+  let
+    f = math.tan((math.PI * 0.5f) - (fieldOfView * 0.5f))
+    rangeInv = 1 / (near - far)
+  mat4x4(
+    vec4[T](f / aspect, 0f, 0f, 0f),
+    vec4[T](0f, f, 0f, 0f),
+    vec4[T](0f, 0f, (near + far) * rangeInv, near * far * rangeInv * 2),
+    vec4[T](0f, 0f, -1f, 0f)
+  )
+
 proc translation*[T](x: T, y: T, z: T): Mat4x4[T] =
   mat4x4(
     vec4[T](1f, 0f, 0f, x),

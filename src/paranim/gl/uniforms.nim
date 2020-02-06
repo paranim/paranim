@@ -49,6 +49,10 @@ proc project*(uni: var Uniform, left: GLfloat, right: GLfloat, bottom: GLfloat, 
   uni.enable = true
   uni.data = pmath.ortho(left, right, bottom, top, near, far) * uni.data
 
+proc project*[T](uni: var Uniform, fieldOfView: T, aspect: T, near: T, far: T) =
+  uni.enable = true
+  uni.data = pmath.perspective(fieldOfView, aspect, near, far) * uni.data
+
 proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat, z: GLfloat) =
   uni.enable = true
   uni.data = pmath.translation(x, y, z) * uni.data

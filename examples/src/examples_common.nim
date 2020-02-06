@@ -51,6 +51,9 @@ type
 proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
   entity.uniforms.u_matrix.project(left, right, bottom, top, near, far)
 
+proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], fieldOfView: GLfloat, aspect: GLfloat, near: GLfloat, far: GLfloat) =
+  entity.uniforms.u_matrix.project(fieldOfView, aspect, near, far)
+
 proc translate*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, z: GLfloat) =
   entity.uniforms.u_matrix.translate(x, y, z)
 
