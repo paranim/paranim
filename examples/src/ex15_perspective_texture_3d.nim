@@ -1,7 +1,7 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 import paranim/math as pmath
-import examples_common
+import examples_common, examples_data
 from bitops import bitor
 from std/math import nil
 import glm
@@ -20,136 +20,6 @@ const tx = 100f
 const ty = 100f
 var rx = degToRad(190f)
 var ry = degToRad(40f)
-
-const fTexcoords = [
-   # left column front
-   0f, 0f,
-   0f, 1f,
-   1f, 0f,
-   0f, 1f,
-   1f, 1f,
-   1f, 0f,
-
-   # top rung front
-   0f, 0f,
-   0f, 1f,
-   1f, 0f,
-   0f, 1f,
-   1f, 1f,
-   1f, 0f,
-
-   # middle rung front
-   0f, 0f,
-   0f, 1f,
-   1f, 0f,
-   0f, 1f,
-   1f, 1f,
-   1f, 0f,
-
-   # left column back
-   0f, 0f,
-   1f, 0f,
-   0f, 1f,
-   0f, 1f,
-   1f, 0f,
-   1f, 1f,
-
-   # top rung back
-   0f, 0f,
-   1f, 0f,
-   0f, 1f,
-   0f, 1f,
-   1f, 0f,
-   1f, 1f,
-
-   # middle rung back
-   0f, 0f,
-   1f, 0f,
-   0f, 1f,
-   0f, 1f,
-   1f, 0f,
-   1f, 1f,
-
-   # top
-   0f, 0f,
-   1f, 0f,
-   1f, 1f,
-   0f, 0f,
-   1f, 1f,
-   0f, 1f,
-
-   # top rung right
-   0f, 0f,
-   1f, 0f,
-   1f, 1f,
-   0f, 0f,
-   1f, 1f,
-   0f, 1f,
-
-   # under top rung
-   0f, 0f,
-   0f, 1f,
-   1f, 1f,
-   0f, 0f,
-   1f, 1f,
-   1f, 0f,
-
-   # between top rung and middle
-   0f, 0f,
-   1f, 1f,
-   0f, 1f,
-   0f, 0f,
-   1f, 0f,
-   1f, 1f,
-
-   # top of middle rung
-   0f, 0f,
-   1f, 1f,
-   0f, 1f,
-   0f, 0f,
-   1f, 0f,
-   1f, 1f,
-
-   # right of middle rung
-   0f, 0f,
-   1f, 1f,
-   0f, 1f,
-   0f, 0f,
-   1f, 0f,
-   1f, 1f,
-
-   # bottom of middle rung.
-   0f, 0f,
-   0f, 1f,
-   1f, 1f,
-   0f, 0f,
-   1f, 1f,
-   1f, 0f,
-
-   # right of bottom
-   0f, 0f,
-   1f, 1f,
-   0f, 1f,
-   0f, 0f,
-   1f, 0f,
-   1f, 1f,
-
-   # bottom
-   0f, 0f,
-   0f, 1f,
-   1f, 1f,
-   0f, 0f,
-   1f, 1f,
-   1f, 0f,
-
-   # left side
-   0f, 0f,
-   0f, 1f,
-   1f, 1f,
-   0f, 0f,
-   1f, 1f,
-   1f, 0f,
-]
 
 const vertexShader =
   """

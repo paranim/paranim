@@ -1,6 +1,6 @@
 import nimgl/opengl
 import paranim/gl
-import examples_common
+import examples_common, examples_data
 from bitops import bitor
 from math import nil
 

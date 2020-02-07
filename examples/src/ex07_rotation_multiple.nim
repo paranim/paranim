@@ -1,6 +1,6 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/entities
-import examples_common
+import examples_common, examples_data
 from math import nil
 from glm import vec4
 

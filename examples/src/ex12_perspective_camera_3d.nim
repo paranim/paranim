@@ -1,7 +1,7 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/uniforms
 import paranim/math as pmath
-import examples_common
+import examples_common, examples_data
 from bitops import bitor
 from std/math import nil
 import glm
