@@ -7,8 +7,8 @@ from std/math import nil
 import glm
 
 var entity: ThreeDEntity
-const tx = 100f
-const ty = 100f
+const tx = 0f
+const ty = 0f
 const radius = 200f
 const numFs = 5
 

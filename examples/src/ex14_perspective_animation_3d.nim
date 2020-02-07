@@ -7,10 +7,6 @@ from std/math import nil
 import glm
 
 var entity: ThreeDEntity
-const tx = 100f
-const ty = 100f
-const radius = 200f
-const numFs = 5
 const rx = degToRad(190f)
 var ry = degToRad(40f)
 const rz = degToRad(320f)

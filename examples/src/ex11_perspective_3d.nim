@@ -4,8 +4,8 @@ import examples_common
 from bitops import bitor
 
 var entity: ThreeDEntity
-const tx = 100f
-const ty = 100f
+const tx = 0f
+const ty = 0f
 
 proc init*(game: var Game) =
   assert glInit()
