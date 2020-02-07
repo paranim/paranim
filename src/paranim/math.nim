@@ -151,3 +151,6 @@ proc rotationZ*[T](angle: T): Mat4x4[T] =
 
 proc rotateZ*[T](matrix: var Mat4x4[T], angle: T) =
   matrix = rotationZ(angle) * matrix
+
+proc invert*[T](matrix: var Mat4x4[T], camera: Mat4x4[T]) =
+  matrix = camera.inverse() * matrix

@@ -10,6 +10,7 @@ from ex07_translation_3d import nil
 from ex08_rotation_3d import nil
 from ex09_scaling_3d import nil
 from ex10_perspective_3d import nil
+from ex11_perspective_camera_3d import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick),
@@ -22,6 +23,7 @@ const examples = [
   (init: ex08_rotation_3d.init, tick: ex08_rotation_3d.tick),
   (init: ex09_scaling_3d.init, tick: ex09_scaling_3d.tick),
   (init: ex10_perspective_3d.init, tick: ex10_perspective_3d.tick),
+  (init: ex11_perspective_camera_3d.init, tick: ex11_perspective_camera_3d.tick),
 ]
 
 var game = Game()

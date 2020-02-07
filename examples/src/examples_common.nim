@@ -69,6 +69,9 @@ proc rotateY*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
 proc rotateZ*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
   entity.uniforms.u_matrix.rotateZ(angle)
 
+proc invert*[UniT, AttrT](entity: var Entity[UniT, AttrT], cam: Mat4x4[GLfloat]) =
+  entity.uniforms.u_matrix.invert(cam)
+
 const threeDVertexShader =
   """
   #version 410
@@ -112,6 +115,30 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
 
 proc degToRad*(degrees: GLfloat): GLfloat =
   (degrees * math.PI) / 180f
+
+proc transformVec(matrix: Mat4x4[GLfloat], vec: Vec4[GLfloat]): Vec4[GLfloat] =
+  for i in 0 .. 3:
+    result[i] = 0f
+    for j in 0 .. 3:
+      result[i] = result[i] + (vec[j] * matrix[i][j])
+
+# Transform the F data for some of the 3D examples.
+# From webgl2fundamentals.org it explains:
+#
+# Center the F around the origin and Flip it around. We do this because
+# we're in 3D now with and +Y is up where as before when we started with 2D
+# we had +Y as down.
+proc transformData*(data: openArray[GLfloat]): seq[GLfloat] =
+  result.add(data)
+  var matrix = pmath.identity4x4[GLfloat]()
+  pmath.rotateX(matrix, math.PI)
+  pmath.translate(matrix, -50f, -75f, -15f)
+  for i in 0 ..< int(data.len / 3):
+    let ii = i * 3
+    let vec = transformVec(matrix, vec4(result[ii], result[ii+1], result[ii+2], 1f))
+    result[ii] = vec[0]
+    result[ii+1] = vec[1]
+    result[ii+2] = vec[2]
 
 const f3d* = [
    # left column front

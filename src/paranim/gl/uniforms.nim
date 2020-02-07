@@ -73,3 +73,7 @@ proc rotateZ*(uni: var Uniform, angle: GLFloat) =
   uni.enable = true
   uni.data.rotateZ(angle)
 
+proc invert*(uni: var Uniform, camera: Mat4x4[GLfloat]) =
+  uni.enable = true
+  uni.data.invert(camera)
+
