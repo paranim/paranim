@@ -7,6 +7,8 @@ from paranim/math as pmath import nil
 
 type
   Game* = object of RootGame
+    deltaTime*: float
+    totalTime*: float
     frameWidth*: int
     frameHeight*: int
     windowWidth*: int
