@@ -1,4 +1,4 @@
-from paranim/math as pmath import nil
+import paranim/math
 import nimgl/opengl
 import glm
 
@@ -25,19 +25,19 @@ type
 
 proc project*(uni: var UniForm, width: GLfloat, height: GLfloat) =
   uni.enable = true
-  uni.data = pmath.projection(width, height) * uni.data
+  uni.data.project(width, height)
 
 proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat) =
   uni.enable = true
-  uni.data = pmath.translation(x, y) * uni.data
+  uni.data.translate(x, y)
 
 proc scale*(uni: var UniForm, x: GLfloat, y: GLfloat) =
   uni.enable = true
-  uni.data = pmath.scaling(x, y) * uni.data
+  uni.data.scale(x, y)
 
 proc rotate*(uni: var UniForm, angle: GLFloat) =
   uni.enable = true
-  uni.data = pmath.rotation(angle) * uni.data
+  uni.data.rotate(angle)
 
 proc color*(uni: var UniForm, rgba: array[4, GLfloat]) =
   uni.enable = true
@@ -47,29 +47,29 @@ proc color*(uni: var UniForm, rgba: array[4, GLfloat]) =
 
 proc project*(uni: var Uniform, left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
   uni.enable = true
-  uni.data = pmath.ortho(left, right, bottom, top, near, far) * uni.data
+  uni.data.project(left, right, bottom, top, near, far)
 
-proc project*[T](uni: var Uniform, fieldOfView: T, aspect: T, near: T, far: T) =
+proc project*(uni: var Uniform, fieldOfView: GLfloat, aspect: GLfloat, near: GLfloat, far: GLfloat) =
   uni.enable = true
-  uni.data = pmath.perspective(fieldOfView, aspect, near, far) * uni.data
+  uni.data.project(fieldOfView, aspect, near, far)
 
 proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat, z: GLfloat) =
   uni.enable = true
-  uni.data = pmath.translation(x, y, z) * uni.data
+  uni.data.translate(x, y, z)
 
 proc scale*(uni: var Uniform, x: GLfloat, y: GLfloat, z: GLfloat) =
   uni.enable = true
-  uni.data = pmath.scaling(x, y, z) * uni.data
+  uni.data.scale(x, y, z)
 
 proc rotateX*(uni: var Uniform, angle: GLFloat) =
   uni.enable = true
-  uni.data = pmath.rotationX(angle) * uni.data
+  uni.data.rotateX(angle)
 
 proc rotateY*(uni: var UniForm, angle: GLFloat) =
   uni.enable = true
-  uni.data = pmath.rotationY(angle) * uni.data
+  uni.data.rotateY(angle)
 
 proc rotateZ*(uni: var Uniform, angle: GLFloat) =
   uni.enable = true
-  uni.data = pmath.rotationZ(angle) * uni.data
+  uni.data.rotateZ(angle)
 
