@@ -20,9 +20,11 @@ type
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
 
-proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): GLint =
+proc createTexture[T](game: var RootGame, uni: var Uniform[Texture[T]], uniLoc: GLint) =
   game.texCount += 1
-  let unit = game.texCount - 1
+  let
+    unit = game.texCount - 1
+    texture = uni.data
   var textureNum: GLuint
   glGenTextures(1, textureNum.addr)
   glActiveTexture(GLenum(GL_TEXTURE0.ord + unit))
@@ -49,7 +51,17 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): G
   )
   for paramVal in texture.mipmapParams:
     glGenerateMipmap(paramVal)
-  GLint(unit)
+  uni.data.unit = GLint(unit)
+  if uni.data.data == nil:
+    var
+      fb: GLuint
+      previousFramebuffer: GLuint
+    glGenFramebuffers(1, fb.addr)
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, cast[ptr GLint](previousFramebuffer.addr))
+    glBindFramebuffer(GL_FRAMEBUFFER, fb)
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureNum, 0)
+    glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer)
+    uni.data.framebuffer = fb
 
 proc getUniformLocation(program: GLuint, uniName: string): GLint =
   result = glGetUniformLocation(program, uniName)
@@ -58,7 +70,7 @@ proc getUniformLocation(program: GLuint, uniName: string): GLint =
 
 proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
   let loc = getUniformLocation(program, uniName)
-  uni.data.unit = createTexture(game, loc, uni.data)
+  createTexture(game, uni, loc)
   glUniform1i(loc, uni.data.unit)
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =

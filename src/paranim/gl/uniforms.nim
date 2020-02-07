@@ -20,6 +20,7 @@ type
     pixelStoreParams*: seq[(GLenum, GLint)]
     mipmapParams*: seq[GLenum]
     unit*: GLint
+    framebuffer*: GLuint
 
 # 2D
 
