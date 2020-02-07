@@ -9,48 +9,13 @@ import stb_image/read as stbi
 
 const rawImage = staticRead("assets/f-texture.png")
 
-type
-  ThreeDTextureEntityUniForms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[Texture[GLubyte]]]
-  ThreeDTextureEntityAttributes = tuple[a_position: Attribute[GLfloat], a_texcoord: Attribute[GLfloat]]
-  ThreeDTextureEntity = object of ArrayEntity[ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
-  UncompiledThreeDTextureEntity = object of UncompiledEntity[ThreeDTextureEntity, ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
-
 var entity: ThreeDTextureEntity
-const tx = 100f
-const ty = 100f
 var rx = degToRad(190f)
 var ry = degToRad(40f)
 
-const vertexShader =
-  """
-  #version 410
-  uniform mat4 u_matrix;
-  in vec4 a_position;
-  in vec2 a_texcoord;
-  out vec2 v_texcoord;
-  void main()
-  {
-    gl_Position = u_matrix * a_position;
-    v_texcoord = a_texcoord;
-  }
-  """
-
-const fragmentShader =
-  """
-  #version 410
-  precision mediump float;
-  uniform sampler2D u_texture;
-  in vec2 v_texcoord;
-  out vec4 outColor;
-  void main()
-  {
-    outColor = texture(u_texture, v_texcoord);
-  }
-  """
-
 proc initThreeDTextureEntity(posData: openArray[GLfloat], imgData: openArray[GLubyte], width: int, height: int): UncompiledThreeDTextureEntity =
-  result.vertexSource = vertexShader
-  result.fragmentSource = fragmentShader
+  result.vertexSource = threeDTextureVertexShader
+  result.fragmentSource = threeDTextureFragmentShader
   # position
   var position = Attribute[GLfloat](enable: true, size: 3, iter: 1)
   new(position.data)
