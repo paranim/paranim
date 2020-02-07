@@ -33,7 +33,7 @@ proc tick*(game: Game) =
     cx = x - (float(game.frameWidth) / 2)
     cr = degToRad((cx / float(game.frameWidth)) * 360f)
 
-  var camera = identity4x4[float32]()
+  var camera = mat4f(1)
   camera.rotateY(cr)
   camera.translate(0f, 0f, radius * 1.5f)
 

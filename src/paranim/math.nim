@@ -3,14 +3,7 @@ from std/math import nil
 
 # 2D
 
-proc identity3x3*[T](): Mat3x3[T] =
-  mat3x3(
-    vec3[T](T(1), T(0), T(0)),
-    vec3[T](T(0), T(1), T(0)),
-    vec3[T](T(0), T(0), T(1))
-  )
-
-proc projection*[T](width: T, height: T): Mat3x3[T] =
+proc projectMat*[T](width: T, height: T): Mat3x3[T] =
   mat3x3(
     vec3[T](T(2) / width, T(0), -T(1)),
     vec3[T](T(0), -T(2) / height, T(1)),
@@ -18,9 +11,9 @@ proc projection*[T](width: T, height: T): Mat3x3[T] =
   )
 
 proc project*[T](matrix: var Mat3x3[T], width: T, height: T) =
-  matrix = projection(width, height) * matrix
+  matrix = projectMat(width, height) * matrix
 
-proc translation*[T](x: T, y: T): Mat3x3[T] =
+proc translateMat*[T](x: T, y: T): Mat3x3[T] =
   mat3x3(
     vec3[T](T(1), T(0), x),
     vec3[T](T(0), T(1), y),
@@ -28,9 +21,9 @@ proc translation*[T](x: T, y: T): Mat3x3[T] =
   )
 
 proc translate*[T](matrix: var Mat3x3[T], x: T, y: T) =
-  matrix = translation(x, y) * matrix
+  matrix = translateMat(x, y) * matrix
 
-proc scaling*[T](x: T, y: T): Mat3x3[T] =
+proc scaleMat*[T](x: T, y: T): Mat3x3[T] =
   mat3x3(
     vec3[T](x, T(0), T(0)),
     vec3[T](T(0), y, T(0)),
@@ -38,9 +31,9 @@ proc scaling*[T](x: T, y: T): Mat3x3[T] =
   )
 
 proc scale*[T](matrix: var Mat3x3[T], x: T, y: T) =
-  matrix = scaling(x, y) * matrix
+  matrix = scaleMat(x, y) * matrix
 
-proc rotation*[T](angle: T): Mat3x3[T] =
+proc rotateMat*[T](angle: T): Mat3x3[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat3x3(
@@ -50,19 +43,11 @@ proc rotation*[T](angle: T): Mat3x3[T] =
   )
 
 proc rotate*[T](matrix: var Mat3x3[T], angle: T) =
-  matrix = rotation(angle) * matrix
+  matrix = rotateMat(angle) * matrix
 
 # 3D
 
-proc identity4x4*[T](): Mat4x4[T] =
-  mat4x4(
-    vec4[T](T(1), T(0), T(0), T(0)),
-    vec4[T](T(0), T(1), T(0), T(0)),
-    vec4[T](T(0), T(0), T(1), T(0)),
-    vec4[T](T(0), T(0), T(0), T(1))
-  )
-
-proc projectionOrtho*[T](left: T, right: T, bottom: T, top: T, near: T, far: T): Mat4x4[T] =
+proc projectOrthoMat*[T](left: T, right: T, bottom: T, top: T, near: T, far: T): Mat4x4[T] =
   let
     width = right - left
     height = top - bottom
@@ -75,9 +60,9 @@ proc projectionOrtho*[T](left: T, right: T, bottom: T, top: T, near: T, far: T):
   )
 
 proc project*[T](matrix: var Mat4x4[T], left: T, right: T, bottom: T, top: T, near: T, far: T) =
-  matrix = projectionOrtho(left, right, bottom, top, near, far) * matrix
+  matrix = projectOrthoMat(left, right, bottom, top, near, far) * matrix
 
-proc projectionPerspective*[T](fieldOfView: T, aspect: T, near: T, far: T): Mat4x4[T] =
+proc projectPerspectiveMat*[T](fieldOfView: T, aspect: T, near: T, far: T): Mat4x4[T] =
   let
     f = math.tan((math.PI * T(0.5)) - (fieldOfView * T(0.5)))
     rangeInv = 1 / (near - far)
@@ -89,9 +74,9 @@ proc projectionPerspective*[T](fieldOfView: T, aspect: T, near: T, far: T): Mat4
   )
 
 proc project*[T](matrix: var Mat4x4[T], fieldOfView: T, aspect: T, near: T, far: T) =
-  matrix = projectionPerspective(fieldOfView, aspect, near, far) * matrix
+  matrix = projectPerspectiveMat(fieldOfView, aspect, near, far) * matrix
 
-proc translation*[T](x: T, y: T, z: T): Mat4x4[T] =
+proc translateMat*[T](x: T, y: T, z: T): Mat4x4[T] =
   mat4x4(
     vec4[T](T(1), T(0), T(0), x),
     vec4[T](T(0), T(1), T(0), y),
@@ -100,9 +85,9 @@ proc translation*[T](x: T, y: T, z: T): Mat4x4[T] =
   )
 
 proc translate*[T](matrix: var Mat4x4[T], x: T, y: T, z: T) =
-  matrix = translation(x, y, z) * matrix
+  matrix = translateMat(x, y, z) * matrix
 
-proc scaling*[T](x: T, y: T, z: T): Mat4x4[T] =
+proc scaleMat*[T](x: T, y: T, z: T): Mat4x4[T] =
   mat4x4(
     vec4[T](x, T(0), T(0), T(0)),
     vec4[T](T(0), y, T(0), T(0)),
@@ -111,9 +96,9 @@ proc scaling*[T](x: T, y: T, z: T): Mat4x4[T] =
   )
 
 proc scale*[T](matrix: var Mat4x4[T], x: T, y: T, z: T) =
-  matrix = scaling(x, y, z) * matrix
+  matrix = scaleMat(x, y, z) * matrix
 
-proc rotationX*[T](angle: T): Mat4x4[T] =
+proc rotateXMat*[T](angle: T): Mat4x4[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
@@ -124,9 +109,9 @@ proc rotationX*[T](angle: T): Mat4x4[T] =
   )
 
 proc rotateX*[T](matrix: var Mat4x4[T], angle: T) =
-  matrix = rotationX(angle) * matrix
+  matrix = rotateXMat(angle) * matrix
 
-proc rotationY*[T](angle: T): Mat4x4[T] =
+proc rotateYMat*[T](angle: T): Mat4x4[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
@@ -137,9 +122,9 @@ proc rotationY*[T](angle: T): Mat4x4[T] =
   )
 
 proc rotateY*[T](matrix: var Mat4x4[T], angle: T) =
-  matrix = rotationY(angle) * matrix
+  matrix = rotateYMat(angle) * matrix
 
-proc rotationZ*[T](angle: T): Mat4x4[T] =
+proc rotateZMat*[T](angle: T): Mat4x4[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
@@ -150,9 +135,9 @@ proc rotationZ*[T](angle: T): Mat4x4[T] =
   )
 
 proc rotateZ*[T](matrix: var Mat4x4[T], angle: T) =
-  matrix = rotationZ(angle) * matrix
+  matrix = rotateZMat(angle) * matrix
 
-proc lookingAt*[T](cameraPos: Vec3[T], target: Vec3[T], up: Vec3[T]): Mat4x4[T] =
+proc lookAtMat*[T](cameraPos: Vec3[T], target: Vec3[T], up: Vec3[T]): Mat4x4[T] =
   let
     zAxis = normalize(cameraPos - target)
     xAxis = normalize(cross(up, zAxis))
@@ -166,7 +151,7 @@ proc lookingAt*[T](cameraPos: Vec3[T], target: Vec3[T], up: Vec3[T]): Mat4x4[T] 
 
 proc lookAt*[T](matrix: var Mat4x4[T], target: Vec3[T], up: Vec3[T]) =
   let cameraPos = vec3(matrix[0][3], matrix[1][3], matrix[2][3])
-  matrix = lookingAt(cameraPos, target, up)
+  matrix = lookAtMat(cameraPos, target, up)
 
 proc invert*[T](matrix: var Mat4x4[T], camera: Mat4x4[T]) =
   matrix = camera.inverse() * matrix

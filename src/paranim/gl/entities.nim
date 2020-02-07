@@ -1,5 +1,4 @@
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
-from paranim/math as pmath import nil
 from paranim/primitives import nil
 import nimgl/opengl
 import glm
@@ -64,7 +63,7 @@ proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   position.data[].add(data)
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity3x3[GLfloat]()),
+    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: mat3f(1)),
     u_color: Uniform[Vec4[GLfloat]](enable: true, data: vec4(0f, 0f, 0f, 1f))
   )
 
@@ -176,8 +175,8 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # set attributes and uniforms
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity3x3[GLfloat]()),
-    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: pmath.identity3x3[GLfloat]()),
+    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: mat3f(1)),
+    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: mat3f(1)),
     u_image: Uniform[Texture[GLubyte]](
       enable: true,
       data: image

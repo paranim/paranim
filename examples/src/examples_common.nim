@@ -110,7 +110,7 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
   color.data[].add(colorDataNormalized)
   result.attributes = (a_position: position, a_color: color)
   result.uniforms = (
-    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: pmath.identity4x4[GLfloat]())
+    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: mat4f(1))
   )
 
 proc degToRad*(degrees: GLfloat): GLfloat =
@@ -130,7 +130,7 @@ proc transformVec(matrix: Mat4x4[GLfloat], vec: Vec4[GLfloat]): Vec4[GLfloat] =
 # we had +Y as down.
 proc transformData*(data: openArray[GLfloat]): seq[GLfloat] =
   result.add(data)
-  var matrix = pmath.identity4x4[GLfloat]()
+  var matrix = mat4f(1)
   pmath.rotateX(matrix, math.PI)
   pmath.translate(matrix, -50f, -75f, -15f)
   for i in 0 ..< int(data.len / 3):
