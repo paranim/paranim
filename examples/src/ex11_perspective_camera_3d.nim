@@ -1,13 +1,14 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/uniforms
-from paranim/math as pmath import nil
+import paranim/math as pmath
 import examples_common
 from bitops import bitor
 from std/math import nil
 import glm
 
 var entity: ThreeDEntity
-let tx, ty = 100f
+const tx = 100f
+const ty = 100f
 const radius = 200f
 const numFs = 5
 
@@ -32,9 +33,9 @@ proc tick*(game: Game) =
     cx = x - (float(game.frameWidth) / 2)
     cr = degToRad((cx / float(game.frameWidth)) * 360f)
 
-  var camera = pmath.identity4x4[float32]()
-  pmath.rotateY(camera, cr)
-  pmath.translate(camera, 0f, 0f, radius * 1.5f)
+  var camera = identity4x4[float32]()
+  camera.rotateY(cr)
+  camera.translate(0f, 0f, radius * 1.5f)
 
   for i in 0 ..< numFs:
     let

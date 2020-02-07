@@ -4,7 +4,8 @@ import examples_common
 from math import nil
 
 var entity: TwoDEntity
-let tx, ty = 100f
+const tx = 100f
+const ty = 100f
 
 proc init*(game: var Game) =
   assert glInit()

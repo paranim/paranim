@@ -5,7 +5,8 @@ from bitops import bitor
 from math import nil
 
 var entity: ThreeDEntity
-let tx, ty = 100f
+const tx = 100f
+const ty = 100f
 
 proc init*(game: var Game) =
   assert glInit()

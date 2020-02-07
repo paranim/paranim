@@ -3,7 +3,8 @@ import paranim/gl, paranim/gl/entities
 import examples_common
 
 var entity: TwoDEntity
-let tx, ty = 100f
+const tx = 100f
+const ty = 100f
 
 proc init*(game: var Game) =
   assert glInit()
