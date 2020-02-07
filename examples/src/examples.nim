@@ -15,6 +15,7 @@ from ex12_perspective_camera_3d import nil
 from ex13_perspective_camera_target_3d import nil
 from ex14_perspective_animation_3d import nil
 from ex15_perspective_texture_3d import nil
+from ex16_perspective_texture_data_3d import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick, name: "ex01_image"),
@@ -32,6 +33,7 @@ const examples = [
   (init: ex13_perspective_camera_target_3d.init, tick: ex13_perspective_camera_target_3d.tick, name: "ex13_perspective_camera_target_3d"),
   (init: ex14_perspective_animation_3d.init, tick: ex14_perspective_animation_3d.tick, name: "ex14_perspective_animation_3d"),
   (init: ex15_perspective_texture_3d.init, tick: ex15_perspective_texture_3d.tick, name: "ex15_perspective_texture_3d"),
+  (init: ex16_perspective_texture_data_3d.init, tick: ex16_perspective_texture_data_3d.tick, name: "ex16_perspective_texture_data_3d"),
 ]
 
 var game = Game()

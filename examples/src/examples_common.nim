@@ -149,4 +149,22 @@ type
   ThreeDTextureEntityUniForms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[Texture[GLubyte]]]
   ThreeDTextureEntityAttributes = tuple[a_position: Attribute[GLfloat], a_texcoord: Attribute[GLfloat]]
   ThreeDTextureEntity* = object of ArrayEntity[ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
-  UncompiledThreeDTextureEntity* = object of UncompiledEntity[ThreeDTextureEntity, ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
+  UncompiledThreeDTextureEntity = object of UncompiledEntity[ThreeDTextureEntity, ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
+
+proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArray[GLfloat], image: Texture[GLubyte]): UncompiledThreeDTextureEntity =
+  result.vertexSource = threeDTextureVertexShader
+  result.fragmentSource = threeDTextureFragmentShader
+  # position
+  var position = Attribute[GLfloat](enable: true, size: 3, iter: 1)
+  new(position.data)
+  position.data[].add(posData)
+  # texcoord
+  var texcoord = Attribute[GLfloat](enable: true, size: 2, iter: 1, normalize: true)
+  new(texcoord.data)
+  texcoord.data[].add(texcoordData)
+  # set attrs and unis
+  result.attributes = (a_position: position, a_texcoord: texcoord)
+  result.uniforms = (
+    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: mat4f(1)),
+    u_texture: Uniform[Texture[GLubyte]](enable: true, data: image)
+  )

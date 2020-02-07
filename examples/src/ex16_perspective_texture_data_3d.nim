@@ -5,13 +5,11 @@ import examples_common, examples_data
 from bitops import bitor
 from std/math import nil
 import glm
-import stb_image/read as stbi
-
-const rawImage = staticRead("assets/f-texture.png")
 
 var entity: ThreeDTextureEntity
 var rx = degToRad(190f)
 var ry = degToRad(40f)
+const pattern = [GLubyte(128), GLubyte(64), GLubyte(128), GLubyte(0), GLubyte(192), GLubyte(0)]
 
 proc init*(game: var Game) =
   assert glInit()
@@ -21,19 +19,14 @@ proc init*(game: var Game) =
   glEnable(GL_CULL_FACE)
   glEnable(GL_DEPTH_TEST)
 
-  var
-    width, height, channels: int
-    data: seq[uint8]
-  data = stbi.loadFromMemory(cast[seq[uint8]](rawImage), width, height, channels, stbi.RGBA)
-
   var image = Texture[GLubyte](
     opts: TextureOpts(
       mipLevel: 0,
-      internalFmt: GL_RGBA,
-      width: GLsizei(width),
-      height: GLsizei(height),
+      internalFmt: GL_R8,
+      width: GLsizei(3),
+      height: GLsizei(2),
       border: 0,
-      srcFmt: GL_RGBA
+      srcFmt: GL_RED
     ),
     params: @[
       (GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE),
@@ -41,19 +34,19 @@ proc init*(game: var Game) =
       (GL_TEXTURE_MIN_FILTER, GL_NEAREST),
       (GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     ],
-    mipmapParams: @[GL_TEXTURE_2D]
+    pixelStoreParams: @[(GL_UNPACK_ALIGNMENT, GLint(1))]
   )
   new(image.data)
-  image.data[].add(data)
+  image.data[].add(pattern)
 
-  entity = compile(game, initThreeDTextureEntity(transformData(f3d), fTexcoords, image))
+  entity = compile(game, initThreeDTextureEntity(cube, cubeTexcoords, image))
 
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GLbitfield(bitor(GL_COLOR_BUFFER_BIT.ord, GL_DEPTH_BUFFER_BIT.ord)))
 
   var camera = mat4f(1)
-  camera.translate(0f, 0f, 200f)
+  camera.translate(0f, 0f, 2f)
   camera.lookAt(vec3(0f, 0f, 0f), vec3(0f, 1f, 0f))
 
   var e = entity
