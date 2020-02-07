@@ -2,6 +2,7 @@ import nimgl/opengl
 import paranim/gl, paranim/gl/entities
 import examples_common
 from math import nil
+from glm import vec4
 
 var entity: TwoDEntity
 const tx = 100f
@@ -36,7 +37,7 @@ proc tick*(game: Game) =
   e.translate(tx, ty)
   e.rotate(r)
   e.translate(-50f, -75f)
-  e.color([1f, 0f, 0.5f, 1f])
+  e.color(vec4(1f, 0f, 0.5f, 1f))
 
   render(game, e)
 

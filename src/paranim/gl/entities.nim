@@ -29,7 +29,7 @@ proc scale*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat
 proc rotate*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
   entity.uniforms.u_matrix.rotate(angle)
 
-proc color*[UniT, AttrT](entity: var Entity[UniT, AttrT], rgba: array[4, GLfloat]) =
+proc color*[UniT, AttrT](entity: var Entity[UniT, AttrT], rgba: Vec4[GLfloat]) =
   entity.uniforms.u_color.color(rgba)
 
 const twoDVertexShader =

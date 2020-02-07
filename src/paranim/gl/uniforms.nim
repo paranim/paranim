@@ -39,9 +39,9 @@ proc rotate*(uni: var UniForm, angle: GLFloat) =
   uni.enable = true
   uni.data.rotate(angle)
 
-proc color*(uni: var UniForm, rgba: array[4, GLfloat]) =
+proc color*(uni: var UniForm, rgba: Vec4[GLfloat]) =
   uni.enable = true
-  uni.data = vec4(rgba[0], rgba[1], rgba[2], rgba[3])
+  uni.data = rgba
 
 # 3D
 

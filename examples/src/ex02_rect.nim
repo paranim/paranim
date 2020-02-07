@@ -2,6 +2,7 @@ import nimgl/opengl
 import paranim/gl, paranim/gl/entities
 from paranim/primitives import nil
 import examples_common
+from glm import vec4
 
 var entity: TwoDEntity
 
@@ -17,7 +18,7 @@ proc init*(game: var Game) =
   uncompiledEntity.project(float(game.frameWidth), float(game.frameHeight))
   uncompiledEntity.translate(50f, 50f)
   uncompiledEntity.scale(100f, 100f)
-  uncompiledEntity.color([1f, 0f, 0f, 1f])
+  uncompiledEntity.color(vec4(1f, 0f, 0f, 1f))
   entity = compile(game, uncompiledEntity)
 
 proc tick*(game: Game) =

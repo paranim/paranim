@@ -1,6 +1,7 @@
 import nimgl/opengl
 import paranim/gl, paranim/gl/entities
 import examples_common
+from glm import vec4
 
 var entity: TwoDEntity
 
@@ -22,7 +23,7 @@ proc tick*(game: Game) =
   var e = entity
   e.project(float(game.frameWidth), float(game.frameHeight))
   e.translate(game.mouseX, game.mouseY)
-  e.color([1f, 0f, 0.5f, 1f])
+  e.color(vec4(1f, 0f, 0.5f, 1f))
 
   render(game, e)
 

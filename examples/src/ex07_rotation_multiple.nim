@@ -2,6 +2,7 @@ import nimgl/opengl
 import paranim/gl, paranim/gl/entities
 import examples_common
 from math import nil
+from glm import vec4
 
 var entity: TwoDEntity
 const tx = 100f
@@ -17,7 +18,7 @@ proc init*(game: var Game) =
 
   entity = compile(game, initTwoDEntity(f2d))
   entity.project(float(game.frameWidth), float(game.frameHeight))
-  entity.color([1f, 0f, 0.5f, 1f])
+  entity.color(vec4(1f, 0f, 0.5f, 1f))
 
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
