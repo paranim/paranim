@@ -152,5 +152,21 @@ proc rotationZ*[T](angle: T): Mat4x4[T] =
 proc rotateZ*[T](matrix: var Mat4x4[T], angle: T) =
   matrix = rotationZ(angle) * matrix
 
+proc lookingAt*[T](cameraPos: Vec3[T], target: Vec3[T], up: Vec3[T]): Mat4x4[T] =
+  let
+    zAxis = normalize(cameraPos - target)
+    xAxis = normalize(cross(up, zAxis))
+    yAxis = normalize(cross(zAxis, xAxis))
+  mat4x4(
+    vec4[T](xAxis[0], yAxis[0], zAxis[0], cameraPos[0]),
+    vec4[T](xAxis[1], yAxis[1], zAxis[1], cameraPos[1]),
+    vec4[T](xAxis[2], yAxis[2], zAxis[2], cameraPos[2]),
+    vec4[T](T(0), T(0), T(0), T(1))
+  )
+
+proc lookAt*[T](matrix: var Mat4x4[T], target: Vec3[T], up: Vec3[T]) =
+  let cameraPos = vec3(matrix[0][3], matrix[1][3], matrix[2][3])
+  matrix = lookingAt(cameraPos, target, up)
+
 proc invert*[T](matrix: var Mat4x4[T], camera: Mat4x4[T]) =
   matrix = camera.inverse() * matrix
