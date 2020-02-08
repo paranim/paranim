@@ -26,7 +26,7 @@ type
 
 # 2D
 
-proc project*(uni: var UniForm, width: GLfloat, height: GLfloat) =
+proc project*(uni: var Uniform, width: GLfloat, height: GLfloat) =
   uni.disable = false
   uni.data.project(width, height)
 
@@ -34,15 +34,15 @@ proc translate*(uni: var Uniform, x: GLfloat, y: GLfloat) =
   uni.disable = false
   uni.data.translate(x, y)
 
-proc scale*(uni: var UniForm, x: GLfloat, y: GLfloat) =
+proc scale*(uni: var Uniform, x: GLfloat, y: GLfloat) =
   uni.disable = false
   uni.data.scale(x, y)
 
-proc rotate*(uni: var UniForm, angle: GLFloat) =
+proc rotate*(uni: var Uniform, angle: GLFloat) =
   uni.disable = false
   uni.data.rotate(angle)
 
-proc color*(uni: var UniForm, rgba: Vec4[GLfloat]) =
+proc color*(uni: var Uniform, rgba: Vec4[GLfloat]) =
   uni.disable = false
   uni.data = rgba
 
@@ -68,7 +68,7 @@ proc rotateX*(uni: var Uniform, angle: GLFloat) =
   uni.disable = false
   uni.data.rotateX(angle)
 
-proc rotateY*(uni: var UniForm, angle: GLFloat) =
+proc rotateY*(uni: var Uniform, angle: GLFloat) =
   uni.disable = false
   uni.data.rotateY(angle)
 

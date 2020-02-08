@@ -21,9 +21,8 @@ type
     instanceCount*: GLsizei
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
+  let unit = game.texCount
   game.texCount += 1
-  let
-    unit = game.texCount - 1
   var textureNum: GLuint
   glGenTextures(1, textureNum.addr)
   glActiveTexture(GLenum(GL_TEXTURE0.ord + unit))
