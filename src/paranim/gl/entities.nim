@@ -58,13 +58,13 @@ const twoDFragmentShader =
 proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
-  var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
+  var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
   position.data[].add(data)
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: mat3f(1)),
-    u_color: Uniform[Vec4[GLfloat]](enable: true, data: vec4(0f, 0f, 0f, 1f))
+    u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
+    u_color: Uniform[Vec4[GLfloat]](data: vec4(0f, 0f, 0f, 1f))
   )
 
 const instancedTwoDVertexShader =
@@ -108,12 +108,12 @@ proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Mat3x3[T]]) =
   for r in 0 .. 2:
     for c in 0 .. 2:
       attr.data[].add(uni.data.row(r)[c])
-  attr.enable = true
+  attr.disable = false
 
 proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Vec4[T]]) =
   for x in 0 .. 3:
     attr.data[].add(uni.data[x])
-  attr.enable = true
+  attr.disable = false
 
 proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: UncompiledTwoDEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
@@ -150,7 +150,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   # create attribute
-  var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
+  var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
   position.data[].add(primitives.rect)
   # create texture
@@ -175,10 +175,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # set attributes and uniforms
   result.attributes = (a_position: position)
   result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: mat3f(1)),
-    u_texture_matrix: Uniform[Mat3x3[GLfloat]](enable: true, data: mat3f(1)),
-    u_image: Uniform[Texture[GLubyte]](
-      enable: true,
-      data: image
-    )
+    u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
+    u_texture_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
+    u_image: Uniform[Texture[GLubyte]](data: image)
   )

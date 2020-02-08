@@ -86,7 +86,7 @@ type
 test "all uniform types":
   var dataArr: seq[GLfloat] = @[]
   dataArr.add(primitives.rect)
-  var position = Attribute[GLfloat](enable: true, size: 2, iter: 1)
+  var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
   position.data[] = dataArr
   let uncompiledEntity = UncompiledTestEntity(
@@ -94,16 +94,16 @@ test "all uniform types":
     fragmentSource: fragmentShader,
     attributes: (a_position: position),
     uniforms: (
-      u_float: Uniform[GLfloat](enable: true),
-      u_int: Uniform[GLint](enable: true),
-      u_uint: Uniform[GLuint](enable: true),
-      u_vec2: Uniform[Vec2[GLfloat]](enable: true),
-      u_vec3: Uniform[Vec3[GLfloat]](enable: true),
-      u_vec4: Uniform[Vec4[GLfloat]](enable: true),
-      u_mat2: Uniform[Mat2x2[GLfloat]](enable: true),
-      u_mat3: Uniform[Mat3x3[GLfloat]](enable: true),
-      u_mat4: Uniform[Mat4x4[GLfloat]](enable: true),
-      u_color: Uniform[Vec4[GLfloat]](enable: true)
+      u_float: Uniform[GLfloat](),
+      u_int: Uniform[GLint](),
+      u_uint: Uniform[GLuint](),
+      u_vec2: Uniform[Vec2[GLfloat]](),
+      u_vec3: Uniform[Vec3[GLfloat]](),
+      u_vec4: Uniform[Vec4[GLfloat]](),
+      u_mat2: Uniform[Mat2x2[GLfloat]](),
+      u_mat3: Uniform[Mat3x3[GLfloat]](),
+      u_mat4: Uniform[Mat4x4[GLfloat]](),
+      u_color: Uniform[Vec4[GLfloat]]()
     )
   )
   discard compile(game, uncompiledEntity)

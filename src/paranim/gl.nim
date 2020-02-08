@@ -62,12 +62,12 @@ proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledE
   let (unit, _) = createTexture(game, loc, uni.data)
   uni.data.unit = unit
   glUniform1i(loc, uni.data.unit)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data.unit)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[GameT, CompiledT, UniT, AttrT](game: var GameT, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[GLubyte, GameT]]) =
   let loc = getUniformLocation(program, uniName)
@@ -103,17 +103,17 @@ proc callUniform[GameT, UniT, AttrT](game: GameT, entity: CompiledEntity[UniT, A
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1f(loc, uni.data)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLint]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLuint]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1ui(loc, uni.data)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
@@ -126,25 +126,25 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform4fv(loc, 1, uni.data.caddr)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat2x2[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix2fv(loc, 1, false, data.caddr)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat3x3[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix3fv(loc, 1, false, data.caddr)
-  uni.enable = false
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat4x4[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
-  uni.enable = false
+  uni.disable = true
 
 proc initBuffer(attr: var Attribute) =
   var buf: GLuint
@@ -163,9 +163,9 @@ proc setBuffers[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT]) =
   var drawCounts: array[maxDivisor+1, int]
   drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
-    if attr.enable:
+    if not attr.disable:
       setBuffer(entity, drawCounts, attrName, attr)
-      attr.enable = false
+      attr.disable = true
   if drawCounts[0] >= 0:
     entity.drawCount = GLsizei(drawCounts[0])
 
@@ -173,9 +173,9 @@ proc setBuffers[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT]) =
   var drawCounts: array[maxDivisor+1, int]
   drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
-    if attr.enable:
+    if not attr.disable:
       setBuffer(entity, drawCounts, attrName, attr)
-      attr.enable = false
+      attr.disable = true
   if drawCounts[0] >= 0:
     entity.drawCount = GLsizei(drawCounts[0])
   if drawCounts[1] >= 0:
@@ -197,7 +197,7 @@ proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: 
     initBuffer(attr)
   setBuffers(result)
   for name, uni in result.uniforms.fieldPairs:
-    if uni.enable:
+    if not uni.disable:
       callUniform(game, uncompiledEntity, result.program, name, uni)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
@@ -212,7 +212,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, Attr
   glBindVertexArray(entity.vao)
   setBuffers(entity)
   for name, uni in entity.uniforms.fieldPairs:
-    if uni.enable:
+    if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
   glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
@@ -228,7 +228,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
   glBindVertexArray(entity.vao)
   setBuffers(entity)
   for name, uni in entity.uniforms.fieldPairs:
-    if uni.enable:
+    if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)

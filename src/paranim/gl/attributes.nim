@@ -4,7 +4,7 @@ const maxDivisor* = 1
 
 type
   Attribute*[T] = object
-    enable*: bool
+    disable*: bool
     buffer*: GLuint
     data*: ref seq[T]
     size*: GLint

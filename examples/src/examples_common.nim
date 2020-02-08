@@ -104,16 +104,16 @@ type
 proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]): UncompiledThreeDEntity =
   result.vertexSource = threeDVertexShader
   result.fragmentSource = threeDFragmentShader
-  var position = Attribute[GLfloat](enable: true, size: 3, iter: 1)
+  var position = Attribute[GLfloat](size: 3, iter: 1)
   new(position.data)
   position.data[].add(data)
-  var color = Attribute[GLfloat](enable: true, size: 3, iter: 1)
+  var color = Attribute[GLfloat](size: 3, iter: 1)
   new(color.data)
   let colorDataNormalized = colorData.map proc (n: GLfloat): GLfloat = n / 255f
   color.data[].add(colorDataNormalized)
   result.attributes = (a_position: position, a_color: color)
   result.uniforms = (
-    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: mat4f(1))
+    u_matrix: Uniform[Mat4x4[GLfloat]](data: mat4f(1))
   )
 
 # textured 3D entity
@@ -155,16 +155,16 @@ proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArr
   result.vertexSource = threeDTextureVertexShader
   result.fragmentSource = threeDTextureFragmentShader
   # position
-  var position = Attribute[GLfloat](enable: true, size: 3, iter: 1)
+  var position = Attribute[GLfloat](size: 3, iter: 1)
   new(position.data)
   position.data[].add(posData)
   # texcoord
-  var texcoord = Attribute[GLfloat](enable: true, size: 2, iter: 1, normalize: true)
+  var texcoord = Attribute[GLfloat](size: 2, iter: 1, normalize: true)
   new(texcoord.data)
   texcoord.data[].add(texcoordData)
   # set attrs and unis
   result.attributes = (a_position: position, a_texcoord: texcoord)
   result.uniforms = (
-    u_matrix: Uniform[Mat4x4[GLfloat]](enable: true, data: mat4f(1)),
-    u_texture: Uniform[Texture[GLubyte]](enable: true, data: image)
+    u_matrix: Uniform[Mat4x4[GLfloat]](data: mat4f(1)),
+    u_texture: Uniform[Texture[GLubyte]](data: image)
   )
