@@ -9,10 +9,10 @@ import glm
 type
   ThreeDMetaTextureEntityUniForms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[RenderToTexture[GLubyte, Game]]]
   ThreeDMetaTextureEntityAttributes = tuple[a_position: Attribute[GLfloat], a_texcoord: Attribute[GLfloat]]
-  ThreeDMetaTextureEntity* = object of ArrayEntity[ThreeDMetaTextureEntityUniForms, ThreeDMetaTextureEntityAttributes]
+  ThreeDMetaTextureEntity = object of ArrayEntity[ThreeDMetaTextureEntityUniForms, ThreeDMetaTextureEntityAttributes]
   UncompiledThreeDMetaTextureEntity = object of UncompiledEntity[ThreeDMetaTextureEntity, ThreeDMetaTextureEntityUniForms, ThreeDMetaTextureEntityAttributes]
 
-proc initThreeDMetaTextureEntity*(posData: openArray[GLfloat], texcoordData: openArray[GLfloat], image: RenderToTexture[GLubyte, Game]): UncompiledThreeDMetaTextureEntity =
+proc initThreeDMetaTextureEntity(posData: openArray[GLfloat], texcoordData: openArray[GLfloat], image: RenderToTexture[GLubyte, Game]): UncompiledThreeDMetaTextureEntity =
   result.vertexSource = threeDTextureVertexShader
   result.fragmentSource = threeDTextureFragmentShader
   # position
@@ -38,7 +38,7 @@ const targetWidth = 256
 const targetHeight = 256
 
 proc init*(game: var Game) =
-  assert glInit()
+  doAssert glInit()
 
   glEnable(GL_BLEND)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

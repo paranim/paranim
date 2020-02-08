@@ -12,7 +12,7 @@ var ry = degToRad(40f)
 const pattern = [GLubyte(128), GLubyte(64), GLubyte(128), GLubyte(0), GLubyte(192), GLubyte(0)]
 
 proc init*(game: var Game) =
-  assert glInit()
+  doAssert glInit()
 
   glEnable(GL_BLEND)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

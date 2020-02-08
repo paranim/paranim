@@ -10,7 +10,7 @@ randomize()
 var entity: InstancedTwoDEntity
 
 proc init*(game: var Game) =
-  assert glInit()
+  doAssert glInit()
 
   glEnable(GL_BLEND)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

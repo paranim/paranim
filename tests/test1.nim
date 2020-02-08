@@ -7,7 +7,7 @@ from paranim/primitives import nil
 import glm
 
 proc init() =
-  assert glfwInit()
+  doAssert glfwInit()
 
   glfwWindowHint(GLFWContextVersionMajor, 4)
   glfwWindowHint(GLFWContextVersionMinor, 1)
@@ -21,7 +21,7 @@ proc init() =
 
   w.makeContextCurrent()
 
-  assert glInit()
+  doAssert glInit()
 
 init()
 

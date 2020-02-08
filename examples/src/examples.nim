@@ -74,7 +74,7 @@ proc resizeWindowCallback(window: GLFWWindow, width: int32, height: int32): void
   game.windowHeight = height
 
 when isMainModule:
-  assert glfwInit()
+  doAssert glfwInit()
 
   glfwWindowHint(GLFWContextVersionMajor, 4)
   glfwWindowHint(GLFWContextVersionMinor, 1)
