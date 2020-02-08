@@ -32,6 +32,12 @@ proc rotate*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
 proc color*[UniT, AttrT](entity: var Entity[UniT, AttrT], rgba: Vec4[GLfloat]) =
   entity.uniforms.u_color.color(rgba)
 
+proc crop*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat, width: GLfloat, height: GLfloat) =
+  let
+    texWidth = GLfloat(entity.uniforms.u_image.data.opts.width)
+    texHeight = GLfloat(entity.uniforms.u_image.data.opts.height)
+  entity.uniforms.u_texture_matrix.crop(x, y, width, height, texWidth, texHeight)
+
 const twoDVertexShader =
   """
   #version 410

@@ -46,6 +46,11 @@ proc color*(uni: var Uniform, rgba: Vec4[GLfloat]) =
   uni.disable = false
   uni.data = rgba
 
+proc crop*(uni: var Uniform, x: GLfloat, y: GLfloat, width: GLfloat, height: GLfloat, texWidth: GLfloat, texHeight: GLfloat) =
+  uni.disable = false
+  uni.data = translateMat(x / texWidth, y / texHeight) * uni.data
+  uni.data = scaleMat(width / texWidth, height / texHeight) * uni.data
+
 # 3D
 
 proc project*(uni: var Uniform, left: GLfloat, right: GLfloat, bottom: GLfloat, top: GLfloat, near: GLfloat, far: GLfloat) =
