@@ -24,6 +24,7 @@ proc init*(game: var Game) =
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GLbitfield(bitor(GL_COLOR_BUFFER_BIT.ord, GL_DEPTH_BUFFER_BIT.ord)))
+  glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
 
   var e = entity
   e.project(degToRad(60f), float(game.frameWidth) / float(game.frameHeight), 1f, 2000f)

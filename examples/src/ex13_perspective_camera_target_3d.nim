@@ -25,6 +25,7 @@ proc init*(game: var Game) =
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GLbitfield(bitor(GL_COLOR_BUFFER_BIT.ord, GL_DEPTH_BUFFER_BIT.ord)))
+  glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
 
   let
     widthRatio = float(game.frameWidth) / float(game.windowWidth)

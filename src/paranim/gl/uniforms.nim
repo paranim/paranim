@@ -13,14 +13,16 @@ type
     height*: GLsizei
     border*: GLint
     srcFmt*: GLenum
-  Texture*[T] = object
+  Texture*[T] = object of RootObj
     data*: ref seq[T]
     opts*: TextureOpts
     params*: seq[(GLenum, GLenum)]
     pixelStoreParams*: seq[(GLenum, GLint)]
     mipmapParams*: seq[GLenum]
     unit*: GLint
+  RenderToTexture*[T, GameT] = object of Texture[T]
     framebuffer*: GLuint
+    render*: proc (game: GameT)
 
 # 2D
 

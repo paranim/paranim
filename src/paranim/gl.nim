@@ -20,11 +20,10 @@ type
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
 
-proc createTexture[T](game: var RootGame, uni: var Uniform[Texture[T]], uniLoc: GLint) =
+proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
   game.texCount += 1
   let
     unit = game.texCount - 1
-    texture = uni.data
   var textureNum: GLuint
   glGenTextures(1, textureNum.addr)
   glActiveTexture(GLenum(GL_TEXTURE0.ord + unit))
@@ -47,21 +46,11 @@ proc createTexture[T](game: var RootGame, uni: var Uniform[Texture[T]], uniLoc: 
     texture.opts.border,
     texture.opts.srcFmt,
     srcType,
-    texture.data[0].unsafeAddr
+    if texture.data == nil: nil else: texture.data[0].unsafeAddr
   )
   for paramVal in texture.mipmapParams:
     glGenerateMipmap(paramVal)
-  uni.data.unit = GLint(unit)
-  if uni.data.data == nil:
-    var
-      fb: GLuint
-      previousFramebuffer: GLuint
-    glGenFramebuffers(1, fb.addr)
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, cast[ptr GLint](previousFramebuffer.addr))
-    glBindFramebuffer(GL_FRAMEBUFFER, fb)
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureNum, 0)
-    glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer)
-    uni.data.framebuffer = fb
+  (unit: GLint(unit), textureNum: textureNum)
 
 proc getUniformLocation(program: GLuint, uniName: string): GLint =
   result = glGetUniformLocation(program, uniName)
@@ -70,24 +59,61 @@ proc getUniformLocation(program: GLuint, uniName: string): GLint =
 
 proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
   let loc = getUniformLocation(program, uniName)
-  createTexture(game, uni, loc)
+  let (unit, _) = createTexture(game, loc, uni.data)
+  uni.data.unit = unit
   glUniform1i(loc, uni.data.unit)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data.unit)
+  uni.enable = false
+
+proc callUniform[GameT, CompiledT, UniT, AttrT](game: var GameT, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[GLubyte, GameT]]) =
+  let loc = getUniformLocation(program, uniName)
+  let (unit, textureNum) = createTexture(game, loc, uni.data)
+  uni.data.unit = unit
+  glUniform1i(loc, uni.data.unit)
+  # create framebuffer
+  if uni.data.data != nil:
+    raise newException(Exception, "The data for RenderToTexture must be nil")
+  var
+    fb: GLuint
+    prevFb: GLuint
+  glGenFramebuffers(1, fb.addr)
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, cast[ptr GLint](prevFb.addr))
+  glBindFramebuffer(GL_FRAMEBUFFER, fb)
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureNum, 0)
+  glBindFramebuffer(GL_FRAMEBUFFER, prevFb)
+  uni.data.framebuffer = fb
+
+proc callUniform[GameT, UniT, AttrT](game: GameT, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[GLubyte, GameT]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform1i(loc, uni.data.unit)
+  var
+    prevFb: GLuint
+    prevViewport: array[4, GLint]
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, cast[ptr GLint](prevFb.addr))
+  glGetIntegerv(GL_VIEWPORT, cast[ptr GLint](prevViewport.addr))
+  glBindFramebuffer(GL_FRAMEBUFFER, uni.data.framebuffer)
+  uni.data.render(game)
+  glBindFramebuffer(GL_FRAMEBUFFER, prevFb)
+  glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3])
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1f(loc, uni.data)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLint]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLuint]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1ui(loc, uni.data)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
@@ -100,21 +126,25 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform4fv(loc, 1, uni.data.caddr)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat2x2[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix2fv(loc, 1, false, data.caddr)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat3x3[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix3fv(loc, 1, false, data.caddr)
+  uni.enable = false
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat4x4[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   var data = uni.data.transpose()
   glUniformMatrix4fv(loc, 1, false, data.caddr)
+  uni.enable = false
 
 proc initBuffer(attr: var Attribute) =
   var buf: GLuint
@@ -151,7 +181,7 @@ proc setBuffers[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT]) =
   if drawCounts[1] >= 0:
     entity.instanceCount = GLsizei(drawCounts[1])
 
-proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
+proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -169,11 +199,10 @@ proc compile*[CompiledT, UniT, AttrT](game: var RootGame, uncompiledEntity: Unco
   for name, uni in result.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, uncompiledEntity, result.program, name, uni)
-      uni.enable = false
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc render*[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) =
+proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, AttrT]) =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -185,12 +214,11 @@ proc render*[UniT, AttrT](game: RootGame, entity: var ArrayEntity[UniT, AttrT]) 
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, entity.program, name, uni)
-      uni.enable = false
   glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc render*[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, AttrT]) =
+proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, AttrT]) =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -202,7 +230,6 @@ proc render*[UniT, AttrT](game: RootGame, entity: var InstancedEntity[UniT, Attr
   for name, uni in entity.uniforms.fieldPairs:
     if uni.enable:
       callUniform(game, entity, entity.program, name, uni)
-      uni.enable = false
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
