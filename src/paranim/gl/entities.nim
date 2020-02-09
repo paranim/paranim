@@ -16,6 +16,10 @@ type
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
   ImageEntity* = object of ArrayEntity[ImageEntityUniForms, ImageEntityAttributes]
   UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
+  InstancedImageEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_image: Uniform[Texture[GLubyte]]]
+  InstancedImageEntityAttributes = tuple[a_position: Attribute[GLfloat], a_matrix: Attribute[GLfloat], a_texture_matrix: Attribute[GLfloat]]
+  InstancedImageEntity* = object of InstancedEntity[InstancedImageEntityUniForms, InstancedImageEntityAttributes]
+  UncompiledInstancedImageEntity* = object of UncompiledEntity[InstancedImageEntity, InstancedImageEntityUniForms, InstancedImageEntityAttributes]
 
 proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.project(width, height)
@@ -37,6 +41,17 @@ proc crop*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat,
     texWidth = GLfloat(entity.uniforms.u_image.data.opts.width)
     texHeight = GLfloat(entity.uniforms.u_image.data.opts.height)
   entity.uniforms.u_texture_matrix.crop(x, y, width, height, texWidth, texHeight)
+
+proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Mat3x3[T]]) =
+  for r in 0 .. 2:
+    for c in 0 .. 2:
+      attr.data[].add(uni.data.row(r)[c])
+  attr.disable = false
+
+proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Vec4[T]]) =
+  for x in 0 .. 3:
+    attr.data[].add(uni.data[x])
+  attr.disable = false
 
 const twoDVertexShader =
   """
@@ -104,22 +119,11 @@ proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoD
   result.vertexSource = instancedTwoDVertexShader
   result.fragmentSource = instancedTwoDFragmentShader
   result.uniforms.u_matrix = entity.uniforms.u_matrix
-  result.attributes.a_matrix = Attribute[GLfloat](divisor: 1, size: 3, iter: 3)
+  result.attributes.a_matrix = Attribute[GLfloat](disable: true, divisor: 1, size: 3, iter: 3)
   new(result.attributes.a_matrix.data)
-  result.attributes.a_color = Attribute[GLfloat](divisor: 1, size: 4, iter: 1)
+  result.attributes.a_color = Attribute[GLfloat](disable: true, divisor: 1, size: 4, iter: 1)
   new(result.attributes.a_color.data)
   deepCopy(result.attributes.a_position, entity.attributes.a_position)
-
-proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Mat3x3[T]]) =
-  for r in 0 .. 2:
-    for c in 0 .. 2:
-      attr.data[].add(uni.data.row(r)[c])
-  attr.disable = false
-
-proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Vec4[T]]) =
-  for x in 0 .. 3:
-    attr.data[].add(uni.data[x])
-  attr.disable = false
 
 proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: UncompiledTwoDEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
@@ -185,3 +189,46 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
     u_texture_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
     u_image: Uniform[Texture[GLubyte]](data: image)
   )
+
+const instancedImageVertexShader =
+  """
+  #version 410
+  uniform mat3 u_matrix;
+  in vec2 a_position;
+  in mat3 a_matrix;
+  in mat3 a_texture_matrix;
+  out vec2 v_tex_coord;
+  void main()
+  {
+    gl_Position = vec4((u_matrix * a_matrix * vec3(a_position, 1)).xy, 0, 1);
+    v_tex_coord = (a_texture_matrix * vec3(a_position, 1)).xy;
+  }
+  """
+
+const instancedImageFragmentShader =
+  """
+  #version 410
+  precision mediump float;
+  uniform sampler2D u_image;
+  in vec2 v_tex_coord;
+  out vec4 o_color;
+  void main()
+  {
+    o_color = texture(u_image, v_tex_coord);
+  }
+  """
+
+proc initInstancedEntity*(entity: UncompiledImageEntity): UncompiledInstancedImageEntity =
+  result.vertexSource = instancedImageVertexShader
+  result.fragmentSource = instancedImageFragmentShader
+  result.uniforms.u_matrix = entity.uniforms.u_matrix
+  result.uniforms.u_image = entity.uniforms.u_image
+  result.attributes.a_matrix = Attribute[GLfloat](disable: true, divisor: 1, size: 3, iter: 3)
+  new(result.attributes.a_matrix.data)
+  result.attributes.a_texture_matrix = Attribute[GLfloat](disable: true, divisor: 1, size: 3, iter: 3)
+  new(result.attributes.a_texture_matrix.data)
+  deepCopy(result.attributes.a_position, entity.attributes.a_position)
+
+proc add*(instancedEntity: var UncompiledInstancedImageEntity, entity: UncompiledImageEntity) =
+  addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
+  addInstanceAttr(instancedEntity.attributes.a_texture_matrix, entity.uniforms.u_texture_matrix)
