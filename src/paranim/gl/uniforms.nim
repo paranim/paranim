@@ -42,6 +42,10 @@ proc rotate*(uni: var Uniform, angle: GLFloat) =
   uni.disable = false
   uni.data.rotate(angle)
 
+proc invert*(uni: var Uniform, camera: Mat3x3[GLfloat]) =
+  uni.disable = false
+  uni.data.invert(camera)
+
 proc color*(uni: var Uniform, rgba: Vec4[GLfloat]) =
   uni.disable = false
   uni.data = rgba

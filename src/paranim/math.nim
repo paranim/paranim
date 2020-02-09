@@ -45,6 +45,9 @@ proc rotateMat*[T](angle: T): Mat3x3[T] =
 proc rotate*[T](matrix: var Mat3x3[T], angle: T) =
   matrix = rotateMat(angle) * matrix
 
+proc invert*[T](matrix: var Mat3x3[T], camera: Mat3x3[T]) =
+  matrix = camera.inverse() * matrix
+
 # 3D
 
 proc projectOrthoMat*[T](left: T, right: T, bottom: T, top: T, near: T, far: T): Mat4x4[T] =

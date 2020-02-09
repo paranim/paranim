@@ -33,6 +33,9 @@ proc scale*[UniT, AttrT](entity: var Entity[UniT, AttrT], x: GLfloat, y: GLfloat
 proc rotate*[UniT, AttrT](entity: var Entity[UniT, AttrT], angle: GLFloat) =
   entity.uniforms.u_matrix.rotate(angle)
 
+proc invert*[UniT, AttrT](entity: var Entity[UniT, AttrT], camera: Mat3x3[GLfloat]) =
+  entity.uniforms.u_matrix.invert(camera)
+
 proc color*[UniT, AttrT](entity: var Entity[UniT, AttrT], rgba: Vec4[GLfloat]) =
   entity.uniforms.u_color.color(rgba)
 
