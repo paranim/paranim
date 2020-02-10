@@ -2,7 +2,7 @@ import unittest
 
 import nimgl/glfw
 import nimgl/opengl
-import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
+import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes, paranim/gl/entities
 from paranim/primitives import nil
 import glm
 
@@ -107,3 +107,53 @@ test "all uniform types":
     )
   )
   discard compile(game, uncompiledEntity)
+
+test "get and set values in an instanced entity":
+  let baseEntity = initTwoDEntity(primitives.rect)
+  var uncompiledEntity = initInstancedEntity(baseEntity)
+
+  # add and then get instances
+
+  for i in 0 .. 4:
+    let
+      width = 1000f * GLfloat(i+1)
+      height = 500f * GLfloat(i+1)
+      color = vec4(0f, 0f, 0f, 1f / GLfloat(i))
+
+    var e = baseEntity
+    e.project(width, height)
+    e.color(color)
+    uncompiledEntity.add(e)
+
+    let expectedMat = mat3x3[GLfloat](
+      vec3[GLfloat](2f / width, 0f, -1f),
+      vec3[GLfloat](0f, -2f / height, 1f),
+      vec3[GLfloat](0f, 0f, 1f)
+    )
+
+    check uncompiledEntity[i].uniforms.u_color.data == color
+    check uncompiledEntity[i].uniforms.u_matrix.data == expectedMat
+
+  # replace an existing instance
+
+  var entity = compile(game, uncompiledEntity)
+
+  let
+    width = 10f
+    height = 50f
+    color = vec4(0.5f, 0f, 0f, 1f)
+
+  var e = baseEntity
+  e.project(width, height)
+  e.color(color)
+  entity[3] = e
+
+  let expectedMat = mat3x3[GLfloat](
+    vec3[GLfloat](2f / width, 0f, -1f),
+    vec3[GLfloat](0f, -2f / height, 1f),
+    vec3[GLfloat](0f, 0f, 1f)
+  )
+
+  check entity[3].uniforms.u_color.data == color
+  check entity[3].uniforms.u_matrix.data == expectedMat
+

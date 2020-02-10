@@ -56,6 +56,17 @@ proc addInstanceAttr[T](attr: var Attribute[T], uni: Uniform[Vec4[T]]) =
     attr.data[].add(uni.data[x])
   attr.disable = false
 
+proc setInstanceAttr[T](attr: var Attribute[T], i: int, uni: Uniform[Mat3x3[T]]) =
+  for r in 0 .. 2:
+    for c in 0 .. 2:
+      attr.data[r*3+c+i*9] = uni.data.row(r)[c]
+  attr.disable = false
+
+proc setInstanceAttr[T](attr: var Attribute[T], i: int, uni: Uniform[Vec4[T]]) =
+  for x in 0 .. 3:
+    attr.data[x+i*4] = uni.data[x]
+  attr.disable = false
+
 const twoDVertexShader =
   """
   #version 410
@@ -131,6 +142,33 @@ proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoD
 proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: UncompiledTwoDEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_color, entity.uniforms.u_color)
+
+proc `[]`*(instancedEntity: InstancedTwoDEntity or UncompiledInstancedTwoDEntity, i: int): UncompiledTwoDEntity =
+  result.vertexSource = twoDVertexShader
+  result.fragmentSource = twoDFragmentShader
+  deepCopy(result.attributes.a_position, instancedEntity.attributes.a_position)
+  result.uniforms = (
+    u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
+    u_color: Uniform[Vec4[GLfloat]](data: vec4(0f, 0f, 0f, 1f))
+  )
+  # u_matrix
+  let a_matrix = instancedEntity.attributes.a_matrix.data[]
+  for r in 0 .. 2:
+    for c in 0 .. 2:
+      result.uniforms.u_matrix.data[r][c] = a_matrix[r*3+c+i*9]
+  result.uniforms.u_matrix.data = result.uniforms.u_matrix.data.transpose()
+  # u_color
+  let a_color = instancedEntity.attributes.a_color.data[]
+  for x in 0 .. 3:
+    result.uniforms.u_color.data[x] = a_color[x+i*4]
+
+proc `[]=`*(instancedEntity: var InstancedTwoDEntity, i: int, entity: UncompiledTwoDEntity) =
+  setInstanceAttr(instancedEntity.attributes.a_matrix, i, entity.uniforms.u_matrix)
+  setInstanceAttr(instancedEntity.attributes.a_color, i, entity.uniforms.u_color)
+
+proc `[]=`*(instancedEntity: var UncompiledInstancedTwoDEntity, i: int, entity: UncompiledTwoDEntity) =
+  setInstanceAttr(instancedEntity.attributes.a_matrix, i, entity.uniforms.u_matrix)
+  setInstanceAttr(instancedEntity.attributes.a_color, i, entity.uniforms.u_color)
 
 const imageVertexShader =
   """
