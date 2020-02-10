@@ -143,6 +143,10 @@ proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: Uncompiled
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_color, entity.uniforms.u_color)
 
+proc add*(instancedEntity: var InstancedTwoDEntity, entity: UncompiledTwoDEntity) =
+  addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
+  addInstanceAttr(instancedEntity.attributes.a_color, entity.uniforms.u_color)
+
 proc `[]`*(instancedEntity: InstancedTwoDEntity or UncompiledInstancedTwoDEntity, i: int): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
@@ -273,3 +277,37 @@ proc initInstancedEntity*(entity: UncompiledImageEntity): UncompiledInstancedIma
 proc add*(instancedEntity: var UncompiledInstancedImageEntity, entity: UncompiledImageEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_texture_matrix, entity.uniforms.u_texture_matrix)
+
+proc add*(instancedEntity: var InstancedImageEntity, entity: UncompiledImageEntity) =
+  addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
+  addInstanceAttr(instancedEntity.attributes.a_texture_matrix, entity.uniforms.u_texture_matrix)
+
+proc `[]`*(instancedEntity: InstancedImageEntity or UncompiledInstancedImageEntity, i: int): UncompiledImageEntity =
+  result.vertexSource = imageVertexShader
+  result.fragmentSource = imageFragmentShader
+  deepCopy(result.attributes.a_position, instancedEntity.attributes.a_position)
+  result.uniforms = (
+    u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
+    u_texture_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
+    u_image: instancedEntity.uniforms.u_image
+  )
+  # u_matrix
+  let a_matrix = instancedEntity.attributes.a_matrix.data[]
+  for r in 0 .. 2:
+    for c in 0 .. 2:
+      result.uniforms.u_matrix.data[r][c] = a_matrix[r*3+c+i*9]
+  result.uniforms.u_matrix.data = result.uniforms.u_matrix.data.transpose()
+  # u_texture_matrix
+  let a_texture_matrix = instancedEntity.attributes.a_texture_matrix.data[]
+  for r in 0 .. 2:
+    for c in 0 .. 2:
+      result.uniforms.u_texture_matrix.data[r][c] = a_texture_matrix[r*3+c+i*9]
+  result.uniforms.u_texture_matrix.data = result.uniforms.u_texture_matrix.data.transpose()
+
+proc `[]=`*(instancedEntity: var InstancedImageEntity, i: int, entity: UncompiledImageEntity) =
+  setInstanceAttr(instancedEntity.attributes.a_matrix, i, entity.uniforms.u_matrix)
+  setInstanceAttr(instancedEntity.attributes.a_texture_matrix, i, entity.uniforms.u_texture_matrix)
+
+proc `[]=`*(instancedEntity: var UncompiledInstancedImageEntity, i: int, entity: UncompiledImageEntity) =
+  setInstanceAttr(instancedEntity.attributes.a_matrix, i, entity.uniforms.u_matrix)
+  setInstanceAttr(instancedEntity.attributes.a_texture_matrix, i, entity.uniforms.u_texture_matrix)

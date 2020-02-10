@@ -4,6 +4,7 @@ import nimgl/glfw
 import nimgl/opengl
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes, paranim/gl/entities
 from paranim/primitives import nil
+from paranim/math as pmath import nil
 import glm
 
 proc init() =
@@ -108,7 +109,7 @@ test "all uniform types":
   )
   discard compile(game, uncompiledEntity)
 
-test "get and set values in an instanced entity":
+test "get and set values in an instanced two d entity":
   let baseEntity = initTwoDEntity(primitives.rect)
   var uncompiledEntity = initInstancedEntity(baseEntity)
 
@@ -156,4 +157,66 @@ test "get and set values in an instanced entity":
 
   check entity[3].uniforms.u_color.data == color
   check entity[3].uniforms.u_matrix.data == expectedMat
+
+test "get and set values in an instanced image entity":
+  let imageWidth = 3
+  let imageHeight = 2
+  let pattern = [GLubyte(128), GLubyte(64), GLubyte(128), GLubyte(0), GLubyte(192), GLubyte(0)]
+  let baseEntity = initImageEntity(pattern, imageWidth, imageHeight)
+  var uncompiledEntity = initInstancedEntity(baseEntity)
+
+  # add and then get instances
+
+  for i in 0 .. 4:
+    let
+      width = 1000f * GLfloat(i+1)
+      height = 500f * GLfloat(i+1)
+      cropX, cropY = 10f * GLfloat(i+1)
+      cropWidth, cropHeight = 50f * GLfloat(i+1)
+
+    var e = baseEntity
+    e.project(width, height)
+    e.crop(cropX, cropY, cropWidth, cropHeight)
+    uncompiledEntity.add(e)
+
+    let expectedMat = mat3x3[GLfloat](
+      vec3[GLfloat](2f / width, 0f, -1f),
+      vec3[GLfloat](0f, -2f / height, 1f),
+      vec3[GLfloat](0f, 0f, 1f)
+    )
+
+    var expectedTextureMat = mat3f(1)
+    expectedTextureMat = pmath.translateMat(cropX / GLfloat(imageWidth), cropY / GLfloat(imageHeight)) * expectedTextureMat
+    expectedTextureMat = pmath.scaleMat(cropWidth / GLfloat(imageWidth), cropHeight / GLfloat(imageHeight)) * expectedTextureMat
+
+    check uncompiledEntity[i].uniforms.u_matrix.data == expectedMat
+    check uncompiledEntity[i].uniforms.u_texture_matrix.data == expectedTextureMat
+
+  # replace an existing instance
+
+  var entity = compile(game, uncompiledEntity)
+
+  let
+    width = 100f
+    height = 50f
+    cropX, cropY = 10f
+    cropWidth, cropHeight = 5f
+
+  var e = baseEntity
+  e.project(width, height)
+  e.crop(cropX, cropY, cropWidth, cropHeight)
+  entity[3] = e
+
+  let expectedMat = mat3x3[GLfloat](
+    vec3[GLfloat](2f / width, 0f, -1f),
+    vec3[GLfloat](0f, -2f / height, 1f),
+    vec3[GLfloat](0f, 0f, 1f)
+  )
+
+  var expectedTextureMat = mat3f(1)
+  expectedTextureMat = pmath.translateMat(cropX / GLfloat(imageWidth), cropY / GLfloat(imageHeight)) * expectedTextureMat
+  expectedTextureMat = pmath.scaleMat(cropWidth / GLfloat(imageWidth), cropHeight / GLfloat(imageHeight)) * expectedTextureMat
+
+  check entity[3].uniforms.u_matrix.data == expectedMat
+  check entity[3].uniforms.u_texture_matrix.data == expectedTextureMat
 
