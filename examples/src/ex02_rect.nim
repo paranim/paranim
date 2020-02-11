@@ -14,7 +14,7 @@ proc init*(game: var Game) =
   glDisable(GL_CULL_FACE)
   glDisable(GL_DEPTH_TEST)
 
-  var uncompiledEntity = initTwoDEntity(primitives.rect)
+  var uncompiledEntity = initTwoDEntity(primitives.rectangle[GLfloat]())
   uncompiledEntity.project(float(game.frameWidth), float(game.frameHeight))
   uncompiledEntity.translate(50f, 50f)
   uncompiledEntity.scale(100f, 100f)

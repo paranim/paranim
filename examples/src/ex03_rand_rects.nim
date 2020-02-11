@@ -17,7 +17,7 @@ proc init*(game: var Game) =
   glDisable(GL_CULL_FACE)
   glDisable(GL_DEPTH_TEST)
 
-  let baseEntity = initTwoDEntity(primitives.rect)
+  let baseEntity = initTwoDEntity(primitives.rectangle[GLfloat]())
   var uncompiledEntity = initInstancedEntity(baseEntity)
 
   for _ in 0 ..< 50:

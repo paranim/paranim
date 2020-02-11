@@ -209,7 +209,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # create attribute
   var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
-  position.data[].add(primitives.rect)
+  position.data[].add(primitives.rectangle[GLfloat]())
   # create texture
   var image = Texture[GLubyte](
     opts: TextureOpts(

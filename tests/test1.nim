@@ -86,7 +86,7 @@ type
 
 test "all uniform types":
   var dataArr: seq[GLfloat] = @[]
-  dataArr.add(primitives.rect)
+  dataArr.add(primitives.rectangle[GLfloat]())
   var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
   position.data[] = dataArr
@@ -110,7 +110,7 @@ test "all uniform types":
   discard compile(game, uncompiledEntity)
 
 test "get and set values in an instanced two d entity":
-  let baseEntity = initTwoDEntity(primitives.rect)
+  let baseEntity = initTwoDEntity(primitives.rectangle[GLfloat]())
   var uncompiledEntity = initInstancedEntity(baseEntity)
 
   # add and then get instances
