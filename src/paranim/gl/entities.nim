@@ -142,10 +142,12 @@ proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoD
 proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: UncompiledTwoDEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_color, entity.uniforms.u_color)
+  # instanceCount will be computed by the `compile` proc
 
 proc add*(instancedEntity: var InstancedTwoDEntity, entity: UncompiledTwoDEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_color, entity.uniforms.u_color)
+  instancedEntity.instanceCount += 1
 
 proc `[]`*(instancedEntity: InstancedTwoDEntity or UncompiledInstancedTwoDEntity, i: int): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
@@ -277,10 +279,12 @@ proc initInstancedEntity*(entity: UncompiledImageEntity): UncompiledInstancedIma
 proc add*(instancedEntity: var UncompiledInstancedImageEntity, entity: UncompiledImageEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_texture_matrix, entity.uniforms.u_texture_matrix)
+  # instanceCount will be computed by the `compile` proc
 
 proc add*(instancedEntity: var InstancedImageEntity, entity: UncompiledImageEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
   addInstanceAttr(instancedEntity.attributes.a_texture_matrix, entity.uniforms.u_texture_matrix)
+  instancedEntity.instanceCount += 1
 
 proc `[]`*(instancedEntity: InstancedImageEntity or UncompiledInstancedImageEntity, i: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
