@@ -4,22 +4,22 @@ import nimgl/opengl
 import glm
 
 type
-  TwoDEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_color: Uniform[Vec4[GLfloat]]]
+  TwoDEntityUniforms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_color: Uniform[Vec4[GLfloat]]]
   TwoDEntityAttributes = tuple[a_position: Attribute[GLfloat]]
-  TwoDEntity* = object of ArrayEntity[TwoDEntityUniForms, TwoDEntityAttributes]
-  UncompiledTwoDEntity* = object of UncompiledEntity[TwoDEntity, TwoDEntityUniForms, TwoDEntityAttributes]
-  InstancedTwoDEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]]]
+  TwoDEntity* = object of ArrayEntity[TwoDEntityUniforms, TwoDEntityAttributes]
+  UncompiledTwoDEntity* = object of UncompiledEntity[TwoDEntity, TwoDEntityUniforms, TwoDEntityAttributes]
+  InstancedTwoDEntityUniforms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]]]
   InstancedTwoDEntityAttributes = tuple[a_position: Attribute[GLfloat], a_color: Attribute[GLfloat], a_matrix: Attribute[GLfloat]]
-  InstancedTwoDEntity* = object of InstancedEntity[InstancedTwoDEntityUniForms, InstancedTwoDEntityAttributes]
-  UncompiledInstancedTwoDEntity* = object of UncompiledEntity[InstancedTwoDEntity, InstancedTwoDEntityUniForms, InstancedTwoDEntityAttributes]
-  ImageEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_texture_matrix: Uniform[Mat3x3[GLfloat]], u_image: Uniform[Texture[GLubyte]]]
+  InstancedTwoDEntity* = object of InstancedEntity[InstancedTwoDEntityUniforms, InstancedTwoDEntityAttributes]
+  UncompiledInstancedTwoDEntity* = object of UncompiledEntity[InstancedTwoDEntity, InstancedTwoDEntityUniforms, InstancedTwoDEntityAttributes]
+  ImageEntityUniforms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_texture_matrix: Uniform[Mat3x3[GLfloat]], u_image: Uniform[Texture[GLubyte]]]
   ImageEntityAttributes = tuple[a_position: Attribute[GLfloat]]
-  ImageEntity* = object of ArrayEntity[ImageEntityUniForms, ImageEntityAttributes]
-  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniForms, ImageEntityAttributes]
-  InstancedImageEntityUniForms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_image: Uniform[Texture[GLubyte]]]
+  ImageEntity* = object of ArrayEntity[ImageEntityUniforms, ImageEntityAttributes]
+  UncompiledImageEntity* = object of UncompiledEntity[ImageEntity, ImageEntityUniforms, ImageEntityAttributes]
+  InstancedImageEntityUniforms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_image: Uniform[Texture[GLubyte]]]
   InstancedImageEntityAttributes = tuple[a_position: Attribute[GLfloat], a_matrix: Attribute[GLfloat], a_texture_matrix: Attribute[GLfloat]]
-  InstancedImageEntity* = object of InstancedEntity[InstancedImageEntityUniForms, InstancedImageEntityAttributes]
-  UncompiledInstancedImageEntity* = object of UncompiledEntity[InstancedImageEntity, InstancedImageEntityUniForms, InstancedImageEntityAttributes]
+  InstancedImageEntity* = object of InstancedEntity[InstancedImageEntityUniforms, InstancedImageEntityAttributes]
+  UncompiledInstancedImageEntity* = object of UncompiledEntity[InstancedImageEntity, InstancedImageEntityUniforms, InstancedImageEntityAttributes]
 
 proc project*[UniT, AttrT](entity: var Entity[UniT, AttrT], width: GLfloat, height: GLfloat) =
   entity.uniforms.u_matrix.project(width, height)

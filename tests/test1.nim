@@ -68,7 +68,7 @@ const fragmentShader =
   """
 
 type
-  TestUniForms = tuple[
+  TestUniforms = tuple[
     u_float: Uniform[GLfloat],
     u_int: Uniform[GLint],
     u_uint: Uniform[GLuint],
@@ -81,8 +81,8 @@ type
     u_color: Uniform[Vec4[GLfloat]]
   ]
   TestAttributes = tuple[a_position: Attribute[GLfloat]]
-  TestEntity = object of ArrayEntity[TestUniForms, TestAttributes]
-  UncompiledTestEntity = object of UncompiledEntity[TestEntity, TestUniForms, TestAttributes]
+  TestEntity = object of ArrayEntity[TestUniforms, TestAttributes]
+  UncompiledTestEntity = object of UncompiledEntity[TestEntity, TestUniforms, TestAttributes]
 
 test "all uniform types":
   var dataArr: seq[GLfloat] = @[]
