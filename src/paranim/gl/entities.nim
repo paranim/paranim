@@ -67,6 +67,18 @@ proc setInstanceAttr[T](attr: var Attribute[T], i: int, uni: Uniform[Vec4[T]]) =
     attr.data[x+i*4] = uni.data[x]
   attr.disable = false
 
+proc getInstanceAttr[T](attr: Attribute[T], i: int, uni: var Uniform[Mat3x3[T]]) =
+  for r in 0 .. 2:
+    for c in 0 .. 2:
+      uni.data[r][c] = attr.data[r*3+c+i*9]
+  uni.data = uni.data.transpose()
+  uni.disable = false
+
+proc getInstanceAttr[T](attr: Attribute[T], i: int, uni: var Uniform[Vec4[T]]) =
+  for x in 0 .. 3:
+    uni.data[x] = attr.data[x+i*4]
+  uni.disable = false
+
 const twoDVertexShader =
   """
   #version 410
@@ -153,16 +165,9 @@ proc `[]`*(instancedEntity: InstancedTwoDEntity or UncompiledInstancedTwoDEntity
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
   result.attributes.a_position = instancedEntity.attributes.a_position
-  # u_matrix
-  let a_matrix = instancedEntity.attributes.a_matrix.data[]
-  for r in 0 .. 2:
-    for c in 0 .. 2:
-      result.uniforms.u_matrix.data[r][c] = a_matrix[r*3+c+i*9]
-  result.uniforms.u_matrix.data = result.uniforms.u_matrix.data.transpose()
-  # u_color
-  let a_color = instancedEntity.attributes.a_color.data[]
-  for x in 0 .. 3:
-    result.uniforms.u_color.data[x] = a_color[x+i*4]
+  result.attributes.a_position.disable = false
+  getInstanceAttr(instancedEntity.attributes.a_matrix, i, result.uniforms.u_matrix)
+  getInstanceAttr(instancedEntity.attributes.a_color, i, result.uniforms.u_color)
 
 proc `[]=`*(instancedEntity: var InstancedTwoDEntity, i: int, entity: UncompiledTwoDEntity) =
   setInstanceAttr(instancedEntity.attributes.a_matrix, i, entity.uniforms.u_matrix)
@@ -286,19 +291,11 @@ proc `[]`*(instancedEntity: InstancedImageEntity or UncompiledInstancedImageEnti
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   result.attributes.a_position = instancedEntity.attributes.a_position
+  result.attributes.a_position.disable = false
   result.uniforms.u_image = instancedEntity.uniforms.u_image
-  # u_matrix
-  let a_matrix = instancedEntity.attributes.a_matrix.data[]
-  for r in 0 .. 2:
-    for c in 0 .. 2:
-      result.uniforms.u_matrix.data[r][c] = a_matrix[r*3+c+i*9]
-  result.uniforms.u_matrix.data = result.uniforms.u_matrix.data.transpose()
-  # u_texture_matrix
-  let a_texture_matrix = instancedEntity.attributes.a_texture_matrix.data[]
-  for r in 0 .. 2:
-    for c in 0 .. 2:
-      result.uniforms.u_texture_matrix.data[r][c] = a_texture_matrix[r*3+c+i*9]
-  result.uniforms.u_texture_matrix.data = result.uniforms.u_texture_matrix.data.transpose()
+  result.uniforms.u_image.disable = false
+  getInstanceAttr(instancedEntity.attributes.a_matrix, i, result.uniforms.u_matrix)
+  getInstanceAttr(instancedEntity.attributes.a_texture_matrix, i, result.uniforms.u_texture_matrix)
 
 proc `[]=`*(instancedEntity: var InstancedImageEntity, i: int, entity: UncompiledImageEntity) =
   setInstanceAttr(instancedEntity.attributes.a_matrix, i, entity.uniforms.u_matrix)
