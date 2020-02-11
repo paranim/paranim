@@ -126,14 +126,13 @@ test "get and set values in an instanced two d entity":
     e.color(color)
     uncompiledEntity.add(e)
 
-    let expectedMat = mat3x3[GLfloat](
-      vec3[GLfloat](2f / width, 0f, -1f),
-      vec3[GLfloat](0f, -2f / height, 1f),
-      vec3[GLfloat](0f, 0f, 1f)
-    )
+    let expectedMat = pmath.projectMat(width, height)
 
     check uncompiledEntity[i].uniforms.u_color.data == color
     check uncompiledEntity[i].uniforms.u_matrix.data == expectedMat
+
+    # make sure it can be compiled
+    discard compile(game, uncompiledEntity[i])
 
   # replace an existing instance
 
@@ -149,11 +148,7 @@ test "get and set values in an instanced two d entity":
   e.color(color)
   entity[3] = e
 
-  let expectedMat = mat3x3[GLfloat](
-    vec3[GLfloat](2f / width, 0f, -1f),
-    vec3[GLfloat](0f, -2f / height, 1f),
-    vec3[GLfloat](0f, 0f, 1f)
-  )
+  let expectedMat = pmath.projectMat(width, height)
 
   check entity[3].uniforms.u_color.data == color
   check entity[3].uniforms.u_matrix.data == expectedMat
@@ -179,11 +174,7 @@ test "get and set values in an instanced image entity":
     e.crop(cropX, cropY, cropWidth, cropHeight)
     uncompiledEntity.add(e)
 
-    let expectedMat = mat3x3[GLfloat](
-      vec3[GLfloat](2f / width, 0f, -1f),
-      vec3[GLfloat](0f, -2f / height, 1f),
-      vec3[GLfloat](0f, 0f, 1f)
-    )
+    let expectedMat = pmath.projectMat(width, height)
 
     var expectedTextureMat = mat3f(1)
     expectedTextureMat = pmath.translateMat(cropX / GLfloat(imageWidth), cropY / GLfloat(imageHeight)) * expectedTextureMat
@@ -191,6 +182,9 @@ test "get and set values in an instanced image entity":
 
     check uncompiledEntity[i].uniforms.u_matrix.data == expectedMat
     check uncompiledEntity[i].uniforms.u_texture_matrix.data == expectedTextureMat
+
+    # make sure it can be compiled
+    discard compile(game, uncompiledEntity[i])
 
   # replace an existing instance
 
@@ -207,11 +201,7 @@ test "get and set values in an instanced image entity":
   e.crop(cropX, cropY, cropWidth, cropHeight)
   entity[3] = e
 
-  let expectedMat = mat3x3[GLfloat](
-    vec3[GLfloat](2f / width, 0f, -1f),
-    vec3[GLfloat](0f, -2f / height, 1f),
-    vec3[GLfloat](0f, 0f, 1f)
-  )
+  let expectedMat = pmath.projectMat(width, height)
 
   var expectedTextureMat = mat3f(1)
   expectedTextureMat = pmath.translateMat(cropX / GLfloat(imageWidth), cropY / GLfloat(imageHeight)) * expectedTextureMat
