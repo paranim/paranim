@@ -5,9 +5,9 @@ from std/math import nil
 
 proc projectMat*[T](width: T, height: T): Mat3x3[T] =
   mat3x3(
-    vec3[T](T(2) / width, T(0), -T(1)),
-    vec3[T](T(0), -T(2) / height, T(1)),
-    vec3[T](T(0), T(0), T(1))
+    vec3[T](2.T / width, 0.T, -1.T),
+    vec3[T](0.T, -2.T / height, 1.T),
+    vec3[T](0.T, 0.T, 1.T)
   )
 
 proc project*[T](matrix: var Mat3x3[T], width: T, height: T) =
@@ -15,9 +15,9 @@ proc project*[T](matrix: var Mat3x3[T], width: T, height: T) =
 
 proc translateMat*[T](x: T, y: T): Mat3x3[T] =
   mat3x3(
-    vec3[T](T(1), T(0), x),
-    vec3[T](T(0), T(1), y),
-    vec3[T](T(0), T(0), T(1))
+    vec3[T](1.T, 0.T, x),
+    vec3[T](0.T, 1.T, y),
+    vec3[T](0.T, 0.T, 1.T)
   )
 
 proc translate*[T](matrix: var Mat3x3[T], x: T, y: T) =
@@ -25,9 +25,9 @@ proc translate*[T](matrix: var Mat3x3[T], x: T, y: T) =
 
 proc scaleMat*[T](x: T, y: T): Mat3x3[T] =
   mat3x3(
-    vec3[T](x, T(0), T(0)),
-    vec3[T](T(0), y, T(0)),
-    vec3[T](T(0), T(0), T(1))
+    vec3[T](x, 0.T, 0.T),
+    vec3[T](0.T, y, 0.T),
+    vec3[T](0.T, 0.T, 1.T)
   )
 
 proc scale*[T](matrix: var Mat3x3[T], x: T, y: T) =
@@ -37,9 +37,9 @@ proc rotateMat*[T](angle: T): Mat3x3[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat3x3(
-    vec3[T](c, s, T(0)),
-    vec3[T](-s, c, T(0)),
-    vec3[T](T(0), T(0), T(1))
+    vec3[T](c, s, 0.T),
+    vec3[T](-s, c, 0.T),
+    vec3[T](0.T, 0.T, 1.T)
   )
 
 proc rotate*[T](matrix: var Mat3x3[T], angle: T) =
@@ -56,10 +56,10 @@ proc projectOrthoMat*[T](left: T, right: T, bottom: T, top: T, near: T, far: T):
     height = top - bottom
     depth = near - far
   mat4x4(
-    vec4[T](T(2) / width, T(0), T(0), (left + right) / (left - right)),
-    vec4[T](T(0), T(2) / height, T(0), (bottom + top) / (bottom - top)),
-    vec4[T](T(0), T(0), T(2) / depth, (near + far) / (near - far)),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](2.T / width, 0.T, 0.T, (left + right) / (left - right)),
+    vec4[T](0.T, 2.T / height, 0.T, (bottom + top) / (bottom - top)),
+    vec4[T](0.T, 0.T, 2.T / depth, (near + far) / (near - far)),
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc project*[T](matrix: var Mat4x4[T], left: T, right: T, bottom: T, top: T, near: T, far: T) =
@@ -70,10 +70,10 @@ proc projectPerspectiveMat*[T](fieldOfView: T, aspect: T, near: T, far: T): Mat4
     f = math.tan((math.PI * T(0.5)) - (fieldOfView * T(0.5)))
     rangeInv = 1 / (near - far)
   mat4x4(
-    vec4[T](f / aspect, T(0), T(0), T(0)),
-    vec4[T](T(0), f, T(0), T(0)),
-    vec4[T](T(0), T(0), (near + far) * rangeInv, near * far * rangeInv * 2),
-    vec4[T](T(0), T(0), -T(1), T(0))
+    vec4[T](f / aspect, 0.T, 0.T, 0.T),
+    vec4[T](0.T, f, 0.T, 0.T),
+    vec4[T](0.T, 0.T, (near + far) * rangeInv, near * far * rangeInv * 2),
+    vec4[T](0.T, 0.T, -1.T, 0.T)
   )
 
 proc project*[T](matrix: var Mat4x4[T], fieldOfView: T, aspect: T, near: T, far: T) =
@@ -81,10 +81,10 @@ proc project*[T](matrix: var Mat4x4[T], fieldOfView: T, aspect: T, near: T, far:
 
 proc translateMat*[T](x: T, y: T, z: T): Mat4x4[T] =
   mat4x4(
-    vec4[T](T(1), T(0), T(0), x),
-    vec4[T](T(0), T(1), T(0), y),
-    vec4[T](T(0), T(0), T(1), z),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](1.T, 0.T, 0.T, x),
+    vec4[T](0.T, 1.T, 0.T, y),
+    vec4[T](0.T, 0.T, 1.T, z),
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc translate*[T](matrix: var Mat4x4[T], x: T, y: T, z: T) =
@@ -92,10 +92,10 @@ proc translate*[T](matrix: var Mat4x4[T], x: T, y: T, z: T) =
 
 proc scaleMat*[T](x: T, y: T, z: T): Mat4x4[T] =
   mat4x4(
-    vec4[T](x, T(0), T(0), T(0)),
-    vec4[T](T(0), y, T(0), T(0)),
-    vec4[T](T(0), T(0), z, T(0)),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](x, 0.T, 0.T, 0.T),
+    vec4[T](0.T, y, 0.T, 0.T),
+    vec4[T](0.T, 0.T, z, 0.T),
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc scale*[T](matrix: var Mat4x4[T], x: T, y: T, z: T) =
@@ -105,10 +105,10 @@ proc rotateXMat*[T](angle: T): Mat4x4[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
-    vec4[T](T(1), T(0), T(0), T(0)),
-    vec4[T](T(0), c, -s, T(0)),
-    vec4[T](T(0), s, c, T(0)),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](1.T, 0.T, 0.T, 0.T),
+    vec4[T](0.T, c, -s, 0.T),
+    vec4[T](0.T, s, c, 0.T),
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc rotateX*[T](matrix: var Mat4x4[T], angle: T) =
@@ -118,10 +118,10 @@ proc rotateYMat*[T](angle: T): Mat4x4[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
-    vec4[T](c, T(0), s, T(0)),
-    vec4[T](T(0), T(1), T(0), T(0)),
-    vec4[T](-s, T(0), c, T(0)),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](c, 0.T, s, 0.T),
+    vec4[T](0.T, 1.T, 0.T, 0.T),
+    vec4[T](-s, 0.T, c, 0.T),
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc rotateY*[T](matrix: var Mat4x4[T], angle: T) =
@@ -131,10 +131,10 @@ proc rotateZMat*[T](angle: T): Mat4x4[T] =
   let c = math.cos(angle)
   let s = math.sin(angle)
   mat4x4(
-    vec4[T](c, -s, T(0), T(0)),
-    vec4[T](s, c, T(0), T(0)),
-    vec4[T](T(0), T(0), T(1), T(0)),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](c, -s, 0.T, 0.T),
+    vec4[T](s, c, 0.T, 0.T),
+    vec4[T](0.T, 0.T, 1.T, 0.T),
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc rotateZ*[T](matrix: var Mat4x4[T], angle: T) =
@@ -149,7 +149,7 @@ proc lookAtMat*[T](cameraPos: Vec3[T], target: Vec3[T], up: Vec3[T]): Mat4x4[T] 
     vec4[T](xAxis[0], yAxis[0], zAxis[0], cameraPos[0]),
     vec4[T](xAxis[1], yAxis[1], zAxis[1], cameraPos[1]),
     vec4[T](xAxis[2], yAxis[2], zAxis[2], cameraPos[2]),
-    vec4[T](T(0), T(0), T(0), T(1))
+    vec4[T](0.T, 0.T, 0.T, 1.T)
   )
 
 proc lookAt*[T](matrix: var Mat4x4[T], target: Vec3[T], up: Vec3[T]) =
