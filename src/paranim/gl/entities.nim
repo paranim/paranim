@@ -152,11 +152,7 @@ proc add*(instancedEntity: var InstancedTwoDEntity, entity: UncompiledTwoDEntity
 proc `[]`*(instancedEntity: InstancedTwoDEntity or UncompiledInstancedTwoDEntity, i: int): UncompiledTwoDEntity =
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
-  deepCopy(result.attributes.a_position, instancedEntity.attributes.a_position)
-  result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
-    u_color: Uniform[Vec4[GLfloat]](data: vec4(0f, 0f, 0f, 1f))
-  )
+  result.attributes.a_position = instancedEntity.attributes.a_position
   # u_matrix
   let a_matrix = instancedEntity.attributes.a_matrix.data[]
   for r in 0 .. 2:
@@ -289,12 +285,8 @@ proc add*(instancedEntity: var InstancedImageEntity, entity: UncompiledImageEnti
 proc `[]`*(instancedEntity: InstancedImageEntity or UncompiledInstancedImageEntity, i: int): UncompiledImageEntity =
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
-  deepCopy(result.attributes.a_position, instancedEntity.attributes.a_position)
-  result.uniforms = (
-    u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
-    u_texture_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
-    u_image: instancedEntity.uniforms.u_image
-  )
+  result.attributes.a_position = instancedEntity.attributes.a_position
+  result.uniforms.u_image = instancedEntity.uniforms.u_image
   # u_matrix
   let a_matrix = instancedEntity.attributes.a_matrix.data[]
   for r in 0 .. 2:
