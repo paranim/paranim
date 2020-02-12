@@ -39,6 +39,6 @@ proc setIndexBuffer*[T](indexes: Indexes[T]): GLsizei =
   result = GLsizei(indexes.data[].len)
   var previousBuffer: GLint
   glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, previousBuffer.addr)
-  glBindBuffer(GL_ARRAY_BUFFER, indexes.buffer)
-  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * indexes.data[].len), indexes.data[0].unsafeAddr, GL_STATIC_DRAW)
-  glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexes.buffer)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLint(T.sizeof * indexes.data[].len), indexes.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
