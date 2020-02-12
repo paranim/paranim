@@ -179,9 +179,14 @@ proc setBuffers[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT]) =
 proc setBuffers[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT]) =
   var drawCounts: array[maxDivisor+1, int]
   drawCounts.fill(-1)
+  var indexesFound = false
   for attrName, attr in entity.attributes.fieldPairs:
     if not attr.disable:
       when attr is Indexes[auto]:
+        if indexesFound:
+          raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type Indexes")
+        else:
+          indexesFound = true
         entity.drawCount = setIndexBuffer(attr)
       else:
         setBuffer(entity, drawCounts, attrName, attr)
