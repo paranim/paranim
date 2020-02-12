@@ -294,3 +294,34 @@ proc torus*[T, IndexT](
       result.indexes.add(IndexT(radialparts * nextSliceIndex + ring))
       result.indexes.add(IndexT(radialparts * nextSliceIndex + nextRingIndex))
       result.indexes.add(IndexT(radialparts * slice + nextRingIndex))
+
+proc disc*[T, IndexT](
+    radius: T,
+    divisions: range[3..high(int)],
+    stacks: int = 1,
+    stackPower: T = 1,
+    innerRadius: T = 0
+  ): Shape[T, IndexT] =
+  var firstIndex = 0
+  let
+    radiusSpan = radius - innerRadius
+    pointsPerStack = divisions + 1
+  for stack in 0 .. stacks:
+    let stackRadius = innerRadius + radiusSpan * math.pow(stack / stacks, stackPower)
+    for i in 0 .. divisions:
+      let
+        theta = 2.0 * math.PI * i.T / divisions.T
+        x = stackRadius * math.cos(theta)
+        z = stackRadius * math.sin(theta)
+      result.positions.add([x.T, 0.T, z.T])
+      result.normals.add([0.T, 1.T, 0.T])
+      result.texcoords.add([T(1 - (i / divisions)), T(stack / stacks)])
+      if stack > 0 and i != divisions:
+        let
+          a = firstIndex + (i + 1)
+          b = firstIndex + i
+          c = firstIndex + i - pointsPerStack
+          d = firstIndex + (i + 1) - pointsPerStack
+        result.indexes.add([a.IndexT, b.IndexT, c.IndexT])
+        result.indexes.add([a.IndexT, c.IndexT, d.IndexT])
+    firstIndex += divisions + 1
