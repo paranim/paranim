@@ -84,3 +84,53 @@ proc sphere*[T, IndexT](
       result.indexes.add(IndexT((y + 1) * numVertsAround + x))
       result.indexes.add(IndexT((y + 0) * numVertsAround + x + 1))
       result.indexes.add(IndexT((y + 1) * numVertsAround + x + 1))
+
+const cubeFaceIndices = [
+  [3, 7, 5, 1], # right
+  [6, 2, 0, 4], # left
+  [6, 7, 3, 2], # ?
+  [0, 1, 5, 4], # ?
+  [7, 6, 4, 5], # front
+  [2, 3, 1, 0], # back
+]
+
+proc cube*[T, IndexT](size: T): Shape[T, IndexT] =
+  let
+    k = size / 2
+    cornerVertices = [
+      [-k, -k, -k],
+      [+k, -k, -k],
+      [-k, +k, -k],
+      [+k, +k, -k],
+      [-k, -k, +k],
+      [+k, -k, +k],
+      [-k, +k, +k],
+      [+k, +k, +k],
+    ]
+    faceNormals = [
+      [+1, +0, +0],
+      [-1, +0, +0],
+      [+0, +1, +0],
+      [+0, -1, +0],
+      [+0, +0, +1],
+      [+0, +0, -1],
+    ]
+    uvCoords = [
+      [1, 0],
+      [0, 0],
+      [0, 1],
+      [1, 1],
+    ]
+  for f in 0 ..< cubeFaceIndices.len:
+    let faceIndices = cubeFaceIndices[f]
+    for v in 0 ..< 4:
+      let
+        position = cornerVertices[faceIndices[v]]
+        normal = faceNormals[f]
+        uv = uvCoords[v]
+      result.positions.add([position[0].T, position[1].T, position[2].T])
+      result.normals.add([normal[0].T, normal[1].T, normal[2].T])
+      result.texcoords.add([uv[0].T, uv[1].T])
+    let offset = 4 * f
+    result.indexes.add([IndexT(offset + 0), IndexT(offset + 1), IndexT(offset + 2)])
+    result.indexes.add([IndexT(offset + 0), IndexT(offset + 2), IndexT(offset + 3)])
