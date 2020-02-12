@@ -1,5 +1,6 @@
 import nimgl/opengl
-import paranim/gl/attributes, paranim/gl/uniforms, paranim/gl/utils
+import paranim/gl/attributes, paranim/gl/uniforms
+from paranim/gl/utils import nil
 import algorithm
 import glm
 
@@ -19,6 +20,8 @@ type
     drawCount*: GLsizei
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
+  IndexedEntity*[UniT, AttrT, IndexT] = object of ArrayEntity[UniT, AttrT]
+    indexes*: Indexes[IndexT]
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
   let unit = game.texCount
@@ -31,11 +34,7 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): t
     glTexParameteri(GL_TEXTURE_2D, paramName, GLint(paramVal))
   for (paramName, paramVal) in texture.pixelStoreParams:
     glPixelStorei(paramName, paramVal)
-  let srcType =
-    when T is GLubyte:
-      GL_UNSIGNED_BYTE
-    else:
-      raise newException(Exception, "Invalid texture type")
+  const srcType = utils.getTypeEnum(T)
   glTexImage2D(
     GL_TEXTURE_2D,
     texture.opts.mipLevel,
@@ -145,10 +144,8 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
   glUniformMatrix4fv(loc, 1, false, data.caddr)
   uni.disable = true
 
-proc initBuffer(attr: var Attribute) =
-  var buf: GLuint
-  glGenBuffers(1, buf.addr)
-  attr.buffer = buf
+proc initBuffer(): GLuint =
+  glGenBuffers(1, result.addr)
 
 proc setBuffer[UniT, AttrT](entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: Attribute) =
   let
@@ -186,15 +183,19 @@ proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: 
     previousVao: GLuint
   glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
   glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
-  result.program = createProgram(uncompiledEntity.vertexSource, uncompiledEntity.fragmentSource)
+  result.program = utils.createProgram(uncompiledEntity.vertexSource, uncompiledEntity.fragmentSource)
   glUseProgram(result.program)
   glGenVertexArrays(1, result.vao.addr)
   glBindVertexArray(result.vao)
   result.attributes = deepCopy(uncompiledEntity.attributes)
   result.uniforms = deepCopy(uncompiledEntity.uniforms)
   for attr in result.attributes.fields:
-    initBuffer(attr)
+    attr.buffer = initBuffer()
   setBuffers(result)
+  when result is IndexedEntity[UniT, AttrT, auto]:
+    new(result.indexes.data)
+    result.indexes.buffer = initBuffer()
+    result.drawCount = 0
   for name, uni in result.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, uncompiledEntity, result.program, name, uni)
@@ -230,5 +231,27 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
+  glUseProgram(previousProgram)
+  glBindVertexArray(previousVao)
+
+proc render*[GameT, UniT, AttrT, IndexT](game: GameT, entity: var IndexedEntity[UniT, AttrT, IndexT]) =
+  var
+    previousProgram: GLuint
+    previousVao: GLuint
+  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
+  glUseProgram(entity.program)
+  glBindVertexArray(entity.vao)
+  setBuffers(entity)
+  if not entity.indexes.disable:
+    if entity.indexes.data[].len == 0:
+      raise newException(Exception, "IndexedEntity has no indexes")
+    entity.drawCount = setIndexBuffer(entity.indexes)
+    entity.indexes.disable = true
+  for name, uni in entity.uniforms.fieldPairs:
+    if not uni.disable:
+      callUniform(game, entity, entity.program, name, uni)
+  const kind = utils.getTypeEnum(IndexT)
+  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, entity.indexes.data[0].unsafeAddr)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)

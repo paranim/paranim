@@ -3,7 +3,7 @@ import nimgl/opengl
 import glm
 from sequtils import map
 from std/math import nil
-from paranim/math as pmath import nil
+import paranim/math as pmath
 
 type
   Game* = object of RootGame
@@ -96,10 +96,10 @@ const threeDFragmentShader =
   """
 
 type
-  ThreeDEntityUniForms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]]]
+  ThreeDEntityUniforms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]]]
   ThreeDEntityAttributes = tuple[a_position: Attribute[GLfloat], a_color: Attribute[GLfloat]]
-  ThreeDEntity* = object of ArrayEntity[ThreeDEntityUniForms, ThreeDEntityAttributes]
-  UncompiledThreeDEntity = object of UncompiledEntity[ThreeDEntity, ThreeDEntityUniForms, ThreeDEntityAttributes]
+  ThreeDEntity* = object of ArrayEntity[ThreeDEntityUniforms, ThreeDEntityAttributes]
+  UncompiledThreeDEntity = object of UncompiledEntity[ThreeDEntity, ThreeDEntityUniforms, ThreeDEntityAttributes]
 
 proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]): UncompiledThreeDEntity =
   result.vertexSource = threeDVertexShader
@@ -146,10 +146,10 @@ const threeDTextureFragmentShader* =
   """
 
 type
-  ThreeDTextureEntityUniForms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[Texture[GLubyte]]]
+  ThreeDTextureEntityUniforms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[Texture[GLubyte]]]
   ThreeDTextureEntityAttributes = tuple[a_position: Attribute[GLfloat], a_texcoord: Attribute[GLfloat]]
-  ThreeDTextureEntity* = object of ArrayEntity[ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
-  UncompiledThreeDTextureEntity = object of UncompiledEntity[ThreeDTextureEntity, ThreeDTextureEntityUniForms, ThreeDTextureEntityAttributes]
+  ThreeDTextureEntity* = object of ArrayEntity[ThreeDTextureEntityUniforms, ThreeDTextureEntityAttributes]
+  UncompiledThreeDTextureEntity = object of UncompiledEntity[ThreeDTextureEntity, ThreeDTextureEntityUniforms, ThreeDTextureEntityAttributes]
 
 proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArray[GLfloat], image: Texture[GLubyte]): UncompiledThreeDTextureEntity =
   result.vertexSource = threeDTextureVertexShader
@@ -168,3 +168,133 @@ proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArr
     u_matrix: Uniform[Mat4x4[GLfloat]](data: mat4f(1)),
     u_texture: Uniform[Texture[GLubyte]](data: image)
   )
+
+const indexedThreeDVertexShader =
+  """
+  #version 410
+  uniform mat4 u_worldViewProjection;
+  uniform vec3 u_lightWorldPos;
+  uniform mat4 u_world;
+  uniform mat4 u_viewInverse;
+  uniform mat4 u_worldInverseTranspose;
+  in vec4 a_position;
+  in vec3 a_normal;
+  in vec2 a_texcoord;
+  out vec4 v_position;
+  out vec2 v_texcoord;
+  out vec3 v_normal;
+  out vec3 v_surfaceToLight;
+  out vec3 v_surfaceToView;
+  void main()
+  {
+    v_texcoord = a_texcoord;
+    v_position = (u_worldViewProjection * a_position);
+    v_normal = ((u_worldInverseTranspose * (vec4(a_normal, 0))).xyz);
+    v_surfaceToLight = (u_lightWorldPos - ((u_world * a_position).xyz));
+    v_surfaceToView = ((u_viewInverse[3] - (u_world * a_position)).xyz);
+    gl_Position = v_position;
+  }
+  """
+
+const indexedThreeDFragmentShader =
+  """
+  #version 410
+  precision mediump float;
+  uniform vec4 u_lightColor;
+  uniform vec4 u_color;
+  uniform vec4 u_specular;
+  uniform float u_shininess;
+  uniform float u_specularFactor;
+  in vec4 v_position;
+  in vec2 v_texcoord;
+  in vec3 v_normal;
+  in vec3 v_surfaceToLight;
+  in vec3 v_surfaceToView;
+  out vec4 outColor;
+  vec4 lit(float l, float h, float m)
+  {
+    return vec4(1.0, (abs(l)), ((l > 0.0) ? (pow((max(0.0, h)), m)) : 0.0), 1.0);
+  }
+  void main()
+  {
+    vec3 a_normal = (normalize(v_normal));
+    vec3 surfaceToLight = (normalize(v_surfaceToLight));
+    vec3 surfaceToView = (normalize(v_surfaceToView));
+    vec3 halfVector = (normalize((surfaceToLight + surfaceToView)));
+    vec4 litR = (lit((dot(a_normal, surfaceToLight)), (dot(a_normal, halfVector)), u_shininess));
+    outColor = (vec4(((u_lightColor * (((litR.y) * u_color) + (u_specular * (litR.z) * u_specularFactor))).rgb), 1));
+  }
+  """
+
+type
+  IndexedThreeDEntityUniforms = object
+    u_worldViewProjection: Uniform[Mat4x4[GLfloat]]
+    u_lightWorldPos: Uniform[Vec3[GLfloat]]
+    u_world: Uniform[Mat4x4[GLfloat]]
+    u_viewInverse: Uniform[Mat4x4[GLfloat]]
+    u_worldInverseTranspose: Uniform[Mat4x4[GLfloat]]
+    u_lightColor: Uniform[Vec4[GLfloat]]
+    u_color: Uniform[Vec4[GLfloat]]
+    u_specular: Uniform[Vec4[GLfloat]]
+    u_shininess: Uniform[GLfloat]
+    u_specularFactor: Uniform[GLfloat]
+  IndexedThreeDEntityAttributes = object
+    a_position: Attribute[GLfloat]
+    a_normal: Attribute[GLfloat]
+    a_texcoord: Attribute[GLfloat]
+  IndexedThreeDEntity* = object of IndexedEntity[IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes, GLushort]
+  UncompiledIndexedThreeDEntity = object of UncompiledEntity[IndexedThreeDEntity, IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes]
+
+proc initIndexedThreeDEntity*(positions: seq[GLfloat], normals: seq[GLfloat], texcoords: seq[GLfloat]): UncompiledIndexedThreeDEntity =
+  result.vertexSource = indexedThreeDVertexShader
+  result.fragmentSource = indexedThreeDFragmentShader
+  # position
+  var position = Attribute[GLfloat](size: 3, iter: 1)
+  new(position.data)
+  position.data[].add(positions)
+  # normal
+  var normal = Attribute[GLfloat](size: 3, iter: 1)
+  new(normal.data)
+  normal.data[].add(normals)
+  # texcoord
+  var texcoord = Attribute[GLfloat](size: 2, iter: 1)
+  new(texcoord.data)
+  texcoord.data[].add(texcoords)
+  # set attrs
+  result.attributes = IndexedThreeDEntityAttributes(a_position: position, a_normal: normal, a_texcoord: texcoord)
+
+type
+  IndexedThreeDObject* = tuple[
+    tz: GLfloat,
+    rx: GLfloat,
+    ry: GLfloat,
+    matUniforms: tuple[
+      u_color: Uniform[Vec4[GLfloat]],
+      u_specular: Uniform[Vec4[GLfloat]],
+      u_shininess: Uniform[GLfloat],
+      u_specularFactor: Uniform[GLfloat]
+    ]
+  ]
+
+proc renderIndexedEntity*(game: Game, entity: var IndexedThreeDEntity, objects: seq[IndexedThreeDObject]) =
+  let
+    projectionMatrix = pmath.projectPerspectiveMat(degToRad(60f), game.frameWidth / game.frameHeight, 1f, 2000f)
+    cameraMatrix = pmath.lookAtMat(vec3(0f, 0f, 100f), vec3(0f, 0f, 0f), vec3(0f, 1f, 0f))
+    viewMatrix = cameraMatrix.inverse()
+    viewProjectionMatrix = viewMatrix * projectionMatrix
+  entity.uniforms.u_lightWorldPos = Uniform[Vec3[GLfloat]](data: vec3(-50f, 30f, 100f))
+  entity.uniforms.u_viewInverse = Uniform[Mat4x4[GLfloat]](data: cameraMatrix)
+  entity.uniforms.u_lightColor = Uniform[Vec4[GLfloat]](data: vec4(1f, 1f, 1f, 1f))
+  for (tz, rx, ry, matUniforms) in objects:
+    var worldMatrix = mat4f(1)
+    worldMatrix.rotateX(rx * game.totalTime)
+    worldMatrix.rotateY(ry * game.totalTime)
+    worldMatrix.translate(0f, 0f, tz)
+    entity.uniforms.u_world = Uniform[Mat4x4[GLfloat]](data: worldMatrix)
+    entity.uniforms.u_worldViewProjection = Uniform[Mat4x4[GLfloat]](data: worldMatrix * viewProjectionMatrix)
+    entity.uniforms.u_worldInverseTranspose = Uniform[Mat4x4[GLfloat]](data: worldMatrix.inverse().transpose())
+    entity.uniforms.u_color = matUniforms.u_color
+    entity.uniforms.u_specular = matUniforms.u_specular
+    entity.uniforms.u_shininess = matUniforms.u_shininess
+    entity.uniforms.u_specularFactor = matUniforms.u_specularFactor
+    render(game, entity)

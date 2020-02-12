@@ -1,4 +1,5 @@
 import nimgl/opengl
+from utils import nil
 
 const maxDivisor* = 1
 
@@ -13,13 +14,13 @@ type
     stride*: int
     offset*: int
     divisor*: range[0..maxDivisor]
+  Indexes*[T] = object
+    disable*: bool
+    buffer*: GLuint
+    data*: ref seq[T]
 
 proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
-  let kind =
-    when T is GLfloat:
-      EGL_FLOAT
-    else:
-      raise newException(Exception, "Invalid attribute type")
+  const kind = utils.getTypeEnum(T)
   let totalSize = attr.size * attr.iter
   result = GLsizei(attr.data[].len / totalSize)
   var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
@@ -34,3 +35,10 @@ proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: Attribute[T])
     glVertexAttribDivisor(loc, GLuint(attr.divisor))
   glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 
+proc setIndexBuffer*[T](indexes: Indexes[T]): GLsizei =
+  result = GLsizei(indexes.data[].len)
+  var previousBuffer: GLint
+  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, previousBuffer.addr)
+  glBindBuffer(GL_ARRAY_BUFFER, indexes.buffer)
+  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * indexes.data[].len), indexes.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))

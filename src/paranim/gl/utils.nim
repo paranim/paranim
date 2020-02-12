@@ -40,3 +40,21 @@ proc createProgram*(vSource: string, fSource: string) : GLuint =
   glAttachShader(result, fShader)
   glLinkProgram(result)
   checkProgramStatus(result)
+
+proc getTypeEnum*(T: typedesc): GLenum =
+  when T is GLfloat:
+    EGL_FLOAT
+  elif T is GLint:
+    EGL_INT
+  elif T is GLuint:
+    GL_UNSIGNED_INT
+  elif T is GLshort:
+    EGL_SHORT
+  elif T is GLushort:
+    GL_UNSIGNED_SHORT
+  elif T is GLbyte:
+    EGL_BYTE
+  elif T is GLubyte:
+    GL_UNSIGNED_BYTE
+  else:
+    raise newException(Exception, "Unknown type")
