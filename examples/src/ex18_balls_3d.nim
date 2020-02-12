@@ -34,9 +34,8 @@ proc init*(game: var Game) =
   glEnable(GL_DEPTH_TEST)
 
   let shape = primitives.sphere[GLfloat, GLushort](radius = 10, subdivisionsAxis = 48, subdivisionsHeight = 24)
-  let uncompiledEntity = initIndexedThreeDEntity(shape.positions, shape.normals, shape.texcoords)
+  let uncompiledEntity = initIndexedThreeDEntity(shape.positions, shape.normals, shape.texcoords, shape.indexes)
   entity = compile(game, uncompiledEntity)
-  entity.indexes.data[].add(shape.indexes)
 
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)

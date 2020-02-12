@@ -242,26 +242,36 @@ type
     a_position: Attribute[GLfloat]
     a_normal: Attribute[GLfloat]
     a_texcoord: Attribute[GLfloat]
-  IndexedThreeDEntity* = object of IndexedEntity[IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes, GLushort]
+    indexes: Indexes[GLushort]
+  IndexedThreeDEntity* = object of IndexedEntity[IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes]
   UncompiledIndexedThreeDEntity = object of UncompiledEntity[IndexedThreeDEntity, IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes]
 
-proc initIndexedThreeDEntity*(positions: seq[GLfloat], normals: seq[GLfloat], texcoords: seq[GLfloat]): UncompiledIndexedThreeDEntity =
+proc initIndexedThreeDEntity*(positions: seq[GLfloat], normals: seq[GLfloat], texcoords: seq[GLfloat], indexes: seq[GLushort]): UncompiledIndexedThreeDEntity =
   result.vertexSource = indexedThreeDVertexShader
   result.fragmentSource = indexedThreeDFragmentShader
   # position
-  var position = Attribute[GLfloat](size: 3, iter: 1)
-  new(position.data)
-  position.data[].add(positions)
+  var p = Attribute[GLfloat](size: 3, iter: 1)
+  new(p.data)
+  p.data[].add(positions)
   # normal
-  var normal = Attribute[GLfloat](size: 3, iter: 1)
-  new(normal.data)
-  normal.data[].add(normals)
+  var n = Attribute[GLfloat](size: 3, iter: 1)
+  new(n.data)
+  n.data[].add(normals)
   # texcoord
-  var texcoord = Attribute[GLfloat](size: 2, iter: 1)
-  new(texcoord.data)
-  texcoord.data[].add(texcoords)
+  var t = Attribute[GLfloat](size: 2, iter: 1)
+  new(t.data)
+  t.data[].add(texcoords)
+  # indexes
+  var i = Indexes[GLushort]()
+  new(i.data)
+  i.data[].add(indexes)
   # set attrs
-  result.attributes = IndexedThreeDEntityAttributes(a_position: position, a_normal: normal, a_texcoord: texcoord)
+  result.attributes = IndexedThreeDEntityAttributes(
+    a_position: p,
+    a_normal: n,
+    a_texcoord: t,
+    indexes: i
+  )
 
 type
   IndexedThreeDObject* = tuple[

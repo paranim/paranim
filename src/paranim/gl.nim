@@ -20,8 +20,7 @@ type
     drawCount*: GLsizei
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
-  IndexedEntity*[UniT, AttrT, IndexT] = object of ArrayEntity[UniT, AttrT]
-    indexes*: Indexes[IndexT]
+  IndexedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
   let unit = game.texCount
@@ -177,6 +176,17 @@ proc setBuffers[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT]) =
   if drawCounts[1] >= 0:
     entity.instanceCount = GLsizei(drawCounts[1])
 
+proc setBuffers[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT]) =
+  var drawCounts: array[maxDivisor+1, int]
+  drawCounts.fill(-1)
+  for attrName, attr in entity.attributes.fieldPairs:
+    if not attr.disable:
+      when attr is Indexes[auto]:
+        entity.drawCount = setIndexBuffer(attr)
+      else:
+        setBuffer(entity, drawCounts, attrName, attr)
+      attr.disable = true
+
 proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
     previousProgram: GLuint
@@ -192,10 +202,6 @@ proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: 
   for attr in result.attributes.fields:
     attr.buffer = initBuffer()
   setBuffers(result)
-  when result is IndexedEntity[UniT, AttrT, auto]:
-    new(result.indexes.data)
-    result.indexes.buffer = initBuffer()
-    result.drawCount = 0
   for name, uni in result.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, uncompiledEntity, result.program, name, uni)
@@ -234,7 +240,11 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc render*[GameT, UniT, AttrT, IndexT](game: GameT, entity: var IndexedEntity[UniT, AttrT, IndexT]) =
+proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: Indexes[IndexT]) =
+  const kind = utils.getTypeEnum(IndexT)
+  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].unsafeAddr)
+
+proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, AttrT]) =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -243,15 +253,11 @@ proc render*[GameT, UniT, AttrT, IndexT](game: GameT, entity: var IndexedEntity[
   glUseProgram(entity.program)
   glBindVertexArray(entity.vao)
   setBuffers(entity)
-  if not entity.indexes.disable:
-    if entity.indexes.data[].len == 0:
-      raise newException(Exception, "IndexedEntity has no indexes")
-    entity.drawCount = setIndexBuffer(entity.indexes)
-    entity.indexes.disable = true
   for name, uni in entity.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
-  const kind = utils.getTypeEnum(IndexT)
-  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, entity.indexes.data[0].unsafeAddr)
+  for attr in entity.attributes.fields:
+    when attr is Indexes[auto]:
+      drawElements(entity, attr)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
