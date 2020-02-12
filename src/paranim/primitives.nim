@@ -134,3 +134,65 @@ proc cube*[T, IndexT](size: T): Shape[T, IndexT] =
     let offset = 4 * f
     result.indexes.add([IndexT(offset + 0), IndexT(offset + 1), IndexT(offset + 2)])
     result.indexes.add([IndexT(offset + 0), IndexT(offset + 2), IndexT(offset + 3)])
+
+proc cylinder*[T, IndexT](
+    bottomRadius: T,
+    topRadius: T,
+    height: T,
+    radialSubdivisions: range[3..high(int)],
+    verticalSubdivisions: range[3..high(int)],
+    bottomCap: bool = true,
+    topCap: bool = true
+  ): Shape[T, IndexT] =
+  let
+    extra = (if topCap: 2 else: 0) + (if bottomCap: 2 else: 0)
+    vertsAroundEdge = radialSubdivisions + 1
+    slant = math.arctan2(bottomRadius - topRadius, height)
+    cosSlant = math.cos(slant)
+    sinSlant = math.sin(slant)
+    iterStart = if topCap: -2 else: 0
+    iterEnd = verticalSubdivisions + (if bottomCap: 2 else: 0)
+  for yy in iterStart ..< iterEnd:
+    var
+      v = yy / verticalSubdivisions
+      y = height * v
+      ringRadius: T
+    if yy < 0:
+      y = 0
+      v = 1
+      ringRadius = bottomRadius
+    elif yy > verticalSubdivisions:
+      y = height
+      v = 1
+      ringRadius = topRadius
+    else:
+      ringRadius = bottomRadius +
+        (topRadius - bottomRadius) * (yy / verticalSubdivisions)
+    if yy == -2 or yy == verticalSubdivisions + 2:
+      ringRadius = 0
+      v = 0
+    y -= height / 2
+    for ii in 0 ..< vertsAroundEdge:
+      let
+        sin = math.sin(ii.T * math.PI * 2 / radialSubdivisions.T)
+        cos = math.cos(ii.T * math.PI * 2 / radialSubdivisions.T)
+      result.positions.add([T(sin * ringRadius), y.T, T(cos * ringRadius)])
+      if yy < 0:
+        result.normals.add([0.T, -1.T, 0.T])
+      elif yy > verticalSubdivisions:
+        result.normals.add([0.T, 1.T, 0.T])
+      elif ringRadius == 0:
+        result.normals.add([0.T, 0.T, 0.T])
+      else:
+        result.normals.add([T(sin * cosSlant), sinSlant.T, T(cos * cosSlant)])
+      result.texcoords.add([T(ii / radialSubdivisions), T(1 - v)])
+    for yy in 0 .. verticalSubdivisions + extra:
+      if (yy == 1 and topCap) or (yy == verticalSubdivisions + extra - 2 and bottomCap):
+        continue
+      for ii in 0 ..< radialSubdivisions:
+        result.indexes.add(IndexT(vertsAroundEdge * (yy + 0) + 0 + ii))
+        result.indexes.add(IndexT(vertsAroundEdge * (yy + 0) + 1 + ii))
+        result.indexes.add(IndexT(vertsAroundEdge * (yy + 1) + 1 + ii))
+        result.indexes.add(IndexT(vertsAroundEdge * (yy + 0) + 0 + ii))
+        result.indexes.add(IndexT(vertsAroundEdge * (yy + 1) + 1 + ii))
+        result.indexes.add(IndexT(vertsAroundEdge * (yy + 1) + 0 + ii))
