@@ -1,4 +1,5 @@
 from std/math import nil
+import glm
 
 proc rectangle*[T](): array[12, T] =
   [0.T, 0.T,
@@ -196,3 +197,54 @@ proc cylinder*[T, IndexT](
         result.indexes.add(IndexT(vertsAroundEdge * (yy + 0) + 0 + ii))
         result.indexes.add(IndexT(vertsAroundEdge * (yy + 1) + 1 + ii))
         result.indexes.add(IndexT(vertsAroundEdge * (yy + 1) + 0 + ii))
+
+proc crescent*[T, IndexT](
+    verticalRadius: T,
+    outerRadius: T,
+    innerRadius: T,
+    thickness: T,
+    subdivisionsDown: range[1..high(int)],
+    startOffset: T = 0,
+    endOffset: T = 1
+  ): Shape[T, IndexT] =
+  let
+    subdivisionsThick = 2
+    offsetRange = endOffset - startOffset
+  proc lerp(a: T, b: T, s: T): T =
+    a + (b - a) * s
+  proc createArc(shape: var Shape[T, IndexT], arcRadius: T, x: int, normalMult: Vec3[T], normalAdd: Vec3[T], uMult: T, uAdd: T) =
+    for z in 0 .. subdivisionsDown:
+      let
+        uBack = x / (subdivisionsThick - 1)
+        v = z / subdivisionsDown
+        xBack = (uBack - 0.5) * 2
+        angle = (startOffset + (v * offsetRange)) * math.PI
+        s = math.sin(angle)
+        c = math.cos(angle)
+        radius = lerp(verticalRadius, arcRadius, s)
+        px = xBack * thickness
+        py = c * verticalRadius
+        pz = s * radius
+        n = (vec3(0.T, s.T, c.T) * normalMult) + normalAdd
+      shape.positions.add([px.T, py.T, pz.T])
+      shape.normals.add([n[0], n[1], n[2]])
+      shape.texcoords.add([T(uBack * uMult + uAdd), v.T])
+  for x in 0 ..< subdivisionsThick:
+    let uBack = (x / (subdivisionsThick - 1) - 0.5) * 2
+    createArc(result, outerRadius, x, vec3(1.T, 1.T, 1.T), vec3(0.T, 0.T, 0.T), 1.T, 0.T)
+    createArc(result, outerRadius, x, vec3(0.T, 0.T, 0.T), vec3(uBack.T, 0.T, 0.T), 0.T, 0.T)
+    createArc(result, innerRadius, x, vec3(1.T, 1.T, 1.T), vec3(0.T, 0.T, 0.T), 1.T, 0.T)
+    createArc(result, innerRadius, x, vec3(0.T, 0.T, 0.T), vec3(uBack.T, 0.T, 0.T), 0.T, 1.T)
+  proc createSurface(shape: var Shape[T, IndexT], leftArcOffset: int, rightArcOffset: int) =
+    for z in 0 ..< subdivisionsDown:
+      shape.indexes.add(IndexT(leftArcOffset + z + 0))
+      shape.indexes.add(IndexT(leftArcOffset + z + 1))
+      shape.indexes.add(IndexT(rightArcOffset + z + 0))
+      shape.indexes.add(IndexT(leftArcOffset + z + 1))
+      shape.indexes.add(IndexT(rightArcOffset + z + 1))
+      shape.indexes.add(IndexT(rightArcOffset + z + 0))
+  let numVerticesDown = subdivisionsDown + 1
+  createSurface(result, numVerticesDown * 0, numVerticesDown * 4) # front
+  createSurface(result, numVerticesDown * 5, numVerticesDown * 7) # right
+  createSurface(result, numVerticesDown * 6, numVerticesDown * 2) # back
+  createSurface(result, numVerticesDown * 3, numVerticesDown * 1) # left
