@@ -152,7 +152,7 @@ proc cylinder*[T, IndexT](
     sinSlant = math.sin(slant)
     iterStart = if topCap: -2 else: 0
     iterEnd = verticalSubdivisions + (if bottomCap: 2 else: 0)
-  for yy in iterStart ..< iterEnd:
+  for yy in iterStart .. iterEnd:
     var
       v = yy / verticalSubdivisions
       y = height * v
@@ -186,7 +186,7 @@ proc cylinder*[T, IndexT](
       else:
         result.normals.add([T(sin * cosSlant), sinSlant.T, T(cos * cosSlant)])
       result.texcoords.add([T(ii / radialSubdivisions), T(1 - v)])
-    for yy in 0 .. verticalSubdivisions + extra:
+    for yy in 0 ..< verticalSubdivisions + extra:
       if (yy == 1 and topCap) or (yy == verticalSubdivisions + extra - 2 and bottomCap):
         continue
       for ii in 0 ..< radialSubdivisions:
