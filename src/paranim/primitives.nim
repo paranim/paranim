@@ -17,8 +17,8 @@ type Shape[T, IndexT] = tuple[positions: seq[T], normals: seq[T], texcoords: seq
 proc plane*[T, IndexT](
     width: T,
     depth: T,
-    subdivisionsWidth: int,
-    subdivisionsDepth: int
+    subdivisionsWidth: range[1..high(int)],
+    subdivisionsDepth: range[1..high(int)]
   ): Shape[T, IndexT] =
   for z in 0 .. subdivisionsDepth:
     for x in 0 .. subdivisionsWidth:
@@ -45,8 +45,8 @@ proc plane*[T, IndexT](
 
 proc sphere*[T, IndexT](
     radius: T,
-    subdivisionsAxis: int,
-    subdivisionsHeight: int,
+    subdivisionsAxis: range[1..high(int)],
+    subdivisionsHeight: range[1..high(int)],
     startLatitude: float = 0,
     endLatitude: float = math.PI,
     startLongitude: float = 0,
