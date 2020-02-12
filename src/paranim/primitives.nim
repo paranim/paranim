@@ -248,3 +248,49 @@ proc crescent*[T, IndexT](
   createSurface(result, numVerticesDown * 5, numVerticesDown * 7) # right
   createSurface(result, numVerticesDown * 6, numVerticesDown * 2) # back
   createSurface(result, numVerticesDown * 3, numVerticesDown * 1) # left
+
+proc torus*[T, IndexT](
+    radius: T,
+    thickness: T,
+    radialSubdivisions: range[3..high(int)],
+    bodySubdivisions: range[3..high(int)],
+    startAngle: T = 0,
+    endAngle: T = math.PI * 2
+  ): Shape[T, IndexT] =
+  let
+    range = endAngle - startAngle
+    radialParts = radialSubdivisions + 1
+    bodyParts = bodySubdivisions + 1
+    numVertices = radialParts * bodyParts
+  for slice in 0 ..< bodyParts:
+    let
+      v = slice / bodySubdivisions
+      sliceAngle = v * math.PI * 2
+      sliceSin = math.sin(sliceAngle)
+      ringRadius = radius + sliceSin * thickness
+      ny = math.cos(sliceAngle)
+      y = ny * thickness
+    for ring in 0 ..< radialParts:
+      let
+        u = ring / radialSubdivisions
+        ringAngle = startAngle + u * range
+        xSin = math.sin(ringAngle)
+        zCos = math.cos(ringAngle)
+        x = xSin * ringRadius
+        z = zCos * ringRadius
+        nx = xSin * sliceSin
+        nz = zCos * sliceSin
+      result.positions.add([x.T, y.T, z.T])
+      result.normals.add([nx.T, ny.T, nz.T])
+      result.texcoords.add([u.T, T(1 - v)])
+  for slice in 0 ..< bodySubdivisions:
+    for ring in 0 ..< radialSubdivisions:
+      let
+        nextRingIndex = 1 + ring
+        nextSliceIndex = 1 + slice
+      result.indexes.add(IndexT(radialparts * slice + ring))
+      result.indexes.add(IndexT(radialparts * nextSliceIndex + ring))
+      result.indexes.add(IndexT(radialparts * slice + nextRingIndex))
+      result.indexes.add(IndexT(radialparts * nextSliceIndex + ring))
+      result.indexes.add(IndexT(radialparts * nextSliceIndex + nextRingIndex))
+      result.indexes.add(IndexT(radialparts * slice + nextRingIndex))

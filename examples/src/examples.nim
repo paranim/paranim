@@ -22,6 +22,7 @@ from ex19_planes_3d import nil
 from ex20_cubes_3d import nil
 from ex21_cylinders_3d import nil
 from ex22_crescents_3d import nil
+from ex23_toruses_3d import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick, name: "ex01_image"),
@@ -46,6 +47,7 @@ const examples = [
   (init: ex20_cubes_3d.init, tick: ex20_cubes_3d.tick, name: "ex20_cubes_3d"),
   (init: ex21_cylinders_3d.init, tick: ex21_cylinders_3d.tick, name: "ex21_cylinders_3d"),
   (init: ex22_crescents_3d.init, tick: ex22_crescents_3d.tick, name: "ex22_crescents_3d"),
+  (init: ex23_toruses_3d.init, tick: ex23_toruses_3d.tick, name: "ex23_toruses_3d"),
 ]
 
 var game = Game()
