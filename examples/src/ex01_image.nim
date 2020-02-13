@@ -6,7 +6,6 @@ import examples_common
 const image = staticRead("assets/aintgottaexplainshit.jpg")
 
 var entity: ImageEntity
-var width, height: int
 
 proc init*(game: var Game) =
   doAssert glInit()
@@ -17,7 +16,7 @@ proc init*(game: var Game) =
   glDisable(GL_DEPTH_TEST)
 
   var
-    channels: int
+    width, height, channels: int
     data: seq[uint8]
   data = stbi.loadFromMemory(cast[seq[uint8]](image), width, height, channels, stbi.RGBA)
   var uncompiledImage = initImageEntity(data, width, height)
