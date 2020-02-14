@@ -202,8 +202,8 @@ proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: 
   glUseProgram(result.program)
   glGenVertexArrays(1, result.vao.addr)
   glBindVertexArray(result.vao)
-  result.attributes = deepCopy(uncompiledEntity.attributes)
-  result.uniforms = deepCopy(uncompiledEntity.uniforms)
+  result.attributes = uncompiledEntity.attributes
+  result.uniforms = uncompiledEntity.uniforms
   for attr in result.attributes.fields:
     attr.buffer = initBuffer()
   setBuffers(result)
