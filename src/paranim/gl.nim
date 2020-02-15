@@ -58,6 +58,7 @@ proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledE
   let loc = getUniformLocation(program, uniName)
   let (unit, _) = createTexture(game, loc, uni.data)
   uni.data.unit = unit
+  uni.data.data = nil # we don't need to hold on to the texture anymore
   glUniform1i(loc, uni.data.unit)
   uni.disable = true
 
