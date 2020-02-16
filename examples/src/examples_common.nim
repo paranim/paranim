@@ -169,6 +169,8 @@ proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArr
     u_texture: Uniform[Texture[GLubyte]](data: image)
   )
 
+# indexed 3D entity
+
 const indexedThreeDVertexShader =
   """
   #version 410
