@@ -1,3 +1,15 @@
+## Quick start
+
+* The `examples` dir in this repo
+* A barebones project:
+  * https://github.com/paranim/parakeet
+* Slightly bigger projects:
+  * https://github.com/paranim/paranim_examples
+* The intro screencast:
+  * https://www.youtube.com/watch?v=XCgT77JPC-s
+
+## Intro
+
 **_Why another game library?_**
 
 These are the times that try men's souls. The harder the conflict, the more glorious the triumph; what we obtain too cheap, we esteem too lightly.
@@ -100,7 +112,7 @@ Paranim wraps a few other things that are normally hard to do manually. The `ex1
 
 **_Is there any state management thingy? I want to use an entity component system. They're the future!_**
 
-No. But I'm making a separate library called pararules which is a rules engine for Nim. This is uncharted territory for games but I think it might be a better (more holistic) solution than an ECS. If so, then expect it to go through the same maddening hype cycle that ECSs have gone through.
+No. But I'm making a separate library called [pararules](https://github.com/paranim/pararules) which is a rules engine for Nim. This is uncharted territory for games but I think it might be a better (more holistic) solution than an ECS. If so, then expect it to go through the same maddening hype cycle that ECSs have gone through.
 
 **_Wait, what the hell is a Nim?_**
 
