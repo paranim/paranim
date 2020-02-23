@@ -6,6 +6,8 @@ import examples_common
 
 const ttf = staticRead("assets/Roboto-Regular.ttf")
 
+let font = initFont(ttf = ttf, fontHeight = 64, firstChar = 32, bitmapWidth = 512, bitmapHeight = 512, charCount = 2048)
+
 var entity: TextEntity
 
 proc init*(game: var Game) =
@@ -16,7 +18,6 @@ proc init*(game: var Game) =
   glDisable(GL_CULL_FACE)
   glDisable(GL_DEPTH_TEST)
 
-  let font = initFont(ttf = ttf, fontHeight = 64, firstChar = 32, bitmapWidth = 512, bitmapHeight = 512, charCount = 2048)
   var uncompiledEntity = initTextEntity(font)
   uncompiledEntity.project(float(game.frameWidth), float(game.frameHeight))
   uncompiledEntity.translate(0f, 0f)
