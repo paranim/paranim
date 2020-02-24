@@ -98,6 +98,21 @@ proc callUniform[GameT, UniT, AttrT](game: GameT, entity: CompiledEntity[UniT, A
   glBindFramebuffer(GL_FRAMEBUFFER, prevFb)
   glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3])
 
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[GLfloat]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform1fv(loc, uni.data.len.GLsizei, uni.data[0].addr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[GLint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform1iv(loc, uni.data.len.GLsizei, uni.data[0].addr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[GLuint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform1uiv(loc, uni.data.len.GLsizei, uni.data[0].addr)
+  uni.disable = true
+
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1f(loc, uni.data)
