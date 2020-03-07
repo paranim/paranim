@@ -54,7 +54,7 @@ proc getUniformLocation(program: GLuint, uniName: string): GLint =
   if result == -1:
     raise newException(Exception, "Uniform not found: " & uniName)
 
-proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
+proc callUniform[CompiledT, UniT, AttrT, TexT](game: var RootGame, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[TexT]]) =
   let loc = getUniformLocation(program, uniName)
   let (unit, _) = createTexture(game, loc, uni.data)
   uni.data.unit = unit
@@ -62,7 +62,7 @@ proc callUniform[CompiledT, UniT, AttrT](game: var RootGame, entity: UncompiledE
   glUniform1i(loc, uni.data.unit)
   uni.disable = true
 
-proc callUniform[UniT, AttrT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[GLubyte]]) =
+proc callUniform[UniT, AttrT, TexT](game: RootGame, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Texture[TexT]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data.unit)
   uni.disable = true
@@ -101,6 +101,21 @@ proc callUniform[GameT, UniT, AttrT](game: GameT, entity: CompiledEntity[UniT, A
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1fv(loc, uni.data.len.GLsizei, uni.data[0].addr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[Vec2[GLfloat]]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform2fv(loc, uni.data.len.GLsizei, cast[ptr GLfloat](uni.data[0].addr))
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[Vec3[GLfloat]]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform3fv(loc, uni.data.len.GLsizei, cast[ptr GLfloat](uni.data[0].addr))
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[Vec4[GLfloat]]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform4fv(loc, uni.data.len.GLsizei, cast[ptr GLfloat](uni.data[0].addr))
   uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[GLint]]) =
