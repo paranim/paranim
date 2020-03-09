@@ -98,6 +98,8 @@ proc callUniform[GameT, UniT, AttrT](game: GameT, entity: CompiledEntity[UniT, A
   glBindFramebuffer(GL_FRAMEBUFFER, prevFb)
   glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3])
 
+# uniform arrays
+
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1fv(loc, uni.data.len.GLsizei, uni.data[0].addr)
@@ -128,6 +130,8 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
   glUniform1uiv(loc, uni.data.len.GLsizei, uni.data[0].addr)
   uni.disable = true
 
+# uniform scalars
+
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1f(loc, uni.data)
@@ -143,18 +147,54 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
   glUniform1ui(loc, uni.data)
   uni.disable = true
 
+# uniform vecs
+
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform2fv(loc, 1, uni.data.caddr)
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec3[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform3fv(loc, 1, uni.data.caddr)
+  uni.disable = true
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform4fv(loc, 1, uni.data.caddr)
   uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform2iv(loc, 1, uni.data.caddr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec3[GLint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform3iv(loc, 1, uni.data.caddr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform4iv(loc, 1, uni.data.caddr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec2[GLuint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform2uiv(loc, 1, uni.data.caddr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec3[GLuint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform3uiv(loc, 1, uni.data.caddr)
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Vec4[GLuint]]) =
+  let loc = getUniformLocation(program, uniName)
+  glUniform4uiv(loc, 1, uni.data.caddr)
+  uni.disable = true
+
+# uniform matrixes
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[Mat2x2[GLfloat]]) =
   let loc = getUniformLocation(program, uniName)
