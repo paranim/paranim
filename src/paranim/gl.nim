@@ -67,7 +67,7 @@ proc callUniform[UniT, AttrT, TexT](game: RootGame, entity: CompiledEntity[UniT,
   glUniform1i(loc, uni.data.unit)
   uni.disable = true
 
-proc callUniform[GameT, CompiledT, UniT, AttrT](game: var GameT, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[GLubyte, GameT]]) =
+proc callUniform[GameT, CompiledT, UniT, AttrT, TexT](game: var GameT, entity: UncompiledEntity[CompiledT, UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[TexT, GameT]]) =
   let loc = getUniformLocation(program, uniName)
   let (unit, textureNum) = createTexture(game, loc, uni.data)
   uni.data.unit = unit
@@ -85,7 +85,7 @@ proc callUniform[GameT, CompiledT, UniT, AttrT](game: var GameT, entity: Uncompi
   glBindFramebuffer(GL_FRAMEBUFFER, prevFb)
   uni.data.framebuffer = fb
 
-proc callUniform[GameT, UniT, AttrT](game: GameT, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[GLubyte, GameT]]) =
+proc callUniform[GameT, UniT, AttrT, Text](game: GameT, entity: CompiledEntity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[RenderToTexture[TexT, GameT]]) =
   let loc = getUniformLocation(program, uniName)
   glUniform1i(loc, uni.data.unit)
   var
