@@ -217,51 +217,50 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
 proc initBuffer(): GLuint =
   glGenBuffers(1, result.addr)
 
-proc setBuffer[UniT, AttrT](entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: ArrayBuffer) =
+type Counts = tuple[drawCounts: array[maxDivisor+1, int], indexBufferCount: int, textureBufferCount: int]
+
+proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
   let
     divisor = attr.divisor
     drawCount = setArrayBuffer(entity.program, attrName, attr)
-  if drawCounts[divisor] >= 0 and drawCounts[divisor] != drawCount:
+  if counts.drawCounts[divisor] >= 0 and counts.drawCounts[divisor] != drawCount:
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
-  drawCounts[divisor] = drawCount
+  counts.drawCounts[divisor] = drawCount
+  if divisor == 0:
+    entity.drawCount = GLsizei(drawCount)
+  elif divisor == 1:
+    when entity is InstancedEntity[UniT, AttrT]:
+      entity.instanceCount = GLsizei(drawCount)
+  attr.disable = true
+
+proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var TextureBuffer) =
+  if counts.textureBufferCount > 0:
+    raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type TextureBuffer")
+  counts.textureBufferCount = 1
+  discard setTextureBuffer(attr)
+  # never disable texture buffers, because it seems that they always need to be set before rendering
+  #attr.disable = true
+
+proc setBuffer[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var IndexBuffer) =
+  if counts.indexBufferCount > 0:
+    raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type IndexBuffer")
+  counts.indexBufferCount = 1
+  entity.drawCount = setIndexBuffer(attr)
+  attr.disable = true
 
 proc setBuffers[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT]) =
-  var drawCounts: array[maxDivisor+1, int]
-  drawCounts.fill(-1)
+  var counts: Counts
+  counts.drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
     if not attr.disable:
-      setBuffer(entity, drawCounts, attrName, attr)
-      attr.disable = true
-  if drawCounts[0] >= 0:
-    entity.drawCount = GLsizei(drawCounts[0])
-
-proc setBuffers[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT]) =
-  var drawCounts: array[maxDivisor+1, int]
-  drawCounts.fill(-1)
-  for attrName, attr in entity.attributes.fieldPairs:
-    if not attr.disable:
-      setBuffer(entity, drawCounts, attrName, attr)
-      attr.disable = true
-  if drawCounts[0] >= 0:
-    entity.drawCount = GLsizei(drawCounts[0])
-  if drawCounts[1] >= 0:
-    entity.instanceCount = GLsizei(drawCounts[1])
+      setBuffer(entity, counts, attrName, attr)
 
 proc setBuffers[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT]) =
-  var drawCounts: array[maxDivisor+1, int]
-  drawCounts.fill(-1)
-  var indexesFound = false
+  var counts: Counts
+  counts.drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
     if not attr.disable:
-      when attr is IndexBuffer[auto]:
-        if indexesFound:
-          raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type IndexBuffer")
-        else:
-          indexesFound = true
-        entity.drawCount = setIndexBuffer(attr)
-      else:
-        setBuffer(entity, drawCounts, attrName, attr)
-      attr.disable = true
+      setBuffer(entity, counts, attrName, attr)
 
 proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
   var
