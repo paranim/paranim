@@ -20,6 +20,7 @@ type
     pixelStoreParams*: seq[(GLenum, GLint)]
     mipmapParams*: seq[GLenum]
     unit*: GLint
+    textureNum*: GLuint
   RenderToTexture*[T, GameT] = object of Texture[T]
     framebuffer*: GLuint
     render*: proc (game: GameT)

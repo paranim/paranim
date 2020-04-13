@@ -217,7 +217,7 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
 proc initBuffer(): GLuint =
   glGenBuffers(1, result.addr)
 
-proc setBuffer[UniT, AttrT](entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: Attribute) =
+proc setBuffer[UniT, AttrT](entity: ArrayEntity[UniT, AttrT], drawCounts: var array[maxDivisor+1, int], attrName: string, attr: ArrayBuffer) =
   let
     divisor = attr.divisor
     drawCount = setArrayBuffer(entity.program, attrName, attr)
@@ -253,9 +253,9 @@ proc setBuffers[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT]) =
   var indexesFound = false
   for attrName, attr in entity.attributes.fieldPairs:
     if not attr.disable:
-      when attr is Indexes[auto]:
+      when attr is IndexBuffer[auto]:
         if indexesFound:
-          raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type Indexes")
+          raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type IndexBuffer")
         else:
           indexesFound = true
         entity.drawCount = setIndexBuffer(attr)
@@ -316,7 +316,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: Indexes[IndexT]) =
+proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
   const kind = utils.getTypeEnum(IndexT)
   glDrawElements(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].unsafeAddr)
 
@@ -333,7 +333,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, At
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
   for attr in entity.attributes.fields:
-    when attr is Indexes[auto]:
+    when attr is IndexBuffer[auto]:
       drawElements(entity, attr)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
