@@ -81,7 +81,7 @@ proc getInstanceAttr[T](attr: ArrayBuffer[T], i: int, uni: var Uniform[Vec4[T]])
 
 const twoDVertexShader =
   """
-  #version 410
+  #version 330
   uniform mat3 u_matrix;
   in vec2 a_position;
   void main()
@@ -92,7 +92,7 @@ const twoDVertexShader =
 
 const twoDFragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   uniform vec4 u_color;
   out vec4 o_color;
@@ -116,7 +116,7 @@ proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
 
 const instancedTwoDVertexShader =
   """
-  #version 410
+  #version 330
   uniform mat3 u_matrix;
   in vec2 a_position;
   in mat3 a_matrix;
@@ -131,7 +131,7 @@ const instancedTwoDVertexShader =
 
 const instancedTwoDFragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   in vec4 v_color;
   out vec4 o_color;
@@ -179,7 +179,7 @@ proc `[]=`*(instancedEntity: var UncompiledInstancedTwoDEntity, i: int, entity: 
 
 const imageVertexShader =
   """
-  #version 410
+  #version 330
   uniform mat3 u_matrix;
   uniform mat3 u_texture_matrix;
   in vec2 a_position;
@@ -193,7 +193,7 @@ const imageVertexShader =
 
 const imageFragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   uniform sampler2D u_image;
   in vec2 v_tex_coord;
@@ -240,7 +240,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
 
 const instancedImageVertexShader =
   """
-  #version 410
+  #version 330
   uniform mat3 u_matrix;
   in vec2 a_position;
   in mat3 a_matrix;
@@ -255,7 +255,7 @@ const instancedImageVertexShader =
 
 const instancedImageFragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   uniform sampler2D u_image;
   in vec2 v_tex_coord;
