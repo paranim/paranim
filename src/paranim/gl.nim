@@ -21,6 +21,8 @@ type
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
   IndexedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
+  InstancedIndexedEntity*[UniT, AttrT] = object of IndexedEntity[UniT, AttrT]
+    instanceCount*: GLsizei
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
   let unit = game.texCount
@@ -320,6 +322,28 @@ proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], index
   glDrawElements(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].unsafeAddr)
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, AttrT]) =
+  var
+    previousProgram: GLuint
+    previousVao: GLuint
+  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
+  glUseProgram(entity.program)
+  glBindVertexArray(entity.vao)
+  setBuffers(entity)
+  for name, uni in entity.uniforms.fieldPairs:
+    if not uni.disable:
+      callUniform(game, entity, entity.program, name, uni)
+  for attr in entity.attributes.fields:
+    when attr is IndexBuffer[auto]:
+      drawElements(entity, attr)
+  glUseProgram(previousProgram)
+  glBindVertexArray(previousVao)
+
+proc drawElements[UniT, AttrT, IndexT](entity: InstancedIndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
+  const kind = utils.getTypeEnum(IndexT)
+  glDrawElementsInstanced(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].unsafeAddr, entity.instanceCount)
+
+proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity[UniT, AttrT]) =
   var
     previousProgram: GLuint
     previousVao: GLuint
