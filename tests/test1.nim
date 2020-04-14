@@ -30,7 +30,7 @@ var game = RootGame()
 
 const vertexShader =
   """
-  #version 410
+  #version 330
   uniform float u_float;
   uniform int u_int;
   uniform uint u_uint;
@@ -57,7 +57,7 @@ const vertexShader =
 
 const fragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   uniform vec4 u_color;
   out vec4 o_color;
