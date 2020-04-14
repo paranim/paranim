@@ -4,39 +4,30 @@ from utils import nil
 const maxDivisor* = 1
 
 type
-  ArrayBuffer*[T] = object
+  Buffer*[T] = object of RootObj
     disable*: bool
     buffer*: GLuint
     data*: ref seq[T]
+  IndexBuffer*[T] = object of Buffer[T]
+  Indexes*[T] = IndexBuffer[T] # backwards compatibility
+  TextureBuffer*[T] = object of Buffer[T]
+    textureNum*: GLuint
+    internalFmt*: GLenum
+  Attribute*[T] = object of Buffer[T]
     size*: GLint
     iter*: int
     normalize*: bool
-    stride*: int
-    offset*: int
     divisor*: range[0..maxDivisor]
-  IndexBuffer*[T] = object
-    disable*: bool
-    buffer*: GLuint
-    data*: ref seq[T]
-  TextureBuffer*[T] = object
-    disable*: bool
-    buffer*: GLuint
-    data*: ref seq[T]
-    textureNum*: GLuint
-    internalFmt*: GLenum
-  # aliases
-  Attribute*[T] = ArrayBuffer[T]
-  Indexes*[T] = IndexBuffer[T]
 
-proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: ArrayBuffer[T]): GLsizei =
-  const kind = utils.getTypeEnum(T)
+proc setAttribute*[T](program: GLuint, attribName: string, attr: Attribute[T]): GLsizei =
   let totalSize = attr.size * attr.iter
   result = GLsizei(attr.data[].len / totalSize)
-  var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   var previousBuffer: GLint
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
   glBindBuffer(GL_ARRAY_BUFFER, attr.buffer)
   glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data[].len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
+  const kind = utils.getTypeEnum(T)
+  var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   for i in 0 ..< attr.iter:
     let loc = attribLocation + GLuint(i)
     glEnableVertexAttribArray(loc)
@@ -47,25 +38,25 @@ proc setArrayBuffer*[T](program: GLuint, attribName: string, attr: ArrayBuffer[T
     glVertexAttribDivisor(loc, GLuint(attr.divisor))
   glBindBuffer(GL_ARRAY_BUFFER, GLuint(previousBuffer))
 
-proc setIndexBuffer*[T](indexes: IndexBuffer[T]): GLsizei =
-  result = GLsizei(indexes.data[].len)
+proc setIndexBuffer*[T](buf: IndexBuffer[T]): GLsizei =
+  result = GLsizei(buf.data[].len)
   var previousBuffer: GLint
   glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, previousBuffer.addr)
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexes.buffer)
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLint(T.sizeof * indexes.data[].len), indexes.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf.buffer)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLint(T.sizeof * buf.data[].len), buf.data[0].unsafeAddr, GL_STATIC_DRAW)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
-proc setTextureBuffer*[T](texture: var TextureBuffer[T]): GLsizei =
-  result = GLsizei(texture.data[].len)
+proc setTextureBuffer*[T](buf: var TextureBuffer[T]): GLsizei =
+  result = GLsizei(buf.data[].len)
   var previousBuffer: GLint
   glGetIntegerv(GL_TEXTURE_BUFFER_BINDING, previousBuffer.addr)
 
-  glBindBuffer(GL_TEXTURE_BUFFER, texture.buffer)
-  glBufferData(GL_TEXTURE_BUFFER, GLint(T.sizeof * texture.data[].len), texture.data[0].addr, GL_STATIC_DRAW)
+  glBindBuffer(GL_TEXTURE_BUFFER, buf.buffer)
+  glBufferData(GL_TEXTURE_BUFFER, GLint(T.sizeof * buf.data[].len), buf.data[0].addr, GL_STATIC_DRAW)
 
-  glGenTextures(1, addr(texture.textureNum))
-  glBindTexture(GL_TEXTURE_BUFFER, texture.textureNum)
-  glTexBuffer(GL_TEXTURE_BUFFER, texture.internalFmt, texture.buffer)
+  glGenTextures(1, addr(buf.textureNum))
+  glBindTexture(GL_TEXTURE_BUFFER, buf.textureNum)
+  glTexBuffer(GL_TEXTURE_BUFFER, buf.internalFmt, buf.buffer)
 
   glBindBuffer(GL_TEXTURE_BUFFER, GLuint(previousBuffer))
 

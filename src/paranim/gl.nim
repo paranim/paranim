@@ -223,10 +223,10 @@ type
   Counts = tuple[drawCounts: array[maxDivisor+1, int], indexBufferCount: int, textureBufferCount: int]
   DivisorAndDrawCount = tuple[divisor: int, drawCount: int]
 
-proc setArrayBuffer[UniT, AttrT](entity: var CompiledEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer): DivisorAndDrawCount =
+proc setAttribute[UniT, AttrT](entity: var CompiledEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var Attribute): DivisorAndDrawCount =
   let
     divisor = attr.divisor
-    drawCount = setArrayBuffer(entity.program, attrName, attr)
+    drawCount = setAttribute(entity.program, attrName, attr)
   if counts.drawCounts[divisor] >= 0 and counts.drawCounts[divisor] != drawCount:
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   counts.drawCounts[divisor] = drawCount
@@ -239,14 +239,14 @@ proc setIndexBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: v
   entity.drawCount = setIndexBuffer(attr)
   attr.disable = true
 
-proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
-  let (divisor, drawCount) = setArrayBuffer(entity, counts, attrName, attr)
+proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var Attribute) =
+  let (divisor, drawCount) = setAttribute(entity, counts, attrName, attr)
   if divisor == 0:
     entity.drawCount = GLsizei(drawCount)
   attr.disable = true
 
-proc setBuffer[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
-  let (divisor, drawCount) = setArrayBuffer(entity, counts, attrName, attr)
+proc setBuffer[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var Attribute) =
+  let (divisor, drawCount) = setAttribute(entity, counts, attrName, attr)
   if divisor == 0:
     entity.drawCount = GLsizei(drawCount)
   elif divisor == 1:
