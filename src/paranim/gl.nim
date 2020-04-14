@@ -21,7 +21,7 @@ type
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
   IndexedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
-  InstancedIndexedEntity*[UniT, AttrT] = object of IndexedEntity[UniT, AttrT]
+  InstancedIndexedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
     instanceCount*: GLsizei
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
@@ -232,6 +232,13 @@ proc setArrayBuffer[UniT, AttrT](entity: var CompiledEntity[UniT, AttrT], counts
   counts.drawCounts[divisor] = drawCount
   (divisor, drawCount.int)
 
+proc setIndexBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var IndexBuffer) =
+  if counts.indexBufferCount > 0:
+    raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type IndexBuffer")
+  counts.indexBufferCount = 1
+  entity.drawCount = setIndexBuffer(attr)
+  attr.disable = true
+
 proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
   let (divisor, drawCount) = setArrayBuffer(entity, counts, attrName, attr)
   if divisor == 0:
@@ -255,11 +262,10 @@ proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Co
   #attr.disable = true
 
 proc setBuffer[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var IndexBuffer) =
-  if counts.indexBufferCount > 0:
-    raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type IndexBuffer")
-  counts.indexBufferCount = 1
-  entity.drawCount = setIndexBuffer(attr)
-  attr.disable = true
+  setIndexBuffer(entity, counts, attrName, attr)
+
+proc setBuffer[UniT, AttrT](entity: var InstancedIndexedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var IndexBuffer) =
+  setIndexBuffer(entity, counts, attrName, attr)
 
 template setBuffers(entity: var untyped) =
   var counts: Counts
