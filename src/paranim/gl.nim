@@ -219,20 +219,31 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
 proc initBuffer(): GLuint =
   glGenBuffers(1, result.addr)
 
-type Counts = tuple[drawCounts: array[maxDivisor+1, int], indexBufferCount: int, textureBufferCount: int]
+type
+  Counts = tuple[drawCounts: array[maxDivisor+1, int], indexBufferCount: int, textureBufferCount: int]
+  DivisorAndDrawCount = tuple[divisor: int, drawCount: int]
 
-proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
+proc setArrayBuffer[UniT, AttrT](entity: var CompiledEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer): DivisorAndDrawCount =
   let
     divisor = attr.divisor
     drawCount = setArrayBuffer(entity.program, attrName, attr)
   if counts.drawCounts[divisor] >= 0 and counts.drawCounts[divisor] != drawCount:
     raise newException(Exception, "The data in the " & attrName & " attribute has an inconsistent size")
   counts.drawCounts[divisor] = drawCount
+  (divisor, drawCount.int)
+
+proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
+  let (divisor, drawCount) = setArrayBuffer(entity, counts, attrName, attr)
+  if divisor == 0:
+    entity.drawCount = GLsizei(drawCount)
+  attr.disable = true
+
+proc setBuffer[UniT, AttrT](entity: var InstancedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var ArrayBuffer) =
+  let (divisor, drawCount) = setArrayBuffer(entity, counts, attrName, attr)
   if divisor == 0:
     entity.drawCount = GLsizei(drawCount)
   elif divisor == 1:
-    when entity is InstancedEntity[UniT, AttrT]:
-      entity.instanceCount = GLsizei(drawCount)
+    entity.instanceCount = GLsizei(drawCount)
   attr.disable = true
 
 proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var TextureBuffer) =
@@ -250,14 +261,7 @@ proc setBuffer[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT], counts: var 
   entity.drawCount = setIndexBuffer(attr)
   attr.disable = true
 
-proc setBuffers[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT]) =
-  var counts: Counts
-  counts.drawCounts.fill(-1)
-  for attrName, attr in entity.attributes.fieldPairs:
-    if not attr.disable:
-      setBuffer(entity, counts, attrName, attr)
-
-proc setBuffers[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT]) =
+template setBuffers(entity: var untyped) =
   var counts: Counts
   counts.drawCounts.fill(-1)
   for attrName, attr in entity.attributes.fieldPairs:
