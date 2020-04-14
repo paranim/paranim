@@ -106,9 +106,9 @@ proc init*(game: var Game) =
 
 You can make your own entities. All the 3D examples just make custom entities with the right shaders and attributes/uniforms. I'll document how to do this better in the future...maybe.
 
-As for text, there is a separate library for that: [paratext](https://github.com/paranim/paratext). See the `ex26_text` example.
+As for text, there is a separate library for that: [paratext](https://github.com/paranim/paratext). See the `ex27_text` example.
 
-Paranim wraps a few other things that are normally hard to do manually. The `ex17_perspective_texture_meta_3d` example shows how to render to a texture, and the final group of examples, including `ex18_spheres_3d`, show how to create an `IndexedEntity` (which calls OpenGL's `glDrawElements` function). But the code may or may not definitely be hard to follow.
+Paranim wraps a few other things that are normally hard to do manually. The `ex17_perspective_texture_meta_3d` example shows how to render to a texture, and the group of examples starting with `ex19_spheres_3d` show how to create an `IndexedEntity` (which calls OpenGL's `glDrawElements` function).
 
 **_Is there any state management thingy? I want to use an entity component system. They're the future!_**
 

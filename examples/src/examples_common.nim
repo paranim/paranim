@@ -71,7 +71,7 @@ proc transformData*(data: openArray[GLfloat]): seq[GLfloat] =
 
 const threeDVertexShader =
   """
-  #version 410
+  #version 330
   uniform mat4 u_matrix;
   in vec4 a_position;
   in vec4 a_color;
@@ -85,7 +85,7 @@ const threeDVertexShader =
 
 const threeDFragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   in vec4 v_color;
   out vec4 o_color;
@@ -120,7 +120,7 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
 
 const threeDTextureVertexShader* =
   """
-  #version 410
+  #version 330
   uniform mat4 u_matrix;
   in vec4 a_position;
   in vec2 a_texcoord;
@@ -134,7 +134,7 @@ const threeDTextureVertexShader* =
 
 const threeDTextureFragmentShader* =
   """
-  #version 410
+  #version 330
   precision mediump float;
   uniform sampler2D u_texture;
   in vec2 v_texcoord;
@@ -173,7 +173,7 @@ proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArr
 
 const indexedThreeDVertexShader =
   """
-  #version 410
+  #version 330
   uniform mat4 u_worldViewProjection;
   uniform vec3 u_lightWorldPos;
   uniform mat4 u_world;
@@ -200,7 +200,7 @@ const indexedThreeDVertexShader =
 
 const indexedThreeDFragmentShader =
   """
-  #version 410
+  #version 330
   precision mediump float;
   uniform vec4 u_lightColor;
   uniform vec4 u_color;
@@ -244,7 +244,7 @@ type
     a_position: Attribute[GLfloat]
     a_normal: Attribute[GLfloat]
     a_texcoord: Attribute[GLfloat]
-    indexes: Indexes[GLushort]
+    indexes: IndexBuffer[GLushort]
   IndexedThreeDEntity* = object of IndexedEntity[IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes]
   UncompiledIndexedThreeDEntity = object of UncompiledEntity[IndexedThreeDEntity, IndexedThreeDEntityUniforms, IndexedThreeDEntityAttributes]
 
@@ -264,7 +264,7 @@ proc initIndexedThreeDEntity*(positions: seq[GLfloat], normals: seq[GLfloat], te
   new(t.data)
   t.data[].add(texcoords)
   # indexes
-  var i = Indexes[GLushort]()
+  var i = IndexBuffer[GLushort]()
   new(i.data)
   i.data[].add(indexes)
   # set attrs

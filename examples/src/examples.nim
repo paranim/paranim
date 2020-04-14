@@ -17,15 +17,16 @@ from ex14_perspective_animation_3d import nil
 from ex15_perspective_texture_3d import nil
 from ex16_perspective_texture_data_3d import nil
 from ex17_perspective_texture_meta_3d import nil
-from ex18_spheres_3d import nil
-from ex19_planes_3d import nil
-from ex20_cubes_3d import nil
-from ex21_cylinders_3d import nil
-from ex22_crescents_3d import nil
-from ex23_toruses_3d import nil
-from ex24_discs_3d import nil
-from ex25_font import nil
-from ex26_text import nil
+from ex18_perspective_texture_buffer_3d import nil
+from ex19_spheres_3d import nil
+from ex20_planes_3d import nil
+from ex21_cubes_3d import nil
+from ex22_cylinders_3d import nil
+from ex23_crescents_3d import nil
+from ex24_toruses_3d import nil
+from ex25_discs_3d import nil
+from ex26_font import nil
+from ex27_text import nil
 
 const examples = [
   (init: ex01_image.init, tick: ex01_image.tick, name: "ex01_image"),
@@ -45,15 +46,16 @@ const examples = [
   (init: ex15_perspective_texture_3d.init, tick: ex15_perspective_texture_3d.tick, name: "ex15_perspective_texture_3d"),
   (init: ex16_perspective_texture_data_3d.init, tick: ex16_perspective_texture_data_3d.tick, name: "ex16_perspective_texture_data_3d"),
   (init: ex17_perspective_texture_meta_3d.init, tick: ex17_perspective_texture_meta_3d.tick, name: "ex17_perspective_texture_meta_3d"),
-  (init: ex18_spheres_3d.init, tick: ex18_spheres_3d.tick, name: "ex18_spheres_3d"),
-  (init: ex19_planes_3d.init, tick: ex19_planes_3d.tick, name: "ex19_planes_3d"),
-  (init: ex20_cubes_3d.init, tick: ex20_cubes_3d.tick, name: "ex20_cubes_3d"),
-  (init: ex21_cylinders_3d.init, tick: ex21_cylinders_3d.tick, name: "ex21_cylinders_3d"),
-  (init: ex22_crescents_3d.init, tick: ex22_crescents_3d.tick, name: "ex22_crescents_3d"),
-  (init: ex23_toruses_3d.init, tick: ex23_toruses_3d.tick, name: "ex23_toruses_3d"),
-  (init: ex24_discs_3d.init, tick: ex24_discs_3d.tick, name: "ex24_discs_3d"),
-  (init: ex25_font.init, tick: ex25_font.tick, name: "ex25_font"),
-  (init: ex26_text.init, tick: ex26_text.tick, name: "ex26_text"),
+  (init: ex18_perspective_texture_buffer_3d.init, tick: ex18_perspective_texture_buffer_3d.tick, name: "ex18_perspective_texture_buffer_3d"),
+  (init: ex19_spheres_3d.init, tick: ex19_spheres_3d.tick, name: "ex19_spheres_3d"),
+  (init: ex20_planes_3d.init, tick: ex20_planes_3d.tick, name: "ex20_planes_3d"),
+  (init: ex21_cubes_3d.init, tick: ex21_cubes_3d.tick, name: "ex21_cubes_3d"),
+  (init: ex22_cylinders_3d.init, tick: ex22_cylinders_3d.tick, name: "ex22_cylinders_3d"),
+  (init: ex23_crescents_3d.init, tick: ex23_crescents_3d.tick, name: "ex23_crescents_3d"),
+  (init: ex24_toruses_3d.init, tick: ex24_toruses_3d.tick, name: "ex24_toruses_3d"),
+  (init: ex25_discs_3d.init, tick: ex25_discs_3d.tick, name: "ex25_discs_3d"),
+  (init: ex26_font.init, tick: ex26_font.tick, name: "ex26_font"),
+  (init: ex27_text.init, tick: ex27_text.tick, name: "ex27_text"),
 ]
 
 var game = Game()
@@ -94,8 +96,8 @@ proc resizeWindowCallback(window: GLFWWindow, width: int32, height: int32): void
 when isMainModule:
   doAssert glfwInit()
 
-  glfwWindowHint(GLFWContextVersionMajor, 4)
-  glfwWindowHint(GLFWContextVersionMinor, 1)
+  glfwWindowHint(GLFWContextVersionMajor, 3)
+  glfwWindowHint(GLFWContextVersionMinor, 3)
   glfwWindowHint(GLFWOpenglForwardCompat, GLFW_TRUE) # Used for Mac
   glfwWindowHint(GLFWOpenglProfile, GLFW_OPENGL_CORE_PROFILE)
   glfwWindowHint(GLFWResizable, GLFW_TRUE)
