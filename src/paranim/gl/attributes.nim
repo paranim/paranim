@@ -50,13 +50,14 @@ proc setTextureBuffer*[T](buf: var TextureBuffer[T]): GLsizei =
   result = GLsizei(buf.data[].len)
   var previousBuffer: GLint
   glGetIntegerv(GL_TEXTURE_BUFFER_BINDING, previousBuffer.addr)
-
   glBindBuffer(GL_TEXTURE_BUFFER, buf.buffer)
   glBufferData(GL_TEXTURE_BUFFER, GLint(T.sizeof * buf.data[].len), buf.data[0].addr, GL_STATIC_DRAW)
+  glBindBuffer(GL_TEXTURE_BUFFER, GLuint(previousBuffer))
 
+  var previousTexture: GLint
+  glGetIntegerv(GL_TEXTURE_BINDING_BUFFER, previousTexture.addr)
   glGenTextures(1, addr(buf.textureNum))
   glBindTexture(GL_TEXTURE_BUFFER, buf.textureNum)
   glTexBuffer(GL_TEXTURE_BUFFER, buf.internalFmt, buf.buffer)
-
-  glBindBuffer(GL_TEXTURE_BUFFER, GLuint(previousBuffer))
+  glBindTexture(GL_TEXTURE_BUFFER, GLuint(previousTexture))
 

@@ -258,8 +258,7 @@ proc setBuffer[UniT, AttrT](entity: var ArrayEntity[UniT, AttrT], counts: var Co
     raise newException(Exception, "Can't set " & attrName & " because there may only be one attribute of the type TextureBuffer")
   counts.textureBufferCount = 1
   discard setTextureBuffer(attr)
-  # never disable texture buffers, because it seems that they always need to be set before rendering
-  #attr.disable = true
+  attr.disable = true
 
 proc setBuffer[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var IndexBuffer) =
   setIndexBuffer(entity, counts, attrName, attr)
@@ -307,6 +306,9 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, Attr
   for name, uni in entity.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
+  for attr in entity.attributes.fields:
+    when attr is TextureBuffer[auto]:
+      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
@@ -323,6 +325,9 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
   for name, uni in entity.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
+  for attr in entity.attributes.fields:
+    when attr is TextureBuffer[auto]:
+      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
@@ -343,6 +348,9 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, At
   for name, uni in entity.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
+  for attr in entity.attributes.fields:
+    when attr is TextureBuffer[auto]:
+      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   for attr in entity.attributes.fields:
     when attr is IndexBuffer[auto]:
       drawElements(entity, attr)
@@ -365,6 +373,9 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity
   for name, uni in entity.uniforms.fieldPairs:
     if not uni.disable:
       callUniform(game, entity, entity.program, name, uni)
+  for attr in entity.attributes.fields:
+    when attr is TextureBuffer[auto]:
+      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   for attr in entity.attributes.fields:
     when attr is IndexBuffer[auto]:
       drawElements(entity, attr)
