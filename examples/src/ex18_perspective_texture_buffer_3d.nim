@@ -112,6 +112,8 @@ type
   UncompiledThreeDTextureBufferEntity = object of UncompiledEntity[ThreeDTextureBufferEntity, ThreeDTextureBufferEntityUniforms, ThreeDTextureBufferEntityAttributes]
 
 proc initThreeDTextureBufferEntity(game: var Game, posData: openArray[GLfloat], idxData: openArray[int], textureData: openArray[GLfloat]): UncompiledThreeDTextureBufferEntity =
+  let texUnit = game.texCount.GLint
+  game.texCount += 1
   result.vertexSource = vertexShader
   result.fragmentSource = fragmentShader
   # position
@@ -124,16 +126,15 @@ proc initThreeDTextureBufferEntity(game: var Game, posData: openArray[GLfloat], 
   for idx in idxData:
     indexes.data[].add(idx.GLuint)
   # texture
-  var texture = TextureBuffer[GLfloat](internalFmt: GL_RGBA32F)
+  var texture = TextureBuffer[GLfloat](unit: texUnit, internalFmt: GL_RGBA32F)
   new(texture.data)
   texture.data[].add(textureData)
   # set attrs and unis
   result.attributes = (vposition: position, indexes: indexes, texture: texture)
   result.uniforms = (
     u_matrix: Uniform[Mat4x4[GLfloat]](data: mat4f(1)),
-    offset_texture: Uniform[GLint](data: game.texCount.ord.GLint)
+    offset_texture: Uniform[GLint](data: texUnit)
   )
-  game.texCount += 1
 
 var entity: ThreeDTextureBufferEntity
 var rx = degToRad(190f)
@@ -154,8 +155,6 @@ proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
   glClear(GLbitfield(bitor(GL_COLOR_BUFFER_BIT.ord, GL_DEPTH_BUFFER_BIT.ord)))
   glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
-
-  glActiveTexture(GLenum(GL_TEXTURE0.ord + entity.uniforms.offset_texture.data))
 
   var camera = mat4f(1)
   camera.translate(0f, 0f, -10f)
