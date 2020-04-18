@@ -11,6 +11,7 @@ type
   IndexBuffer*[T] = object of Buffer[T]
   Indexes*[T] = IndexBuffer[T] # backwards compatibility
   TextureBuffer*[T] = object of Buffer[T]
+    unit*: GLint
     textureNum*: GLuint
     internalFmt*: GLenum
   Attribute*[T] = object of Buffer[T]

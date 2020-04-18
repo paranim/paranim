@@ -308,6 +308,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, Attr
       callUniform(game, entity, entity.program, name, uni)
   for attr in entity.attributes.fields:
     when attr is TextureBuffer[auto]:
+      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
       glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
   glUseProgram(previousProgram)
@@ -327,6 +328,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
       callUniform(game, entity, entity.program, name, uni)
   for attr in entity.attributes.fields:
     when attr is TextureBuffer[auto]:
+      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
       glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
   glUseProgram(previousProgram)
@@ -350,6 +352,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, At
       callUniform(game, entity, entity.program, name, uni)
   for attr in entity.attributes.fields:
     when attr is TextureBuffer[auto]:
+      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
       glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   for attr in entity.attributes.fields:
     when attr is IndexBuffer[auto]:
@@ -375,6 +378,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity
       callUniform(game, entity, entity.program, name, uni)
   for attr in entity.attributes.fields:
     when attr is TextureBuffer[auto]:
+      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
       glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
   for attr in entity.attributes.fields:
     when attr is IndexBuffer[auto]:
