@@ -11,8 +11,6 @@ type
     totalTime*: float
     frameWidth*: int
     frameHeight*: int
-    windowWidth*: int
-    windowHeight*: int
     mouseX*: float
     mouseY*: float
 

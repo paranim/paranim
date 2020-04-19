@@ -23,10 +23,8 @@ proc tick*(game: Game) =
   glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
 
   let
-    widthRatio = float(game.frameWidth) / float(game.windowWidth)
-    heightRatio = float(game.frameHeight) / float(game.windowHeight)
-    x = game.mouseX * widthRatio - tx
-    y = game.mouseY * heightRatio - ty
+    x = game.mouseX - tx
+    y = game.mouseY - ty
     rx = x / float(game.frameWidth)
     ry = y / float(game.frameHeight)
 

@@ -28,9 +28,7 @@ proc tick*(game: Game) =
   glViewport(0, 0, GLsizei(game.frameWidth), GLsizei(game.frameHeight))
 
   let
-    widthRatio = float(game.frameWidth) / float(game.windowWidth)
-    heightRatio = float(game.frameHeight) / float(game.windowHeight)
-    x = game.mouseX * widthRatio - tx
+    x = game.mouseX - tx
     cx = x - (float(game.frameWidth) / 2)
     cr = degToRad((cx / float(game.frameWidth)) * 360f)
 
