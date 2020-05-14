@@ -335,8 +335,12 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
   glBindVertexArray(previousVao)
 
 proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
+  var previousBuffer: GLint
+  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, previousBuffer.addr)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexes.buffer)
   const kind = utils.getTypeEnum(IndexT)
-  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].addr)
+  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, nil)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, AttrT]) =
   var
@@ -361,8 +365,12 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, At
   glBindVertexArray(previousVao)
 
 proc drawElements[UniT, AttrT, IndexT](entity: InstancedIndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
+  var previousBuffer: GLint
+  glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, previousBuffer.addr)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexes.buffer)
   const kind = utils.getTypeEnum(IndexT)
-  glDrawElementsInstanced(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].addr, entity.instanceCount)
+  glDrawElementsInstanced(GL_TRIANGLES, entity.drawCount, kind, nil, entity.instanceCount)
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity[UniT, AttrT]) =
   var
