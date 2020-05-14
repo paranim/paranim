@@ -26,7 +26,7 @@ proc setAttribute*[T](program: GLuint, attribName: string, attr: Attribute[T]): 
   var previousBuffer: GLint
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, previousBuffer.addr)
   glBindBuffer(GL_ARRAY_BUFFER, attr.buffer)
-  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data[].len), attr.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBufferData(GL_ARRAY_BUFFER, GLint(T.sizeof * attr.data[].len), attr.data[0].addr, GL_STATIC_DRAW)
   const kind = utils.getTypeEnum(T)
   var attribLocation = GLuint(glGetAttribLocation(program, cstring(attribName)))
   for i in 0 ..< attr.iter:
@@ -44,7 +44,7 @@ proc setIndexBuffer*[T](buf: IndexBuffer[T]): GLsizei =
   var previousBuffer: GLint
   glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, previousBuffer.addr)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf.buffer)
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLint(T.sizeof * buf.data[].len), buf.data[0].unsafeAddr, GL_STATIC_DRAW)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, GLint(T.sizeof * buf.data[].len), buf.data[0].addr, GL_STATIC_DRAW)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc setTextureBuffer*[T](buf: var TextureBuffer[T]): GLsizei =

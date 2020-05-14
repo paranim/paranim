@@ -45,7 +45,7 @@ proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): t
     texture.opts.border,
     texture.opts.srcFmt,
     srcType,
-    if texture.data == nil: nil else: texture.data[0].unsafeAddr
+    if texture.data == nil: nil else: texture.data[0].addr
   )
   for paramVal in texture.mipmapParams:
     glGenerateMipmap(paramVal)
@@ -336,7 +336,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, 
 
 proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
   const kind = utils.getTypeEnum(IndexT)
-  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].unsafeAddr)
+  glDrawElements(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].addr)
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, AttrT]) =
   var
@@ -362,7 +362,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, At
 
 proc drawElements[UniT, AttrT, IndexT](entity: InstancedIndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
   const kind = utils.getTypeEnum(IndexT)
-  glDrawElementsInstanced(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].unsafeAddr, entity.instanceCount)
+  glDrawElementsInstanced(GL_TRIANGLES, entity.drawCount, kind, indexes.data[0].addr, entity.instanceCount)
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity[UniT, AttrT]) =
   var
