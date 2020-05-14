@@ -7,6 +7,8 @@ license       = "Public Domain"
 srcDir        = "src"
 bin           = @["examples"]
 
+task dev, "Run dev version":
+  exec "nimble run examples"
 
 
 # Dependencies
