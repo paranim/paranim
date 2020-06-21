@@ -266,6 +266,14 @@ proc setBuffer[UniT, AttrT](entity: var IndexedEntity[UniT, AttrT], counts: var 
 proc setBuffer[UniT, AttrT](entity: var InstancedIndexedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var IndexBuffer) =
   setIndexBuffer(entity, counts, attrName, attr)
 
+proc setBuffer[UniT, AttrT](entity: var InstancedIndexedEntity[UniT, AttrT], counts: var Counts, attrName: string, attr: var Attribute) =
+  let (divisor, drawCount) = setAttribute(entity, counts, attrName, attr)
+  if divisor == 0:
+    entity.drawCount = GLsizei(drawCount)
+  elif divisor == 1:
+    entity.instanceCount = GLsizei(drawCount)
+  attr.disable = true
+
 template setBuffers(entity: var untyped) =
   var counts: Counts
   counts.drawCounts.fill(-1)
