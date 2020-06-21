@@ -132,6 +132,30 @@ proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], progr
   glUniform1uiv(loc, uni.data.len.GLsizei, uni.data[0].addr)
   uni.disable = true
 
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[Mat2x2[GLfloat]]]) =
+  let loc = getUniformLocation(program, uniName)
+  var data = uni.data
+  for m in data.mitems():
+    m = m.transpose()
+  glUniformMatrix2fv(loc, data.len.GLsizei, false, cast[ptr GLfloat](data[0].addr))
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[Mat3x3[GLfloat]]]) =
+  let loc = getUniformLocation(program, uniName)
+  var data = uni.data
+  for m in data.mitems():
+    m = m.transpose()
+  glUniformMatrix3fv(loc, data.len.GLsizei, false, cast[ptr GLfloat](data[0].addr))
+  uni.disable = true
+
+proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[seq[Mat4x4[GLfloat]]]) =
+  let loc = getUniformLocation(program, uniName)
+  var data = uni.data
+  for m in data.mitems():
+    m = m.transpose()
+  glUniformMatrix4fv(loc, data.len.GLsizei, false, cast[ptr GLfloat](data[0].addr))
+  uni.disable = true
+
 # uniform scalars
 
 proc callUniform[UniT, AttrT](game: RootGame, entity: Entity[UniT, AttrT], program: GLuint, uniName: string, uni: var UniForm[GLfloat]) =
