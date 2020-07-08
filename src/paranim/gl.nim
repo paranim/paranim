@@ -326,7 +326,7 @@ proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: 
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
-proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, AttrT]) =
+template render(game: untyped, entity: untyped, body: untyped) =
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -342,29 +342,15 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, Attr
     when attr is TextureBuffer[auto]:
       glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
       glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
-  glDrawArrays(GL_TRIANGLES, 0, entity.drawCount)
+  body
   glUseProgram(previousProgram)
   glBindVertexArray(previousVao)
 
+proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, AttrT]) =
+  render(game, entity, glDrawArrays(GL_TRIANGLES, 0, entity.drawCount))
+
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, AttrT]) =
-  var
-    previousProgram: GLuint
-    previousVao: GLuint
-  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
-  glUseProgram(entity.program)
-  glBindVertexArray(entity.vao)
-  setBuffers(entity)
-  for name, uni in entity.uniforms.fieldPairs:
-    if not uni.disable:
-      callUniform(game, entity, entity.program, name, uni)
-  for attr in entity.attributes.fields:
-    when attr is TextureBuffer[auto]:
-      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
-      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
-  glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount)
-  glUseProgram(previousProgram)
-  glBindVertexArray(previousVao)
+  render(game, entity, glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount))
 
 proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
   var previousBuffer: GLint
@@ -375,26 +361,11 @@ proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], index
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, AttrT]) =
-  var
-    previousProgram: GLuint
-    previousVao: GLuint
-  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
-  glUseProgram(entity.program)
-  glBindVertexArray(entity.vao)
-  setBuffers(entity)
-  for name, uni in entity.uniforms.fieldPairs:
-    if not uni.disable:
-      callUniform(game, entity, entity.program, name, uni)
-  for attr in entity.attributes.fields:
-    when attr is TextureBuffer[auto]:
-      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
-      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
-  for attr in entity.attributes.fields:
-    when attr is IndexBuffer[auto]:
-      drawElements(entity, attr)
-  glUseProgram(previousProgram)
-  glBindVertexArray(previousVao)
+  render(game, entity,
+    for attr in entity.attributes.fields:
+      when attr is IndexBuffer[auto]:
+        drawElements(entity, attr)
+  )
 
 proc drawElements[UniT, AttrT, IndexT](entity: InstancedIndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
   var previousBuffer: GLint
@@ -405,23 +376,8 @@ proc drawElements[UniT, AttrT, IndexT](entity: InstancedIndexedEntity[UniT, Attr
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity[UniT, AttrT]) =
-  var
-    previousProgram: GLuint
-    previousVao: GLuint
-  glGetIntegerv(GL_CURRENT_PROGRAM, cast[ptr GLint](previousProgram.addr))
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, cast[ptr GLint](previousVao.addr))
-  glUseProgram(entity.program)
-  glBindVertexArray(entity.vao)
-  setBuffers(entity)
-  for name, uni in entity.uniforms.fieldPairs:
-    if not uni.disable:
-      callUniform(game, entity, entity.program, name, uni)
-  for attr in entity.attributes.fields:
-    when attr is TextureBuffer[auto]:
-      glActiveTexture(GLenum(GL_TEXTURE0.ord + attr.unit))
-      glBindTexture(GL_TEXTURE_BUFFER, attr.textureNum)
-  for attr in entity.attributes.fields:
-    when attr is IndexBuffer[auto]:
-      drawElements(entity, attr)
-  glUseProgram(previousProgram)
-  glBindVertexArray(previousVao)
+  render(game, entity,
+    for attr in entity.attributes.fields:
+      when attr is IndexBuffer[auto]:
+        drawElements(entity, attr)
+  )
