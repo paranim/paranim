@@ -10,13 +10,13 @@ import glm
 proc init() =
   doAssert glfwInit()
 
-  glfwWindowHint(GLFWContextVersionMajor, 4)
-  glfwWindowHint(GLFWContextVersionMinor, 1)
+  glfwWindowHint(GLFWContextVersionMajor, 3)
+  glfwWindowHint(GLFWContextVersionMinor, 3)
   glfwWindowHint(GLFWOpenglForwardCompat, GLFW_TRUE) # Used for Mac
   glfwWindowHint(GLFWOpenglProfile, GLFW_OPENGL_CORE_PROFILE)
   glfwWindowHint(GLFWResizable, GLFW_TRUE)
 
-  let w: GLFWWindow = glfwCreateWindow(800, 600, "NimGL")
+  let w: GLFWWindow = glfwCreateWindow(800, 600, "Paranim Test")
   if w == nil:
     quit(-1)
 
