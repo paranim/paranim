@@ -47,14 +47,14 @@ proc init*(game: var Game) =
     uncompiledEntity = initInstancedEntity(baseEntity)
     compiledEntity = compile(game, uncompiledEntity)
 
-  # we can create separate text entities by doing a deepCopy
+  # we can create separate text entities by doing a copy
   # on the compiled text entity.
   # this ensures that they don't share attribute data.
 
-  helloEntity = deepCopy(compiledEntity)
+  helloEntity = copy(compiledEntity)
   helloEntity.add(baseEntity, font, "Hello, world!")
 
-  colorEntity = deepCopy(compiledEntity)
+  colorEntity = copy(compiledEntity)
   colorEntity.add(baseEntity, font, "Colors")
 
   const colors = [
@@ -67,7 +67,7 @@ proc init*(game: var Game) =
     e.color(colors[i mod colors.len])
     colorEntity[i] = e
 
-  countEntity = deepCopy(compiledEntity)
+  countEntity = copy(compiledEntity)
 
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
