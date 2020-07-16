@@ -381,3 +381,11 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity
       when attr is IndexBuffer[auto]:
         drawElements(entity, attr)
   )
+
+proc copy*[T](entity: T): T =
+  result = entity
+  for attrName, attr in result.attributes.fieldPairs:
+    for attrName2, attr2 in entity.attributes.fieldPairs:
+      when attrName == attrName2:
+        new(attr.data)
+        attr.data[] = attr2.data[]

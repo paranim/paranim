@@ -149,7 +149,10 @@ proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoD
   new(result.attributes.a_matrix.data)
   result.attributes.a_color = Attribute[GLfloat](disable: true, divisor: 1, size: 4, iter: 1)
   new(result.attributes.a_color.data)
-  deepCopy(result.attributes.a_position, entity.attributes.a_position)
+  result.attributes.a_position = entity.attributes.a_position
+  # do a full copy of the data to avoid unexpected problems
+  new(result.attributes.a_position.data)
+  result.attributes.a_position.data[] = entity.attributes.a_position.data[]
 
 proc add*(instancedEntity: var UncompiledInstancedTwoDEntity, entity: UncompiledTwoDEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
@@ -275,7 +278,10 @@ proc initInstancedEntity*(entity: UncompiledImageEntity): UncompiledInstancedIma
   new(result.attributes.a_matrix.data)
   result.attributes.a_texture_matrix = Attribute[GLfloat](disable: true, divisor: 1, size: 3, iter: 3)
   new(result.attributes.a_texture_matrix.data)
-  deepCopy(result.attributes.a_position, entity.attributes.a_position)
+  result.attributes.a_position = entity.attributes.a_position
+  # do a full copy of the data to avoid unexpected problems
+  new(result.attributes.a_position.data)
+  result.attributes.a_position.data[] = entity.attributes.a_position.data[]
 
 proc add*(instancedEntity: var UncompiledInstancedImageEntity, entity: UncompiledImageEntity) =
   addInstanceAttr(instancedEntity.attributes.a_matrix, entity.uniforms.u_matrix)
