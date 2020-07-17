@@ -382,7 +382,7 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity
         drawElements(entity, attr)
   )
 
-proc copy*[T](entity: T): T =
+proc copy*[T: Entity[auto, auto]](entity: T): T =
   result = entity
   for attrName, attr in result.attributes.fieldPairs:
     for attrName2, attr2 in entity.attributes.fieldPairs:
