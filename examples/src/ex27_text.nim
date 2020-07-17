@@ -51,10 +51,10 @@ proc init*(game: var Game) =
   # on the compiled text entity.
   # this ensures that they don't share attribute data.
 
-  helloEntity = copy(compiledEntity)
+  helloEntity = gl.copy(compiledEntity)
   helloEntity.add(baseEntity, font, "Hello, world!")
 
-  colorEntity = copy(compiledEntity)
+  colorEntity = gl.copy(compiledEntity)
   colorEntity.add(baseEntity, font, "Colors")
 
   const colors = [
@@ -67,7 +67,7 @@ proc init*(game: var Game) =
     e.color(colors[i mod colors.len])
     colorEntity[i] = e
 
-  countEntity = copy(compiledEntity)
+  countEntity = gl.copy(compiledEntity)
 
 proc tick*(game: Game) =
   glClearColor(1f, 1f, 1f, 1f)
