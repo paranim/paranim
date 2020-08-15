@@ -110,6 +110,10 @@ As for text, there is a separate library for that: [paratext](https://github.com
 
 Paranim wraps a few other things that are normally hard to do manually. The `ex17_perspective_texture_meta_3d` example shows how to render to a texture, and the group of examples starting with `ex19_spheres_3d` show how to create an `IndexedEntity` (which calls OpenGL's `glDrawElements` function).
 
+**_How do I play sounds?_**
+
+To play wav or mp3 files, you can use [parasound](https://github.com/paranim/parasound). Additionally, you can even produce your own MIDI music with [paramidi](https://github.com/paranim/paramidi).
+
 **_Is there any state management thingy? I want to use an entity component system. They're the future!_**
 
 No. But I'm making a separate library called [pararules](https://github.com/paranim/pararules) which is a rules engine for Nim. This is uncharted territory for games but I think it might be a better (more holistic) solution than an ECS. If so, then expect it to go through the same maddening hype cycle that ECSs have gone through.
@@ -128,4 +132,4 @@ I also don't want to pay Rust's hefty complexity tax just to get rid of that GC.
 
 As my grandma would say, "Don't give in to trend-chasing or mindless dogma that is totally detached from the realities of your problem domain." She said that shit to me when I was like five. True story.
 
-I would like to add an abstraction for whatever replaces OpenGL when the dust settles, but for 99% of you I think OpenGL is still OK. If you are experiencing performance problems, it's probably your fault. And multi-threading will probably not help. You are better off sticking to one thread.
+I would like to add an abstraction for whatever replaces OpenGL when the dust settles, but for 99% of you I think OpenGL is still OK. If you are experiencing performance problems, it's probably your fault. And multi-threading is not a silver bullet. You are better off sticking to one thread for as long as you can.
