@@ -6,22 +6,32 @@ import glm
 
 type
   RootGame* = object of RootObj
+    ## An object storing internal "global" state.
+    ## Just initialize it with `RootGame()` and
+    ## pass it any time you call `compile` or `render`.
     texCount*: Natural
   Entity*[UniT, AttrT] = object of RootObj
+    ## Base type of all entities.
     uniforms*: UniT
     attributes*: AttrT
   UncompiledEntity*[CompiledT, UniT, AttrT] = object of Entity[UniT, AttrT]
+    ## Entity that will be passed to `compile`.
     vertexSource*: string
     fragmentSource*: string
   CompiledEntity*[UniT, AttrT] = object of Entity[UniT, AttrT]
+    ## Entity that has been returned by `compile`.
     program*: GLuint
     vao*: GLuint
   ArrayEntity*[UniT, AttrT] = object of CompiledEntity[UniT, AttrT]
+    ## Entity that renders using `glDrawArrays`.
     drawCount*: GLsizei
   InstancedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
+    ## Entity that renders using `glDrawArraysInstanced`.
     instanceCount*: GLsizei
   IndexedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
+    ## Entity that renders using `glDrawElements`.
   InstancedIndexedEntity*[UniT, AttrT] = object of ArrayEntity[UniT, AttrT]
+    ## Entity that renders using `glDrawElementsInstanced`.
     instanceCount*: GLsizei
 
 proc createTexture[T](game: var RootGame, uniLoc: GLint, texture: Texture[T]): tuple[unit: GLint, textureNum: GLuint] =
@@ -306,6 +316,8 @@ template setBuffers(entity: var untyped) =
       setBuffer(entity, counts, attrName, attr)
 
 proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
+  ## Compiles the shaders and creates all the necessary internal state
+  ## to allow the entity to be rendered.
   var
     previousProgram: GLuint
     previousVao: GLuint
@@ -347,9 +359,11 @@ template render(game: untyped, entity: untyped, body: untyped) =
   glBindVertexArray(previousVao)
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var ArrayEntity[UniT, AttrT]) =
+  ## Render an `ArrayEntity` using `glDrawArrays`.
   render(game, entity, glDrawArrays(GL_TRIANGLES, 0, entity.drawCount))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedEntity[UniT, AttrT]) =
+  ## Render an `InstancedEntity` using `glDrawArraysInstanced`.
   render(game, entity, glDrawArraysInstanced(GL_TRIANGLES, 0, entity.drawCount, entity.instanceCount))
 
 proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], indexes: IndexBuffer[IndexT]) =
@@ -361,6 +375,7 @@ proc drawElements[UniT, AttrT, IndexT](entity: IndexedEntity[UniT, AttrT], index
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var IndexedEntity[UniT, AttrT]) =
+  ## Render an `IndexedEntity` using `glDrawElements`.
   render(game, entity,
     for attr in entity.attributes.fields:
       when attr is IndexBuffer[auto]:
@@ -376,6 +391,7 @@ proc drawElements[UniT, AttrT, IndexT](entity: InstancedIndexedEntity[UniT, Attr
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GLuint(previousBuffer))
 
 proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity[UniT, AttrT]) =
+  ## Render an `InstancedIndexedEntity` using `glDrawElementsInstanced`.
   render(game, entity,
     for attr in entity.attributes.fields:
       when attr is IndexBuffer[auto]:
