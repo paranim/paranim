@@ -399,6 +399,8 @@ proc render*[GameT, UniT, AttrT](game: GameT, entity: var InstancedIndexedEntity
   )
 
 proc copy*[T: Entity[auto, auto]](entity: T): T =
+  ## Make a copy of the given entity so it can be safely
+  ## modified without affecting the original entity.
   result = entity
   for attrName, attr in result.attributes.fieldPairs:
     for attrName2, attr2 in entity.attributes.fieldPairs:
