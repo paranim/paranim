@@ -103,6 +103,7 @@ const twoDFragmentShader =
   """
 
 proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
+  ## Initialize a 2D entity whose shape is determined by `data`.
   result.vertexSource = twoDVertexShader
   result.fragmentSource = twoDFragmentShader
   var position = Attribute[GLfloat](size: 2, iter: 1)
@@ -142,6 +143,7 @@ const instancedTwoDFragmentShader =
   """
 
 proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoDEntity =
+  ## Initialize an instanced 2D entity.
   let e = gl.copy(entity) # make a copy to prevent unexpected problems if `entity` is changed later
   result.vertexSource = instancedTwoDVertexShader
   result.fragmentSource = instancedTwoDFragmentShader
@@ -206,6 +208,7 @@ const imageFragmentShader =
   """
 
 proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): UncompiledImageEntity =
+  ## Initialize an entity that renders the provided texture `data`.
   result.vertexSource = imageVertexShader
   result.fragmentSource = imageFragmentShader
   # create attribute
@@ -268,6 +271,7 @@ const instancedImageFragmentShader =
   """
 
 proc initInstancedEntity*(entity: UncompiledImageEntity): UncompiledInstancedImageEntity =
+  ## Initialize an instanced image entity.
   let e = gl.copy(entity) # make a copy to prevent unexpected problems if `entity` is changed later
   result.vertexSource = instancedImageVertexShader
   result.fragmentSource = instancedImageFragmentShader

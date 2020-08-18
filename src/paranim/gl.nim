@@ -316,7 +316,7 @@ template setBuffers(entity: var untyped) =
       setBuffer(entity, counts, attrName, attr)
 
 proc compile*[GameT, CompiledT, UniT, AttrT](game: var GameT, uncompiledEntity: UncompiledEntity[CompiledT, UniT, AttrT]): CompiledT =
-  ## Compiles the shaders and creates all the necessary internal state
+  ## Compile the shaders and create all the necessary internal state
   ## to allow the entity to be rendered.
   var
     previousProgram: GLuint
