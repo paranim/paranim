@@ -104,7 +104,7 @@ proc init*(game: var Game) =
 
 **_What if I want to render something that isn't a simple shape or an image? What about 3D?_**
 
-You can make your own entities. All the 3D examples just make custom entities with the right shaders and attributes/uniforms. I'll document how to do this better in the future...maybe.
+You can make your own entities. All the 3D examples just make custom entities with the right shaders and attributes/uniforms. See [the tutorial](TUTORIAL.md) for a small example of how to create a custom entity.
 
 Paranim wraps a few other things that are normally hard to do manually. The `ex17_perspective_texture_meta_3d` example shows how to render to a texture, and the group of examples starting with `ex19_spheres_3d` show how to create an `IndexedEntity` (which calls OpenGL's `glDrawElements` function).
 
