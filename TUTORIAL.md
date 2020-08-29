@@ -2,6 +2,8 @@ It is important to know that paranim is a relatively thin wrapper over OpenGL. I
 
 Entities are objects that contain all the necessary OpenGL state to render something, including shaders and the attributes/uniforms that are passed to them. This tutorial demonstrates how to make a custom entity that renders a triangle.
 
+Some OpenGL/WebGL knowledge would help to understand this. I recommend [WebGL2 Fundamentals](https://webgl2fundamentals.org/) and [Learn OpenGL](https://learnopengl.com/) to learn more.
+
 To begin, clone the [parakeet](https://github.com/paranim/parakeet) starter project and make sure you can run it with `nimble dev`. Then, completely replace `src/core.nim` with the following:
 
 ```nim
