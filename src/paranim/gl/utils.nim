@@ -39,6 +39,8 @@ proc createProgram*(vSource: string, fSource: string) : GLuint =
   glAttachShader(result, vShader)
   glAttachShader(result, fShader)
   glLinkProgram(result)
+  glDeleteShader(vShader)
+  glDeleteShader(fShader)
   checkProgramStatus(result)
 
 proc getTypeEnum*(T: typedesc): GLenum =
