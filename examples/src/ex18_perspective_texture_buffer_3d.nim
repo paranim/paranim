@@ -119,7 +119,7 @@ proc initThreeDTextureBufferEntity(game: var Game, posData: openArray[GLfloat], 
   # position
   var position = Attribute[GLfloat](size: 3, iter: 2)
   new(position.data)
-  position.data[].add(posData)
+  position.data[] = @posData
   # indexes
   var indexes = IndexBuffer[GLuint]()
   new(indexes.data)
@@ -128,7 +128,7 @@ proc initThreeDTextureBufferEntity(game: var Game, posData: openArray[GLfloat], 
   # texture
   var texture = TextureBuffer[GLfloat](unit: texUnit, internalFmt: GL_RGBA32F)
   new(texture.data)
-  texture.data[].add(textureData)
+  texture.data[] = @textureData
   # set attrs and unis
   result.attributes = (vposition: position, indexes: indexes, texture: texture)
   result.uniforms = (

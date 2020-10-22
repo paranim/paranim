@@ -37,7 +37,7 @@ proc init*(game: var Game) =
     pixelStoreParams: @[(GL_UNPACK_ALIGNMENT, GLint(1))]
   )
   new(image.data)
-  image.data[].add(pattern)
+  image.data[] = @pattern
 
   entity = compile(game, initThreeDTextureEntity(cube, cubeTexcoords, image))
 

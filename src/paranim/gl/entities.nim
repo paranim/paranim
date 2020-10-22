@@ -108,7 +108,7 @@ proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   result.fragmentSource = twoDFragmentShader
   var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
-  position.data[].add(data)
+  position.data[] = @data
   result.attributes = (a_position: position)
   result.uniforms = (
     u_matrix: Uniform[Mat3x3[GLfloat]](data: mat3f(1)),
@@ -214,7 +214,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
   # create attribute
   var position = Attribute[GLfloat](size: 2, iter: 1)
   new(position.data)
-  position.data[].add(primitives.rectangle[GLfloat]())
+  position.data[] = `@` primitives.rectangle[GLfloat]()
   # create texture
   var image = Texture[GLubyte](
     opts: TextureOpts(
@@ -233,7 +233,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
     ]
   )
   new(image.data)
-  image.data[].add(data)
+  image.data[] = @data
   # set attributes and uniforms
   result.attributes = (a_position: position)
   result.uniforms = (

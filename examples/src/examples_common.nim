@@ -54,7 +54,7 @@ proc transformVec(matrix: Mat4x4[GLfloat], vec: Vec4[GLfloat]): Vec4[GLfloat] =
 # we're in 3D now with and +Y is up where as before when we started with 2D
 # we had +Y as down.
 proc transformData*(data: openArray[GLfloat]): seq[GLfloat] =
-  result.add(data)
+  result = @data
   var matrix = mat4f(1)
   pmath.rotateX(matrix, math.PI)
   pmath.translate(matrix, -50f, -75f, -15f)
@@ -104,11 +104,11 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
   result.fragmentSource = threeDFragmentShader
   var position = Attribute[GLfloat](size: 3, iter: 1)
   new(position.data)
-  position.data[].add(data)
+  position.data[] = @data
   var color = Attribute[GLfloat](size: 3, iter: 1)
-  new(color.data)
   let colorDataNormalized = colorData.map proc (n: GLfloat): GLfloat = n / 255f
-  color.data[].add(colorDataNormalized)
+  new(color.data)
+  color.data[] = colorDataNormalized
   result.attributes = (a_position: position, a_color: color)
   result.uniforms = (
     u_matrix: Uniform[Mat4x4[GLfloat]](data: mat4f(1))
@@ -155,11 +155,11 @@ proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArr
   # position
   var position = Attribute[GLfloat](size: 3, iter: 1)
   new(position.data)
-  position.data[].add(posData)
+  position.data[] = @posData
   # texcoord
   var texcoord = Attribute[GLfloat](size: 2, iter: 1, normalize: true)
   new(texcoord.data)
-  texcoord.data[].add(texcoordData)
+  texcoord.data[] = @texcoordData
   # set attrs and unis
   result.attributes = (a_position: position, a_texcoord: texcoord)
   result.uniforms = (
@@ -252,19 +252,19 @@ proc initIndexedThreeDEntity*(positions: seq[GLfloat], normals: seq[GLfloat], te
   # position
   var p = Attribute[GLfloat](size: 3, iter: 1)
   new(p.data)
-  p.data[].add(positions)
+  p.data[] = positions
   # normal
   var n = Attribute[GLfloat](size: 3, iter: 1)
   new(n.data)
-  n.data[].add(normals)
+  n.data[] = normals
   # texcoord
   var t = Attribute[GLfloat](size: 2, iter: 1)
   new(t.data)
-  t.data[].add(texcoords)
+  t.data[] = texcoords
   # indexes
   var i = IndexBuffer[GLushort]()
   new(i.data)
-  i.data[].add(indexes)
+  i.data[] = indexes
   # set attrs
   result.attributes = IndexedThreeDEntityAttributes(
     a_position: p,

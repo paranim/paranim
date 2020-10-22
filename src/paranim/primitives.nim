@@ -28,8 +28,8 @@ proc plane*[T, IndexT](
       result.positions.add(T(width * u - width * 0.5))
       result.positions.add(0.T)
       result.positions.add(T(depth * v - depth * 0.5))
-      result.normals.add([0.T, 1.T, 0.T])
-      result.texcoords.add([u.T, v.T])
+      result.normals.add(@[0.T, 1.T, 0.T])
+      result.texcoords.add(@[u.T, v.T])
 
   let numVertsAcross = subdivisionsWidth + 1
   for z in 0 ..< subdivisionsDepth:
@@ -70,9 +70,9 @@ proc sphere*[T, IndexT](
         ux = cosTheta * sinPhi
         uy = cosPhi
         uz = sinTheta * sinPhi
-      result.positions.add([T(radius * ux), T(radius * uy), T(radius * uz)])
-      result.normals.add([ux.T, uy.T, uz.T])
-      result.texcoords.add([T(1 - u), v.T])
+      result.positions.add(@[T(radius * ux), T(radius * uy), T(radius * uz)])
+      result.normals.add(@[ux.T, uy.T, uz.T])
+      result.texcoords.add(@[T(1 - u), v.T])
 
   let numVertsAround = subdivisionsAxis + 1
   for x in 0 ..< subdivisionsAxis:
@@ -129,12 +129,12 @@ proc cube*[T, IndexT](size: T): Shape[T, IndexT] =
         position = cornerVertices[faceIndices[v]]
         normal = faceNormals[f]
         uv = uvCoords[v]
-      result.positions.add([position[0].T, position[1].T, position[2].T])
-      result.normals.add([normal[0].T, normal[1].T, normal[2].T])
-      result.texcoords.add([uv[0].T, uv[1].T])
+      result.positions.add(@[position[0].T, position[1].T, position[2].T])
+      result.normals.add(@[normal[0].T, normal[1].T, normal[2].T])
+      result.texcoords.add(@[uv[0].T, uv[1].T])
     let offset = 4 * f
-    result.indexes.add([IndexT(offset + 0), IndexT(offset + 1), IndexT(offset + 2)])
-    result.indexes.add([IndexT(offset + 0), IndexT(offset + 2), IndexT(offset + 3)])
+    result.indexes.add(@[IndexT(offset + 0), IndexT(offset + 1), IndexT(offset + 2)])
+    result.indexes.add(@[IndexT(offset + 0), IndexT(offset + 2), IndexT(offset + 3)])
 
 proc cylinder*[T, IndexT](
     bottomRadius: T,
@@ -177,16 +177,16 @@ proc cylinder*[T, IndexT](
       let
         sin = math.sin(ii.T * math.PI * 2 / radialSubdivisions.T)
         cos = math.cos(ii.T * math.PI * 2 / radialSubdivisions.T)
-      result.positions.add([T(sin * ringRadius), y.T, T(cos * ringRadius)])
+      result.positions.add(@[T(sin * ringRadius), y.T, T(cos * ringRadius)])
       if yy < 0:
-        result.normals.add([0.T, -1.T, 0.T])
+        result.normals.add(@[0.T, -1.T, 0.T])
       elif yy > verticalSubdivisions:
-        result.normals.add([0.T, 1.T, 0.T])
+        result.normals.add(@[0.T, 1.T, 0.T])
       elif ringRadius == 0:
-        result.normals.add([0.T, 0.T, 0.T])
+        result.normals.add(@[0.T, 0.T, 0.T])
       else:
-        result.normals.add([T(sin * cosSlant), sinSlant.T, T(cos * cosSlant)])
-      result.texcoords.add([T(ii / radialSubdivisions), T(1 - v)])
+        result.normals.add(@[T(sin * cosSlant), sinSlant.T, T(cos * cosSlant)])
+      result.texcoords.add(@[T(ii / radialSubdivisions), T(1 - v)])
     for yy in 0 ..< verticalSubdivisions + extra:
       if (yy == 1 and topCap) or (yy == verticalSubdivisions + extra - 2 and bottomCap):
         continue
@@ -226,9 +226,9 @@ proc crescent*[T, IndexT](
         py = c * verticalRadius
         pz = s * radius
         n = (vec3(0.T, s.T, c.T) * normalMult) + normalAdd
-      shape.positions.add([px.T, py.T, pz.T])
-      shape.normals.add([n[0], n[1], n[2]])
-      shape.texcoords.add([T(uBack * uMult + uAdd), v.T])
+      shape.positions.add(@[px.T, py.T, pz.T])
+      shape.normals.add(@[n[0], n[1], n[2]])
+      shape.texcoords.add(@[T(uBack * uMult + uAdd), v.T])
   for x in 0 ..< subdivisionsThick:
     let uBack = (x / (subdivisionsThick - 1) - 0.5) * 2
     createArc(result, outerRadius, x, vec3(1.T, 1.T, 1.T), vec3(0.T, 0.T, 0.T), 1.T, 0.T)
@@ -280,9 +280,9 @@ proc torus*[T, IndexT](
         z = zCos * ringRadius
         nx = xSin * sliceSin
         nz = zCos * sliceSin
-      result.positions.add([x.T, y.T, z.T])
-      result.normals.add([nx.T, ny.T, nz.T])
-      result.texcoords.add([u.T, T(1 - v)])
+      result.positions.add(@[x.T, y.T, z.T])
+      result.normals.add(@[nx.T, ny.T, nz.T])
+      result.texcoords.add(@[u.T, T(1 - v)])
   for slice in 0 ..< bodySubdivisions:
     for ring in 0 ..< radialSubdivisions:
       let
@@ -313,15 +313,15 @@ proc disc*[T, IndexT](
         theta = 2.0 * math.PI * i.T / divisions.T
         x = stackRadius * math.cos(theta)
         z = stackRadius * math.sin(theta)
-      result.positions.add([x.T, 0.T, z.T])
-      result.normals.add([0.T, 1.T, 0.T])
-      result.texcoords.add([T(1 - (i / divisions)), T(stack / stacks)])
+      result.positions.add(@[x.T, 0.T, z.T])
+      result.normals.add(@[0.T, 1.T, 0.T])
+      result.texcoords.add(@[T(1 - (i / divisions)), T(stack / stacks)])
       if stack > 0 and i != divisions:
         let
           a = firstIndex + (i + 1)
           b = firstIndex + i
           c = firstIndex + i - pointsPerStack
           d = firstIndex + (i + 1) - pointsPerStack
-        result.indexes.add([a.IndexT, b.IndexT, c.IndexT])
-        result.indexes.add([a.IndexT, c.IndexT, d.IndexT])
+        result.indexes.add(@[a.IndexT, b.IndexT, c.IndexT])
+        result.indexes.add(@[a.IndexT, c.IndexT, d.IndexT])
     firstIndex += divisions + 1
