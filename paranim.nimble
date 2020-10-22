@@ -9,6 +9,6 @@ srcDir        = "src"
 
 # Dependencies
 
-requires "nim >= 1.0.4"
+requires "nim >= 1.2.6"
 requires "nimgl >= 1.1.1"
 requires "glm >= 1.1.1"
