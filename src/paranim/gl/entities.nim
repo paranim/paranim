@@ -2,6 +2,13 @@ import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 from paranim/primitives import nil
 import nimgl/opengl
 import glm
+from strutils import format
+
+const version =
+  when defined(emscripten):
+    "300 es"
+  else:
+    "330"
 
 type
   TwoDEntityUniforms = tuple[u_matrix: Uniform[Mat3x3[GLfloat]], u_color: Uniform[Vec4[GLfloat]]]
@@ -81,18 +88,18 @@ proc getInstanceAttr[T](attr: Attribute[T], i: int, uni: var Uniform[Vec4[T]]) =
 
 const twoDVertexShader =
   """
-  #version 330
+  #version $1
   uniform mat3 u_matrix;
   in vec2 a_position;
   void main()
   {
     gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
   }
-  """
+  """.format(version)
 
 const twoDFragmentShader =
   """
-  #version 330
+  #version $1
   precision mediump float;
   uniform vec4 u_color;
   out vec4 o_color;
@@ -100,7 +107,7 @@ const twoDFragmentShader =
   {
     o_color = u_color;
   }
-  """
+  """.format(version)
 
 proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
   ## Initialize a 2D entity whose shape is determined by `data`.
@@ -117,7 +124,7 @@ proc initTwoDEntity*(data: openArray[GLfloat]): UncompiledTwoDEntity =
 
 const instancedTwoDVertexShader =
   """
-  #version 330
+  #version $1
   uniform mat3 u_matrix;
   in vec2 a_position;
   in mat3 a_matrix;
@@ -128,11 +135,11 @@ const instancedTwoDVertexShader =
     v_color = a_color;
     gl_Position = vec4((u_matrix * a_matrix * vec3(a_position, 1)).xy, 0, 1);
   }
-  """
+  """.format(version)
 
 const instancedTwoDFragmentShader =
   """
-  #version 330
+  #version $1
   precision mediump float;
   in vec4 v_color;
   out vec4 o_color;
@@ -140,7 +147,7 @@ const instancedTwoDFragmentShader =
   {
     o_color = v_color;
   }
-  """
+  """.format(version)
 
 proc initInstancedEntity*(entity: UncompiledTwoDEntity): UncompiledInstancedTwoDEntity =
   ## Initialize an instanced 2D entity.
@@ -182,7 +189,7 @@ proc `[]=`*(instancedEntity: var UncompiledInstancedTwoDEntity, i: int, entity: 
 
 const imageVertexShader =
   """
-  #version 330
+  #version $1
   uniform mat3 u_matrix;
   uniform mat3 u_texture_matrix;
   in vec2 a_position;
@@ -192,11 +199,11 @@ const imageVertexShader =
     gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
     v_tex_coord = (u_texture_matrix * vec3(a_position, 1)).xy;
   }
-  """
+  """.format(version)
 
 const imageFragmentShader =
   """
-  #version 330
+  #version $1
   precision mediump float;
   uniform sampler2D u_image;
   in vec2 v_tex_coord;
@@ -205,7 +212,7 @@ const imageFragmentShader =
   {
     o_color = texture(u_image, v_tex_coord);
   }
-  """
+  """.format(version)
 
 proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): UncompiledImageEntity =
   ## Initialize an entity that renders the provided texture `data`.
@@ -244,7 +251,7 @@ proc initImageEntity*(data: openArray[GLubyte], width: int, height: int): Uncomp
 
 const instancedImageVertexShader =
   """
-  #version 330
+  #version $1
   uniform mat3 u_matrix;
   in vec2 a_position;
   in mat3 a_matrix;
@@ -255,11 +262,11 @@ const instancedImageVertexShader =
     gl_Position = vec4((u_matrix * a_matrix * vec3(a_position, 1)).xy, 0, 1);
     v_tex_coord = (a_texture_matrix * vec3(a_position, 1)).xy;
   }
-  """
+  """.format(version)
 
 const instancedImageFragmentShader =
   """
-  #version 330
+  #version $1
   precision mediump float;
   uniform sampler2D u_image;
   in vec2 v_tex_coord;
@@ -268,7 +275,7 @@ const instancedImageFragmentShader =
   {
     o_color = texture(u_image, v_tex_coord);
   }
-  """
+  """.format(version)
 
 proc initInstancedEntity*(entity: UncompiledImageEntity): UncompiledInstancedImageEntity =
   ## Initialize an instanced image entity.
