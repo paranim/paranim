@@ -4,6 +4,13 @@ import glm
 from sequtils import map
 from std/math import nil
 import paranim/math as pmath
+from strutils import format
+
+const version =
+  when defined(emscripten):
+    "300 es"
+  else:
+    "330"
 
 type
   Game* = object of RootGame
@@ -69,7 +76,7 @@ proc transformData*(data: openArray[GLfloat]): seq[GLfloat] =
 
 const threeDVertexShader =
   """
-  #version 330
+  #version $1
   uniform mat4 u_matrix;
   in vec4 a_position;
   in vec4 a_color;
@@ -79,11 +86,11 @@ const threeDVertexShader =
     gl_Position = u_matrix * a_position;
     v_color = a_color;
   }
-  """
+  """.format(version)
 
 const threeDFragmentShader =
   """
-  #version 330
+  #version $1
   precision mediump float;
   in vec4 v_color;
   out vec4 o_color;
@@ -91,7 +98,7 @@ const threeDFragmentShader =
   {
     o_color = v_color;
   }
-  """
+  """.format(version)
 
 type
   ThreeDEntityUniforms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]]]
@@ -118,7 +125,7 @@ proc initThreeDEntity*(data: openArray[GLfloat], colorData: openArray[GLfloat]):
 
 const threeDTextureVertexShader* =
   """
-  #version 330
+  #version $1
   uniform mat4 u_matrix;
   in vec4 a_position;
   in vec2 a_texcoord;
@@ -128,11 +135,11 @@ const threeDTextureVertexShader* =
     gl_Position = u_matrix * a_position;
     v_texcoord = a_texcoord;
   }
-  """
+  """.format(version)
 
 const threeDTextureFragmentShader* =
   """
-  #version 330
+  #version $1
   precision mediump float;
   uniform sampler2D u_texture;
   in vec2 v_texcoord;
@@ -141,7 +148,7 @@ const threeDTextureFragmentShader* =
   {
     outColor = texture(u_texture, v_texcoord);
   }
-  """
+  """.format(version)
 
 type
   ThreeDTextureEntityUniforms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[Texture[GLubyte]]]
@@ -171,7 +178,7 @@ proc initThreeDTextureEntity*(posData: openArray[GLfloat], texcoordData: openArr
 
 const indexedThreeDVertexShader =
   """
-  #version 330
+  #version $1
   uniform mat4 u_worldViewProjection;
   uniform vec3 u_lightWorldPos;
   uniform mat4 u_world;
@@ -194,11 +201,11 @@ const indexedThreeDVertexShader =
     v_surfaceToView = ((u_viewInverse[3] - (u_world * a_position)).xyz);
     gl_Position = v_position;
   }
-  """
+  """.format(version)
 
 const indexedThreeDFragmentShader =
   """
-  #version 330
+  #version $1
   precision mediump float;
   uniform vec4 u_lightColor;
   uniform vec4 u_color;
@@ -224,7 +231,7 @@ const indexedThreeDFragmentShader =
     vec4 litR = (lit((dot(a_normal, surfaceToLight)), (dot(a_normal, halfVector)), u_shininess));
     outColor = (vec4(((u_lightColor * (((litR.y) * u_color) + (u_specular * (litR.z) * u_specularFactor))).rgb), 1));
   }
-  """
+  """.format(version)
 
 type
   IndexedThreeDEntityUniforms = object

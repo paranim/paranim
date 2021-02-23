@@ -17,7 +17,8 @@ from ex14_perspective_animation_3d import nil
 from ex15_perspective_texture_3d import nil
 from ex16_perspective_texture_data_3d import nil
 from ex17_perspective_texture_meta_3d import nil
-from ex18_perspective_texture_buffer_3d import nil
+when not defined(emscripten):
+  from ex18_perspective_texture_buffer_3d import nil
 from ex19_spheres_3d import nil
 from ex20_planes_3d import nil
 from ex21_cubes_3d import nil
@@ -46,7 +47,11 @@ const examples = [
   (init: ex15_perspective_texture_3d.init, tick: ex15_perspective_texture_3d.tick, name: "ex15_perspective_texture_3d"),
   (init: ex16_perspective_texture_data_3d.init, tick: ex16_perspective_texture_data_3d.tick, name: "ex16_perspective_texture_data_3d"),
   (init: ex17_perspective_texture_meta_3d.init, tick: ex17_perspective_texture_meta_3d.tick, name: "ex17_perspective_texture_meta_3d"),
-  (init: ex18_perspective_texture_buffer_3d.init, tick: ex18_perspective_texture_buffer_3d.tick, name: "ex18_perspective_texture_buffer_3d"),
+  when not defined(emscripten):
+    (init: ex18_perspective_texture_buffer_3d.init, tick: ex18_perspective_texture_buffer_3d.tick, name: "ex18_perspective_texture_buffer_3d")
+  else:
+    (init: nil, tick: nil, name: "skip")
+  ,
   (init: ex19_spheres_3d.init, tick: ex19_spheres_3d.tick, name: "ex19_spheres_3d"),
   (init: ex20_planes_3d.init, tick: ex20_planes_3d.tick, name: "ex20_planes_3d"),
   (init: ex21_cubes_3d.init, tick: ex21_cubes_3d.tick, name: "ex21_cubes_3d"),
@@ -67,6 +72,8 @@ proc updateExample(window: GLFWWindow, direction: int) =
     newExample = examples.len - 1
   elif newExample == examples.len:
     newExample = 0
+  if examples[newExample].init == nil: # skip examples with nil procs (not compatible with emscripten)
+    newExample += direction
   examples[newExample].init(game)
   currentExample = newExample
   window.setWindowTitle(examples[currentExample].name)
@@ -89,6 +96,28 @@ proc resizeFrameCallback(window: GLFWWindow, width: int32, height: int32): void 
   game.frameWidth = width
   game.frameHeight = height
 
+when defined(emscripten):
+  proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
+
+var window: GLFWWindow
+
+proc mainLoop() {.cdecl.} =
+  let ts = glfwGetTime()
+  game.deltaTime = ts - game.totalTime
+  game.totalTime = ts
+  when defined(emscripten):
+    try:
+      examples[currentExample].tick(game)
+    except Exception as ex:
+      echo ex.msg
+  else:
+    examples[currentExample].tick(game)
+  when defined(paravim):
+    if not focusOnGame:
+      discard paravim.tick(game)
+  window.swapBuffers()
+  glfwPollEvents()
+
 when isMainModule:
   doAssert glfwInit()
 
@@ -98,30 +127,31 @@ when isMainModule:
   glfwWindowHint(GLFWOpenglProfile, GLFW_OPENGL_CORE_PROFILE)
   glfwWindowHint(GLFWResizable, GLFW_TRUE)
 
-  let w: GLFWWindow = glfwCreateWindow(800, 600, "Paranim Examples - Press the left and right arrow keys!")
-  if w == nil:
+  window = glfwCreateWindow(800, 600, "Paranim Examples - Press the left and right arrow keys!")
+  if window == nil:
     quit(-1)
 
-  w.makeContextCurrent()
+  when defined(emscripten):
+    window.setWindowTitle("Press the left and right arrow keys!")
+
+  window.makeContextCurrent()
   glfwSwapInterval(1)
 
-  discard w.setKeyCallback(keyCallback)
-  discard w.setCursorPosCallback(mousePositionCallback)
-  discard w.setFramebufferSizeCallback(resizeFrameCallback)
+  discard window.setKeyCallback(keyCallback)
+  discard window.setCursorPosCallback(mousePositionCallback)
+  discard window.setFramebufferSizeCallback(resizeFrameCallback)
 
   var width, height: int32
-  w.getFramebufferSize(width.addr, height.addr)
-  w.resizeFrameCallback(width, height)
+  window.getFramebufferSize(width.addr, height.addr)
+  window.resizeFrameCallback(width, height)
 
   examples[currentExample].init(game)
 
-  while not w.windowShouldClose:
-    let ts = glfwGetTime()
-    game.deltaTime = ts - game.totalTime
-    game.totalTime = ts
-    examples[currentExample].tick(game)
-    w.swapBuffers()
-    glfwPollEvents()
+  when defined(emscripten):
+    emscripten_set_main_loop(mainLoop, 0, true)
+  else:
+    while not window.windowShouldClose:
+      mainLoop()
 
-  w.destroyWindow()
+  window.destroyWindow()
   glfwTerminate()
