@@ -1,12 +1,12 @@
 ## Quick start
 
-* The `examples` dir in this repo
+* The [examples](examples) dir in this repo
 * A barebones project:
   * https://github.com/paranim/parakeet
 * Slightly bigger projects:
   * https://github.com/paranim/paranim_examples
 
-## Intro
+## Q & A
 
 **_Why another game library?_**
 
@@ -116,9 +116,9 @@ There is a separate library for that: [paratext](https://github.com/paranim/para
 
 To play wav or mp3 files, you can use [parasound](https://github.com/paranim/parasound). Additionally, you can even produce your own MIDI music with [paramidi](https://github.com/paranim/paramidi).
 
-**_Is there any state management thingy? I want to use an entity component system. They're the future!_**
+**_Is there any state management thingy? I want to use an entity component system like all cool people do._**
 
-No. But I'm making a separate library called [pararules](https://github.com/paranim/pararules) which is a rules engine for Nim. This is uncharted territory for games but I think it might be a better (more holistic) solution than an ECS. If so, then expect it to go through the same maddening hype cycle that ECSs have gone through.
+For state management I'm making a separate library (notice a pattern here?) called [pararules](https://github.com/paranim/pararules) which is a rules engine for Nim. This is uncharted territory for games but I think it is a more powerful solution compared to the typical ECS. If so, maybe one day it'll go through the same maddening hype cycle that ECSs have gone through. A boy can dream.
 
 **_Wait, what the hell is a Nim?_**
 
@@ -135,3 +135,7 @@ I also don't want to pay Rust's hefty complexity tax just to get rid of that GC.
 As my grandma would say, "Don't give in to trend-chasing or mindless dogma that is totally detached from the realities of your problem domain." She said that shit to me when I was like five. True story.
 
 I would like to add an abstraction for whatever replaces OpenGL when the dust settles, but for 99% of you I think OpenGL is still OK. If you are experiencing performance problems, it's probably your fault. And multi-threading is not a silver bullet. You are better off sticking to one thread for as long as you can.
+
+**_How do I build games for the web?_**
+
+Paranim supports Emscripten. See the README in the [parakeet example game](https://github.com/paranim/parakeet) for more on how to build with it. Nim is particularly great for this because its C backend fits Emscripten's tools like a glove. Just be careful...Web browsers and Emscripten add a whole new layer of complexity.
