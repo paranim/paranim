@@ -1,1 +1,0 @@
-Run these examples with `nimble run examples` and press the left and right arrow keys to switch between them. Most examples are ports of code from the excellent [webgl2fundamentals](https://webgl2fundamentals.org/) articles.
