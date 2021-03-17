@@ -22,6 +22,7 @@ when defined(emscripten):
   --exceptions:goto # Goto exceptions are friendlier with crazy platforms.
 
   --define:useMalloc
+  --opt:size
 
   # Pass this to Emscripten linker to generate html file scaffold for us.
   switch("passL", "-o index.html -s USE_WEBGL2=1 --shell-file shell_minimal.html")
