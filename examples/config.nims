@@ -20,6 +20,7 @@ when defined(emscripten):
 
   --gc:arc # GC:arc is friendlier with crazy platforms.
   --exceptions:goto # Goto exceptions are friendlier with crazy platforms.
+  --define:noSignalHandler # Emscripten doesn't support signal handlers.
 
   --define:useMalloc
   --opt:size
