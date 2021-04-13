@@ -32,7 +32,7 @@ proc onMouseClick*(button: int) =
 proc onMouseMove*(xpos: float, ypos: float) =
   discard
 
-proc onWindowResize*(width: int, height: int) =
+proc onWindowResize*(width: int, height: int, worldWidth: int, worldHeight: int) =
   windowWidth = width
   windowHeight = height
 
