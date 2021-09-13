@@ -98,6 +98,7 @@ proc resizeFrameCallback(window: GLFWWindow, width: int32, height: int32): void 
 
 when defined(emscripten):
   proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
+  proc emscripten_get_canvas_element_size(target: cstring, width: ptr cint, height: ptr cint): cint {.importc.}
 
 var window: GLFWWindow
 
@@ -106,6 +107,7 @@ proc mainLoop() {.cdecl.} =
   game.deltaTime = ts - game.totalTime
   game.totalTime = ts
   when defined(emscripten):
+    discard emscripten_get_canvas_element_size("#canvas", game.frameWidth.addr, game.frameHeight.addr)
     try:
       examples[currentExample].tick(game)
     except Exception as ex:

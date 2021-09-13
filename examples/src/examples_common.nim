@@ -16,8 +16,8 @@ type
   Game* = object of RootGame
     deltaTime*: float
     totalTime*: float
-    frameWidth*: int
-    frameHeight*: int
+    frameWidth*: int32
+    frameHeight*: int32
     mouseX*: float
     mouseY*: float
 
