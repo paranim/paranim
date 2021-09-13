@@ -12,8 +12,6 @@
 
       canvas {
         position: absolute;
-        top: 0px;
-        left: 0px;
         margin: 0px;
         border: 0;
         width: 100%;
@@ -28,9 +26,14 @@
     <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 
     <script type='text/javascript'>
+      var canvas = document.getElementById('canvas');
+      window.onresize = function() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+      };
       var Module = {
         preRun: [],
-        postRun: [],
+        postRun: [window.onresize],
         print: (function() {
           var element = document.getElementById('output');
           if (element) element.value = ''; // clear browser cache
@@ -75,22 +78,11 @@
         },
         onRuntimeInitialized: function() {
           console.log('module loaded');
-          //var canvas = document.getElementById('canvas');
-          //canvas.width = canvas.clientWidth;
-          //canvas.height = canvas.clientHeight;
         }
       };
       Module.setStatus('Downloading...');
-      window.onerror = function() {
-        Module.setStatus('Exception thrown, see JavaScript console');
-        Module.setStatus = function(text) {
-          if (text) Module.printErr('[post-exception status] ' + text);
-        };
-      };
-      window.onresize = function() {
-        //var canvas = document.getElementById('canvas');
-        //canvas.width = canvas.clientWidth;
-        //canvas.height = canvas.clientHeight;
+      window.onerror = function(message) {
+        console.error(message);
       };
 
     </script>
