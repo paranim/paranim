@@ -1,8 +1,8 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl/attributes, paranim/gl/uniforms
 from paranim/gl/utils import nil
+import paranim/glm
 import algorithm
-import glm
 
 type
   RootGame* = object of RootObj

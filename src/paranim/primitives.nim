@@ -1,5 +1,5 @@
 from std/math import nil
-import glm
+import paranim/glm
 
 proc rectangle*[T](): array[12, T] =
   [0.T, 0.T,

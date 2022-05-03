@@ -7,9 +7,9 @@ Some OpenGL/WebGL knowledge would help to understand this. I recommend [WebGL2 F
 To begin, clone the [parakeet](https://github.com/paranim/parakeet) starter project and make sure you can run it with `nimble dev`. Then, completely replace `src/core.nim` with the following:
 
 ```nim
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/[uniforms, attributes, entities]
-from glm import nil
+from paranim/glm import nil
 
 type
   Game* = object of RootGame

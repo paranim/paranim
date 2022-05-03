@@ -1,4 +1,4 @@
-import glm
+import paranim/glm
 from std/math import nil
 
 # 2D

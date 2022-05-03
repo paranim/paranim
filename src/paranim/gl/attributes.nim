@@ -1,4 +1,4 @@
-import nimgl/opengl
+import paranim/opengl
 from utils import nil
 
 const maxDivisor* = 1

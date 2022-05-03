@@ -1,11 +1,11 @@
 import unittest
 
-import nimgl/glfw
-import nimgl/opengl
+import paranim/glfw
+import paranim/opengl
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes, paranim/gl/entities
 from paranim/primitives import nil
 from paranim/math as pmath import nil
-import glm
+import paranim/glm
 
 proc init() =
   doAssert glfwInit()

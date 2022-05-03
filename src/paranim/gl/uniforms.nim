@@ -1,6 +1,6 @@
 import paranim/math
-import nimgl/opengl
-import glm
+import paranim/opengl
+import paranim/glm
 
 type
   Uniform*[T] = object

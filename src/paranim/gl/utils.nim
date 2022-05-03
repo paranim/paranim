@@ -1,4 +1,4 @@
-import nimgl/opengl
+import paranim/opengl
 
 proc toString(str: seq[char]): string =
   result = newStringOfCap(len(str))
