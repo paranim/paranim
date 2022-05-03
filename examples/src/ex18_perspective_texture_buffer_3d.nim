@@ -1,10 +1,10 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/[attributes, uniforms]
 import paranim/math as pmath
 import examples_common
 from bitops import bitor
 from std/math import nil
-import glm
+import paranim/glm
 
 # based on https://github.com/progschj/OpenGL-Examples/blob/master/06instancing2_buffer_texture.cpp
 

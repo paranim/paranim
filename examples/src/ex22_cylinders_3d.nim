@@ -1,11 +1,11 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/uniforms
 import examples_common
 from bitops import bitor
 from paranim/primitives import nil
 import random
 from math import nil
-import glm
+import paranim/glm
 
 randomize()
 

@@ -1,4 +1,4 @@
-import nimgl/glfw
+import paranim/glfw
 import examples_common
 from ex01_image import nil
 from ex02_rect import nil

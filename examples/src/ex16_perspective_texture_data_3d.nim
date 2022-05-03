@@ -1,10 +1,10 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/uniforms
 import paranim/math as pmath
 import examples_common, examples_data
 from bitops import bitor
 from std/math import nil
-import glm
+import paranim/glm
 
 var entity: ThreeDTextureEntity
 var rx = degToRad(190f)

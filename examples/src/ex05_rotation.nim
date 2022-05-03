@@ -1,8 +1,8 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/entities
 import examples_common, examples_data
 from math import nil
-from glm import vec4
+from paranim/glm import vec4
 
 var entity: TwoDEntity
 const tx = 100f

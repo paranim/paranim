@@ -1,10 +1,10 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
 import paranim/math as pmath
 import examples_common, examples_data
 from bitops import bitor
 from std/math import nil
-import glm
+import paranim/glm
 
 type
   ThreeDMetaTextureEntityUniforms = tuple[u_matrix: Uniform[Mat4x4[GLfloat]], u_texture: Uniform[RenderToTexture[GLubyte, Game]]]

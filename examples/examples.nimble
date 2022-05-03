@@ -14,6 +14,6 @@ task dev, "Run dev version":
 # Dependencies
 
 requires "nim >= 1.2.6"
-requires "paranim >= 0.11.0"
-requires "paratext >= 0.11.0"
+requires "paranim >= 0.12.0"
+requires "paratext >= 0.13.0"
 requires "stb_image >= 2.5"

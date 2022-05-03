@@ -1,9 +1,9 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/entities
 from paranim/primitives import nil
 import random
 import examples_common
-from glm import vec4
+from paranim/glm import vec4
 
 randomize()
 
@@ -23,9 +23,9 @@ proc init*(game: var Game) =
   for _ in 0 ..< 50:
     var e = baseEntity
     e.project(float(game.frameWidth), float(game.frameHeight))
-    e.translate(cfloat(rand(game.frameWidth)), cfloat(rand(game.frameHeight)))
-    e.scale(cfloat(rand(300)), cfloat(rand(300)))
-    e.color(vec4(cfloat(rand(1.0)), cfloat(rand(1.0)), cfloat(rand(1.0)), 1f))
+    e.translate(GLfloat(rand(game.frameWidth)), GLfloat(rand(game.frameHeight)))
+    e.scale(GLfloat(rand(300)), GLfloat(rand(300)))
+    e.color(vec4(GLfloat(rand(1.0)), GLfloat(rand(1.0)), GLfloat(rand(1.0)), 1f))
     uncompiledEntity.add(e)
 
   entity = compile(game, uncompiledEntity)

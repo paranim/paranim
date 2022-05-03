@@ -1,6 +1,6 @@
 import paranim/gl, paranim/gl/uniforms, paranim/gl/attributes
-import nimgl/opengl
-import glm
+import paranim/opengl
+import paranim/glm
 from sequtils import map
 from std/math import nil
 import paranim/math as pmath

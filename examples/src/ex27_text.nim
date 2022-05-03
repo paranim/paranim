@@ -1,9 +1,9 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/entities
 import paratext, paratext/gl/text
 import stb_image/read as stbi
 import examples_common
-from glm import vec4
+from paranim/glm import vec4
 
 const ttf = staticRead("assets/Roboto-Regular.ttf")
 

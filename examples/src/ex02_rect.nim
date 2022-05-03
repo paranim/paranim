@@ -1,8 +1,8 @@
-import nimgl/opengl
+import paranim/opengl
 import paranim/gl, paranim/gl/entities
 from paranim/primitives import nil
 import examples_common
-from glm import vec4
+from paranim/glm import vec4
 
 var entity: TwoDEntity
 
