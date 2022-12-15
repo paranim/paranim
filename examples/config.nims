@@ -18,14 +18,17 @@ when defined(emscripten):
     --clang.cpp.linkerexe:emcc # Replace C++ linker.
   --listCmd # List what commands we are running so that we can debug them.
 
-  --gc:arc # GC:arc is friendlier with crazy platforms.
+  --gc:orc # GC:orc is friendlier with crazy platforms.
   --exceptions:goto # Goto exceptions are friendlier with crazy platforms.
   --define:noSignalHandler # Emscripten doesn't support signal handlers.
 
   --define:useMalloc
   --opt:size
+  --threads:off
 
   # Pass this to Emscripten linker to generate html file scaffold for us.
   switch("passL", "-o index.html -s USE_WEBGL2=1 --shell-file shell_minimal.html")
 elif defined(release):
   --app:gui
+
+--gc:orc
